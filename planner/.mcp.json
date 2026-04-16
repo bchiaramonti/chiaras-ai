@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "garmin": {
-      "command": "garmin-mcp"
-    }
-  }
-}

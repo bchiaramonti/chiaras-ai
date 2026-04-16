@@ -2,6 +2,16 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.3.0] - 2026-04-16
+
+### Removed
+- **MCP server `garmin`** and the `.mcp.json` declaration. The upstream `Taxuspt/garmin_mcp` depends on the `garth` library, which was officially deprecated after Garmin deployed Cloudflare TLS fingerprinting in March 2026 — all non-browser HTTP clients are blocked with `429 Too Many Requests` on first SSO auth. See Taxuspt/garmin_mcp issues #58, #63, #79. Two open PRs (#70 user-agent spoof, #77 `curl_cffi` upgrade) attempt to fix it but none are merged.
+- README section "MCP: Garmin" and the related row in Componentes table.
+
+### Notes
+- Source repo (`3-resources/ai-mcp/garmin-mcp/`), `uv tool` install (`~/.local/bin/garmin-mcp`, `~/.local/bin/garmin-mcp-auth`), and `~/.local/share/uv/tools/garmin-mcp/` have all been removed.
+- Future direction: evaluate Playwright-based alternatives (`etweisberg/garmin-connect-mcp` or `nrvim/garmin-givemydata`) that are immune to TLS fingerprinting because they use a real browser.
+
 ## [1.2.0] - 2026-04-16
 
 ### Changed
