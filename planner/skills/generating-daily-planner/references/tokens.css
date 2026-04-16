@@ -1,7 +1,31 @@
 /* =============================================================
    Planner Editorial Noturno · Design Tokens
-   versao 2.0 · abril 2026
    Layout: header 5-zone + body 3-col + footer 2-col
+
+   Indice de secoes (ordem no arquivo):
+     1. CORES · NEUTROS
+     2. CORES · FUNCIONAIS
+     3. TIPOGRAFIA · FAMILIAS
+     4. TIPOGRAFIA · ESCALA
+     5. TIPOGRAFIA · PESOS
+     6. TIPOGRAFIA · LINE HEIGHT
+     7. TIPOGRAFIA · LETTER SPACING
+     8. ESPACAMENTO
+     9. LAYOUT (header/body/footer/zonas)
+    10. BORDER RADIUS
+    11. DIVISORES
+    12. OPACIDADE
+    13. RESET E BASE DA PAGINA
+    14. LABELS DE SECAO
+    15. HEADER · 5 zonas horizontais
+    16. BODY · 3 colunas
+    17. AGENDA ENUMERADA
+    18. TRES INADIAVEIS
+    19. TAREFAS CLICKUP
+    20. DELEGADAS
+    21. FOOTER · 2 colunas
+    22. NOTAS DO DIA
+    23. METRICA INLINE
    ============================================================= */
 
 :root {
@@ -32,7 +56,8 @@
      TIPOGRAFIA · ESCALA
      --------------------------------------------------------- */
   --fs-display: 56px;               /* data do dia (16 abril) */
-  --fs-h1: 40px;                    /* romanos i. ii. iii. */
+  --fs-h1: 40px;                    /* reservado para hero futuro */
+  --fs-roman: 28px;                 /* romanos i. ii. iii. (Tres inadiaveis) */
   --fs-h2: 20px;                    /* numeros corpo KPI */
   --fs-body-lg: 16px;               /* lide jornalistico */
   --fs-body: 14px;                  /* texto principal */
@@ -469,7 +494,7 @@ body {
 
 .inadiaveis__item {
   display: grid;
-  grid-template-columns: 36px 1fr;
+  grid-template-columns: 28px 1fr;
   gap: var(--space-3);
   align-items: baseline;
   margin-bottom: var(--space-3);
@@ -477,7 +502,7 @@ body {
 
 .inadiaveis__roman {
   font-family: var(--font-serif);
-  font-size: var(--fs-h1);
+  font-size: var(--fs-roman);
   font-weight: var(--fw-light);
   font-style: italic;
   color: var(--accent-primary);

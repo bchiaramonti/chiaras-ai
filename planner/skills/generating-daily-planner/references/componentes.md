@@ -263,7 +263,7 @@ Lista vertical com **todas** as horas relevantes do dia (normalmente 07:00 a 19:
 
 **Classes:** `.inadiaveis__item` + `.inadiaveis__roman` + `.inadiaveis__task` + `.inadiaveis__meta`. Modificador `--delayed` para atraso.
 
-**Sempre exatamente 3 itens** — forca priorizacao real. Romanos i./ii./iii. em 40px italic terracota opacity 0.5 como ancora visual.
+**Sempre exatamente 3 itens** — forca priorizacao real. Romanos i./ii./iii. em 28px italic terracota opacity 0.5 como ancora visual (token `--fs-roman`). A coluna dos romanos tem 28px fixos, suficiente para ancorar sem esmagar o task ao lado.
 
 ```html
 <div class="section-header">
@@ -297,7 +297,23 @@ Lista vertical com **todas** as horas relevantes do dia (normalmente 07:00 a 19:
 
 **Classes:** `.tasks` + `.tasks__list` + `.tasks__row` + `.tasks__title` + `.tasks__title-meta` + `.tasks__due` + `.tasks__more`. Modificador `.tasks__row--delayed` para atraso.
 
-Bloco apos "Tres inadiaveis", separado por border-top fino. Lista densa de tarefas do ClickUp atribuidas a mim. Cada linha: titulo + tag inline (via `.tasks__title-meta`) + data/prazo direita. Linhas atrasadas em alert.
+Bloco apos "Tres inadiaveis", separado por border-top fino. Lista densa de tarefas do ClickUp atribuidas a mim. Cada linha: titulo + metadata inline (via `.tasks__title-meta`) + data/prazo direita. Linhas atrasadas em alert.
+
+**Regra de metadata (`.tasks__title-meta`):** sempre dois segmentos separados por middot (`·`), **lista primeiro, tag(s) depois** — espelha a hierarquia do ClickUp e evita ambiguidade. Se houver multiplas tags, separar por virgula dentro do segmento tag. Se nao houver tag, mostrar so a lista. Nunca mostrar so a tag sem a lista.
+
+Formato:
+```
+· <nome da lista> · <tag1>[, <tag2>]
+```
+
+Exemplos validos:
+- `· Chamados TI · captacao-receita` (1 lista + 1 tag)
+- `· Sprint S1 Invest · funil-vendas, alta-prioridade` (1 lista + 2 tags)
+- `· Familia` (1 lista, sem tag)
+
+Evitar:
+- `· captacao-receita` (so tag, sem lista)
+- `· Chamados TI / captacao-receita` (separador diferente)
 
 ```html
 <div class="tasks">
@@ -308,12 +324,16 @@ Bloco apos "Tres inadiaveis", separado por border-top fino. Lista densa de taref
 
   <div class="tasks__list">
     <div class="tasks__row">
-      <div class="tasks__title">Revisar PR do m7-controle <span class="tasks__title-meta">· ai-plugins</span></div>
+      <div class="tasks__title">Revisar PR do m7-controle <span class="tasks__title-meta">· AI Plugins · dev</span></div>
       <div class="tasks__due">hoje</div>
     </div>
     <div class="tasks__row tasks__row--delayed">
-      <div class="tasks__title">Responder Bia sobre ferias julho <span class="tasks__title-meta">· familia</span></div>
+      <div class="tasks__title">Responder Bia sobre ferias julho <span class="tasks__title-meta">· Familia · planejamento</span></div>
       <div class="tasks__due">+1d atraso</div>
+    </div>
+    <div class="tasks__row tasks__row--delayed">
+      <div class="tasks__title">TSM-874 Views Cubo ClickHouse Gold <span class="tasks__title-meta">· Chamados TI · captacao-receita</span></div>
+      <div class="tasks__due">+75d</div>
     </div>
     <div class="tasks__more">+ 3 tarefas · ver todas ↗</div>
   </div>

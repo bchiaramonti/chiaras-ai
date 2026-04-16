@@ -4,7 +4,7 @@ Os seis principios abaixo guiam toda decisao de design. Quando houver duvida ent
 
 ## i. Tipografia antes de caixa
 
-Hierarquia e diferenciacao acontecem por tamanho, peso, italico e cor, nunca por bordas, cartoes ou fundos coloridos. Um numero em 40px ja e hierarquia. Um italico em terracota ja e destaque.
+Hierarquia e diferenciacao acontecem por tamanho, peso, italico e cor, nunca por bordas, cartoes ou fundos coloridos. Um numero em `--fs-display` (56px, a data) ja e hierarquia. Um italico em terracota ja e destaque.
 
 **Implicacoes praticas:**
 - Nao use `border`, `box-shadow` ou `background-color` para delimitar secoes
