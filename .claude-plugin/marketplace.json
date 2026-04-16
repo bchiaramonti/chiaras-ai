@@ -1,0 +1,135 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "chiaras-ai",
+  "owner": {
+    "name": "Bruno Chiaramonti"
+  },
+  "metadata": {
+    "description": "Marketplace pessoal de plugins Claude Code do Bruno Chiaramonti — developer tools, gestao de projetos, financas pessoais, daily planner, IT tickets."
+  },
+  "plugins": [
+    {
+      "name": "claude-code-toolkit",
+      "description": "Meta-plugin for creating and validating Claude Code commands, skills, agents, hooks, plugins, and marketplaces following official best practices. Includes artifact validation with graded reports, versioning/release automation, and a self-improving research skill that keeps all reference material up-to-date.",
+      "version": "2.2.1",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./claude-code-toolkit",
+      "category": "developer-tools",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "meta",
+        "toolkit",
+        "skills",
+        "agents",
+        "commands",
+        "plugins",
+        "best-practices",
+        "self-improving",
+        "documentation"
+      ]
+    },
+    {
+      "name": "forge",
+      "description": "Meta-plugin de engenharia de software que guia 8 fases desde a ideia até produção. Inclui 17 skills, 2 agents (Opus) e 6 commands que geram artefatos estruturados — Problem Statement, PRD, User Flows, Wireframes, Design System, Architecture (C4), ADRs, Data Model, Tech Specs, Code Standards, Test Strategy, QA Checklist, Security Baseline, Deploy Strategy e Observability.",
+      "version": "1.0.2",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./forge",
+      "category": "productivity",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "software-engineering",
+        "sdlc",
+        "pipeline",
+        "architecture",
+        "product-development",
+        "design-system",
+        "testing",
+        "deploy"
+      ]
+    },
+    {
+      "name": "gestao-de-projetos",
+      "description": "Plan and track projects end-to-end. Break strategic goals into 2-week sprints with concrete deliverables, then generate executive PPTX status reports with timeline visualizations, milestone grids, and D3 charts. Integrates with ClickUp for task management and time tracking. Outputs ROADMAP.md, SPRINT-NN.md files, and presentation-ready slide decks following the M7 brand system.",
+      "version": "1.6.2",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./gestao-de-projetos",
+      "category": "productivity",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "project-management",
+        "sprints",
+        "roadmap",
+        "status-report",
+        "pptx",
+        "presentations",
+        "m7"
+      ]
+    },
+    {
+      "name": "service-desk-m7",
+      "description": "Create well-structured IT support tickets for M7 systems. Guides users through conversational information gathering and generates formatted markdown tickets for three categories: problem reports, database requests, and new functionality requests.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./service-desk-m7",
+      "category": "productivity",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "service-desk",
+        "tickets",
+        "it-support",
+        "m7",
+        "chamados",
+        "helpdesk"
+      ]
+    },
+    {
+      "name": "superavit",
+      "description": "Controle financeiro pessoal conversacional. Importa extratos bancários (CSV/OFX/PDF) multi-banco, categoriza transações automaticamente (keywords + Claude fallback), gera relatórios mensais com breakdown por categoria e comparativos MoM, calcula health score financeiro e entrega insights provocativos sobre hábitos de gasto. Persistência via Supabase PostgreSQL.",
+      "version": "1.0.1",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./superavit",
+      "category": "personal-finance",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "finance",
+        "personal-finance",
+        "bank-statements",
+        "budgeting",
+        "supabase",
+        "categorization",
+        "reports"
+      ]
+    },
+    {
+      "name": "planner",
+      "description": "Gera planners pessoais executivos em HTML aplicando o sistema de design Editorial Noturno (dark mode quente, Georgia serif + Inter sans, terracota + azul petroleo). Header 5-zone (Dia, Lide, Insight, Mes, Corpo) + body 3-col (Agenda, Tres inadiaveis + Tarefas ClickUp, Delegadas) + footer 2-col (Notas, Amanha). Zero ornamento, hierarquia tipografica. Escopo estrito: uso pessoal, nao corporativo.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./planner",
+      "category": "productivity",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "personal",
+        "planner",
+        "daily",
+        "dashboard",
+        "dark-mode",
+        "editorial",
+        "typography",
+        "design-system"
+      ]
+    }
+  ]
+}

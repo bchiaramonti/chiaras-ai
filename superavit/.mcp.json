@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "description": "Supabase PostgreSQL — persistência do Superavit. Requer projeto Supabase configurado.",
+      "required": true,
+      "tools": [
+        "mcp__claude_ai_Supabase__execute_sql",
+        "mcp__claude_ai_Supabase__apply_migration",
+        "mcp__claude_ai_Supabase__list_projects",
+        "mcp__claude_ai_Supabase__get_project",
+        "mcp__claude_ai_Supabase__list_tables"
+      ]
+    }
+  }
+}

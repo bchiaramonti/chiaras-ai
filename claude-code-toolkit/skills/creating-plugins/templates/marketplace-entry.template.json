@@ -1,0 +1,12 @@
+{
+  "name": "{{plugin-name}}",
+  "description": "{{Brief description}}",
+  "version": "1.0.0",
+  "author": {
+    "name": "{{Author Name}}"
+  },
+  "source": "./{{plugin-name}}",
+  "category": "{{productivity|developer-tools|design|governance|...}}",
+  "homepage": "{{https://...}}",
+  "keywords": ["{{keyword1}}", "{{keyword2}}"]
+}

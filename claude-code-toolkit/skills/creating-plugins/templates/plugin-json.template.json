@@ -1,0 +1,12 @@
+{
+  "name": "{{plugin-name}}",
+  "version": "1.0.0",
+  "description": "{{Brief description of what the plugin does}}",
+  "author": {
+    "name": "{{Author Name}}"
+  },
+  "homepage": "{{https://...}}",
+  "repository": "{{https://github.com/...}}",
+  "license": "MIT",
+  "keywords": ["{{keyword1}}", "{{keyword2}}"]
+}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding: 0; background: #fffdef; font-family: "twkEverett", Arial, sans-serif; }
+  svg { display: block; }
+  .axis text { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #AEADA8; }
+  .axis path, .axis line { stroke: #D0D0CC; }
+  .axis .domain { stroke: #D0D0CC; }
+  .grid line { stroke: #F6F6F5; stroke-width: 1; }
+  .grid .domain { display: none; }
+  .axis-label { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #79755C; }
+  .point-label { font-family: "twkEverett", Arial, sans-serif; font-size: 9px; fill: #79755C; }
+  @font-face { font-family: twkEverett; src: url("https://multi7.com.br/_next/static/media/TWKEverett_Regular-s.p.4411e19a.otf") format("opentype"); font-weight: 400; font-display: swap; }
+</style>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<svg id="chart" width="880" height="350"></svg>
+<script>
+const M7 = {
+  series: ['#424135', '#EEF77C', '#79755C', '#4CAF50', '#3B82F6', '#14B8A6'],
+  positive: '#4CAF50', negative: '#E46962',
+  dark: '#424135', text: '#4F4E3C', textMed: '#79755C', textLight: '#AEADA8',
+  grid: '#F6F6F5', separator: '#D0D0CC', white: '#FFFFFF', offWhite: '#fffdef',
+};
+
+const WIDTH = 880, HEIGHT = 350;
+const MARGIN = { top: 20, right: 30, bottom: 50, left: 60 };
+const innerWidth = WIDTH - MARGIN.left - MARGIN.right;
+const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+
+// DATA FORMAT:
+// {
+//   points: [
+//     { x: 120, y: 85, label: "Assessor A", group: "Sênior", size: 10 },
+//     { x: 80, y: 62, label: "Assessor B", group: "Pleno" }
+//   ],
+//   xLabel: "Captação (R$ MM)",
+//   yLabel: "Retenção (%)",
+//   groups: ["Sênior", "Pleno"],
+//   showLabels: true,
+//   showTrendline: false
+// }
+const DATA = {{DATA_JSON}};
+
+const svg = d3.select('#chart');
+const g = svg.append('g').attr('transform', `translate(${MARGIN.left},${MARGIN.top})`);
+
+// Scales
+const x = d3.scaleLinear()
+  .domain([0, d3.max(DATA.points, d => d.x) * 1.1])
+  .range([0, innerWidth])
+  .nice();
+
+const y = d3.scaleLinear()
+  .domain([0, d3.max(DATA.points, d => d.y) * 1.1])
+  .range([innerHeight, 0])
+  .nice();
+
+const groups = DATA.groups || [...new Set(DATA.points.map(d => d.group).filter(Boolean))];
+const color = d3.scaleOrdinal().domain(groups).range(M7.series);
+
+// Grid
+g.append('g')
+  .attr('class', 'grid')
+  .call(d3.axisLeft(y).tickSize(-innerWidth).tickFormat(''));
+
+g.append('g')
+  .attr('class', 'grid')
+  .attr('transform', `translate(0,${innerHeight})`)
+  .call(d3.axisBottom(x).tickSize(-innerHeight).tickFormat(''));
+
+// Axes
+g.append('g')
+  .attr('class', 'axis')
+  .attr('transform', `translate(0,${innerHeight})`)
+  .call(d3.axisBottom(x));
+
+g.append('g')
+  .attr('class', 'axis')
+  .call(d3.axisLeft(y));
+
+// Axis labels
+if (DATA.xLabel) {
+  svg.append('text')
+    .attr('class', 'axis-label')
+    .attr('x', MARGIN.left + innerWidth / 2)
+    .attr('y', HEIGHT - 8)
+    .attr('text-anchor', 'middle')
+    .text(DATA.xLabel);
+}
+
+if (DATA.yLabel) {
+  svg.append('text')
+    .attr('class', 'axis-label')
+    .attr('transform', 'rotate(-90)')
+    .attr('x', -(MARGIN.top + innerHeight / 2))
+    .attr('y', 15)
+    .attr('text-anchor', 'middle')
+    .text(DATA.yLabel);
+}
+
+// Trendline
+if (DATA.showTrendline) {
+  const xMean = d3.mean(DATA.points, d => d.x);
+  const yMean = d3.mean(DATA.points, d => d.y);
+  const ssxx = d3.sum(DATA.points, d => (d.x - xMean) ** 2);
+  const ssxy = d3.sum(DATA.points, d => (d.x - xMean) * (d.y - yMean));
+  const slope = ssxy / ssxx;
+  const intercept = yMean - slope * xMean;
+  const xExtent = d3.extent(DATA.points, d => d.x);
+
+  g.append('line')
+    .attr('x1', x(xExtent[0])).attr('x2', x(xExtent[1]))
+    .attr('y1', y(slope * xExtent[0] + intercept))
+    .attr('y2', y(slope * xExtent[1] + intercept))
+    .attr('stroke', M7.textLight)
+    .attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '6,4');
+}
+
+// Points
+g.selectAll('.point')
+  .data(DATA.points)
+  .enter()
+  .append('circle')
+  .attr('cx', d => x(d.x))
+  .attr('cy', d => y(d.y))
+  .attr('r', d => d.size || 5)
+  .attr('fill', d => d.group ? color(d.group) : M7.series[0])
+  .attr('stroke', M7.white)
+  .attr('stroke-width', 1.5)
+  .attr('opacity', 0.85);
+
+// Point labels
+if (DATA.showLabels) {
+  g.selectAll('.point-label')
+    .data(DATA.points)
+    .enter()
+    .append('text')
+    .attr('class', 'point-label')
+    .attr('x', d => x(d.x) + (d.size || 5) + 4)
+    .attr('y', d => y(d.y))
+    .attr('dy', '0.35em')
+    .text(d => d.label || '');
+}
+
+// Legend (if groups exist)
+if (groups.length > 1) {
+  const legend = svg.append('g')
+    .attr('transform', `translate(${WIDTH - MARGIN.right - 10}, ${MARGIN.top})`);
+
+  groups.forEach((name, i) => {
+    const lg = legend.append('g')
+      .attr('transform', `translate(0, ${i * 20})`);
+    lg.append('circle')
+      .attr('r', 5).attr('cx', -8).attr('cy', 0)
+      .attr('fill', color(name));
+    lg.append('text')
+      .attr('x', 2).attr('y', 4)
+      .style('font-family', 'Arial, sans-serif')
+      .style('font-size', '10px')
+      .style('fill', M7.textMed)
+      .text(name);
+  });
+}
+
+document.documentElement.setAttribute('data-rendered', 'true');
+</script>
+</body>
+</html>

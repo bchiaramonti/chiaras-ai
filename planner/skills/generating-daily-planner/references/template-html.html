@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planner · 16 abril</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+
+  <!-- =====================================================
+       HEADER · 5 zonas
+       Dia | Lide | Insight | Mes | Corpo
+       ===================================================== -->
+  <header class="header">
+
+    <!-- Zona 1 · Dia -->
+    <div class="header__dia">
+      <div class="header__dia-weekday">Quinta-feira</div>
+      <div class="header__dia-main">16 <em>abril</em></div>
+      <div class="header__dia-meta">dia 106/365 · semana 16</div>
+    </div>
+
+    <!-- Zona 2 · Lide do dia -->
+    <div class="header__lide">
+      <div class="section-label">Lide do dia.</div>
+      <p class="header__lide-body">
+        Bruno revisa as <em>14h</em>, com Pedro e Fernando, o WBR de Investimentos
+        para validar o <em>pipeline GPD</em> antes da diretoria de sexta,
+        encerrando um mes de testes do <em>m7-controle</em> e destravando a
+        publicacao dos Cards de Performance em producao.
+      </p>
+    </div>
+
+    <!-- Zona 3 · Insight · cruzamento -->
+    <div class="header__insight">
+      <div class="header__insight-top">
+        <div class="section-label">Insight · cruzamento.</div>
+        <div class="header__insight-shuffle">↻</div>
+      </div>
+      <p class="header__insight-body">
+        Shape Up define um Appetite antes do problema. GPD pergunta Why-Why depois
+        &mdash; sao perguntas diferentes: <em>"quanto vale investigar?"</em> vs
+        <em>"por que existe?"</em>
+      </p>
+      <div class="header__insight-cite">Shape Up · Basecamp × GPD · Falconi</div>
+    </div>
+
+    <!-- Zona 4 · Mes · mini-calendario -->
+    <div class="header__mes">
+      <div class="header__mes-title">
+        <div class="section-label">Abril</div>
+        <div class="header__mes-title-meta">(sem. 16)</div>
+      </div>
+
+      <div class="header__mes-weekdays">
+        <div>s</div><div>t</div><div>q</div><div>q</div><div>s</div><div>s</div><div>d</div>
+      </div>
+
+      <div class="header__mes-grid">
+        <div class="header__mes-grid-row">
+          <div class="is-subtle">30</div>
+          <div class="is-subtle">31</div>
+          <div>1</div>
+          <div>2</div>
+          <div>3</div>
+          <div class="is-subtle">4</div>
+          <div class="is-subtle">5</div>
+        </div>
+        <div class="header__mes-grid-row">
+          <div>6</div>
+          <div>7</div>
+          <div>8</div>
+          <div>9</div>
+          <div>10</div>
+          <div class="is-subtle">11</div>
+          <div class="is-subtle">12</div>
+        </div>
+        <div class="header__mes-grid-row">
+          <div>13</div>
+          <div>14</div>
+          <div>15</div>
+          <div class="is-today">16</div>
+          <div class="is-future">17</div>
+          <div class="is-subtle">18</div>
+          <div class="is-subtle">19</div>
+        </div>
+        <div class="header__mes-grid-row">
+          <div class="is-future">20</div>
+          <div class="is-future">21</div>
+          <div class="is-future">22</div>
+          <div class="is-future">23</div>
+          <div class="is-future">24</div>
+          <div class="is-subtle">25</div>
+          <div class="is-subtle">26</div>
+        </div>
+        <div class="header__mes-grid-row">
+          <div class="is-future">27</div>
+          <div class="is-future">28</div>
+          <div class="is-future">29</div>
+          <div class="is-future">30</div>
+          <div class="is-subtle">1</div>
+          <div class="is-subtle">2</div>
+          <div class="is-subtle">3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zona 5 · Corpo · stack vertical -->
+    <div class="header__corpo">
+      <div class="section-label section-label--body">Corpo.</div>
+
+      <div class="header__corpo-row">
+        <div class="header__corpo-label">peso</div>
+        <div class="header__corpo-value">
+          <div class="header__corpo-number">104.8</div>
+          <div class="header__corpo-unit">kg</div>
+        </div>
+      </div>
+
+      <div class="header__corpo-row">
+        <div class="header__corpo-label">TSS sem</div>
+        <div class="header__corpo-value">
+          <div class="header__corpo-number header__corpo-number--body">387</div>
+        </div>
+      </div>
+
+      <div class="header__corpo-row">
+        <div class="header__corpo-label">sono</div>
+        <div class="header__corpo-value">
+          <div class="header__corpo-number header__corpo-number--alert">6.8</div>
+          <div class="header__corpo-unit">h</div>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- =====================================================
+       BODY · 3 colunas
+       Agenda | Tres inadiaveis + Tarefas ClickUp | Delegadas
+       ===================================================== -->
+  <div class="body">
+
+    <!-- Coluna 1 · Agenda enumerada -->
+    <section class="body__col">
+      <div class="section-header">
+        <div class="section-label">Agenda.</div>
+        <div class="section-header__meta">6 eventos · 8h bloqueadas</div>
+      </div>
+
+      <div class="agenda-enum">
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour agenda-enum__hour--empty">07:00</div>
+          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour">07:30</div>
+          <div class="agenda-enum__event">Corrida no parque</div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour agenda-enum__hour--empty">08:00</div>
+          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour">09:00</div>
+          <div class="agenda-enum__event">Revisao <em>WBR Investimentos</em></div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour agenda-enum__hour--empty">10:00</div>
+          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour agenda-enum__hour--now">11:00</div>
+          <div class="agenda-enum__event agenda-enum__event--now">1:1 com Pedro · agora</div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour agenda-enum__hour--empty">12:00</div>
+          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour">13:30</div>
+          <div class="agenda-enum__event">Almoco com Bia</div>
+        </div>
+        <div class="agenda-enum__row">
+          <div class="agenda-enum__hour">14:30</div>
+          <div class="agenda-enum__event">Reuniao <em>Diretoria M7</em></div>
+        </div>
+        <div class="agenda-enum__row agenda-enum__row--gap">
+          <div class="agenda-enum__hour">19:00</div>
+          <div class="agenda-enum__event">Jantar em familia</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coluna 2 · Tres inadiaveis + Tarefas ClickUp -->
+    <section class="body__col">
+      <div class="section-header">
+        <div class="section-label">Tres inadiaveis.</div>
+        <div class="section-header__meta">0/3</div>
+      </div>
+
+      <div class="inadiaveis__item">
+        <div class="inadiaveis__roman">i.</div>
+        <div class="inadiaveis__task">
+          Concluir revisao do <em>WBR de Investimentos</em>
+          <span class="inadiaveis__meta">· ate 14h</span>
+        </div>
+      </div>
+
+      <div class="inadiaveis__item inadiaveis__item--delayed">
+        <div class="inadiaveis__roman">ii.</div>
+        <div class="inadiaveis__task">
+          Publicar skill do daily planner
+          <span class="inadiaveis__meta">· +1d atraso</span>
+        </div>
+      </div>
+
+      <div class="inadiaveis__item">
+        <div class="inadiaveis__roman">iii.</div>
+        <div class="inadiaveis__task">Slides da diretoria de sexta</div>
+      </div>
+
+      <div class="tasks">
+        <div class="section-header">
+          <div class="section-label">Tarefas ClickUp.</div>
+          <div class="section-header__meta"><span class="alert">2 atrasadas</span> · 8 abertas</div>
+        </div>
+
+        <div class="tasks__list">
+          <div class="tasks__row">
+            <div class="tasks__title">Revisar PR do m7-controle <span class="tasks__title-meta">· ai-plugins</span></div>
+            <div class="tasks__due">hoje</div>
+          </div>
+          <div class="tasks__row">
+            <div class="tasks__title">Validar dados captacao abril <span class="tasks__title-meta">· desempenho</span></div>
+            <div class="tasks__due">14h</div>
+          </div>
+          <div class="tasks__row tasks__row--delayed">
+            <div class="tasks__title">Responder Bia sobre ferias julho <span class="tasks__title-meta">· familia</span></div>
+            <div class="tasks__due">+1d atraso</div>
+          </div>
+          <div class="tasks__row">
+            <div class="tasks__title">Atualizar CLAUDE.md ai-plugins <span class="tasks__title-meta">· dev</span></div>
+            <div class="tasks__due">amanha</div>
+          </div>
+          <div class="tasks__row">
+            <div class="tasks__title">Review PR desdobramento metas <span class="tasks__title-meta">· desempenho</span></div>
+            <div class="tasks__due">ter 21</div>
+          </div>
+          <div class="tasks__more">+ 3 tarefas · ver todas ↗</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coluna 3 · Delegadas -->
+    <section class="body__col">
+      <div class="section-header">
+        <div class="section-label">Delegadas.</div>
+        <div class="section-header__meta"><span class="alert">1 atrasada</span> · 7 abertas</div>
+      </div>
+
+      <div class="delegadas__group">
+        <div class="delegadas__project">Padronizacao Rituais</div>
+        <div class="tasks__row tasks__row--delayed">
+          <div class="tasks__title">Validar fluxograma G2.3 <span class="tasks__title-meta">· Ana</span></div>
+          <div class="tasks__due">ontem</div>
+        </div>
+        <div class="tasks__row">
+          <div class="tasks__title">Testar material-generator <span class="tasks__title-meta">· Paulo</span></div>
+          <div class="tasks__due">hoje</div>
+        </div>
+      </div>
+
+      <div class="delegadas__group">
+        <div class="delegadas__project">Desdobramento Metas 2026</div>
+        <div class="tasks__row">
+          <div class="tasks__title">Ajustar calculo consorcios SQL <span class="tasks__title-meta">· Rafa</span></div>
+          <div class="tasks__due">hoje</div>
+        </div>
+        <div class="tasks__row">
+          <div class="tasks__title">Publicar dashboard vertical Grafana <span class="tasks__title-meta">· Lu</span></div>
+          <div class="tasks__due">seg 20</div>
+        </div>
+      </div>
+
+      <div class="delegadas__group">
+        <div class="delegadas__project">AI-Plugins Marketplace</div>
+        <div class="tasks__row">
+          <div class="tasks__title">Review pricing strategy <span class="tasks__title-meta">· Gabriel</span></div>
+          <div class="tasks__due">qua 22</div>
+        </div>
+        <div class="tasks__row">
+          <div class="tasks__title">Testar integracao ClickUp MCP <span class="tasks__title-meta">· Marina</span></div>
+          <div class="tasks__due">sex 25</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- =====================================================
+       FOOTER · 2 colunas
+       Notas do dia | Amanha
+       ===================================================== -->
+  <footer class="footer">
+
+    <section class="footer__notas">
+      <div class="section-header">
+        <div class="section-label">Notas do dia.</div>
+        <div class="section-header__meta">quick capture ↗</div>
+      </div>
+
+      <div class="note">
+        <span class="note__bullet">—</span>
+        <div class="note__text">Transformar planner em skill, gerar HTML via cron matinal.</div>
+        <div class="note__time">08:42</div>
+      </div>
+
+      <div class="note">
+        <span class="note__bullet">—</span>
+        <div class="note__text">Perguntar pro Pedro sobre a logica de consolidacao WBR multi-vertical.</div>
+        <div class="note__time">11:30</div>
+      </div>
+    </section>
+
+    <section class="footer__amanha">
+      <div class="section-header">
+        <div class="section-label">Amanha.</div>
+        <div class="section-header__meta">sex, 17 abril · 5 eventos</div>
+      </div>
+
+      <p class="footer__amanha-body">
+        <em class="ancora">Ancora:</em> apresentacao para diretoria as
+        <em class="time">10:00</em>, chegar as 09:30 para setup.
+        <em class="time">07:00</em> corrida longa 10k.
+        <em class="time">14:30</em> review de codigos m7-controle.
+      </p>
+    </section>
+
+  </footer>
+
+</body>
+</html>

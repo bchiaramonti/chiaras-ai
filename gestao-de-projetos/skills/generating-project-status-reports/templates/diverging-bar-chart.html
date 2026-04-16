@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding: 0; background: #fffdef; font-family: "twkEverett", Arial, sans-serif; }
+  svg { display: block; }
+  .axis text { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #AEADA8; }
+  .axis path, .axis line { stroke: #D0D0CC; }
+  .axis .domain { display: none; }
+  .data-label { font-family: "twkEverett", Arial, sans-serif; font-size: 10px; font-weight: bold; }
+  .bar-label { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #4F4E3C; }
+  @font-face { font-family: twkEverett; src: url("https://multi7.com.br/_next/static/media/TWKEverett_Regular-s.p.4411e19a.otf") format("opentype"); font-weight: 400; font-display: swap; }
+</style>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<svg id="chart" width="880" height="350"></svg>
+<script>
+const M7 = {
+  positive: '#4CAF50', negative: '#E46962',
+  dark: '#424135', text: '#4F4E3C', textMed: '#79755C', textLight: '#AEADA8',
+  grid: '#F6F6F5', separator: '#D0D0CC', white: '#FFFFFF', offWhite: '#fffdef',
+};
+
+const WIDTH = 880, HEIGHT = 350;
+const MARGIN = { top: 20, right: 60, bottom: 20, left: 160 };
+const innerWidth = WIDTH - MARGIN.left - MARGIN.right;
+const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+
+// DATA FORMAT:
+// {
+//   items: [
+//     { label: "Região Sul", value: 23.5 },
+//     { label: "Região Sudeste", value: 15.2 },
+//     { label: "Região Norte", value: -8.3 },
+//     { label: "Região Nordeste", value: -12.1 }
+//   ],
+//   sorted: true,
+//   valueFormat: "+,.1f",
+//   valueSuffix: "%"
+// }
+const DATA = {{DATA_JSON}};
+
+const svg = d3.select('#chart');
+const g = svg.append('g').attr('transform', `translate(${MARGIN.left},${MARGIN.top})`);
+
+let items = DATA.items;
+if (DATA.sorted !== false) {
+  items = [...items].sort((a, b) => b.value - a.value);
+}
+
+// Scales
+const y = d3.scaleBand()
+  .domain(items.map(d => d.label))
+  .range([0, innerHeight])
+  .padding(0.3);
+
+const maxAbs = d3.max(items, d => Math.abs(d.value));
+const x = d3.scaleLinear()
+  .domain([-maxAbs * 1.2, maxAbs * 1.2])
+  .range([0, innerWidth]);
+
+// Y axis labels
+g.append('g')
+  .attr('class', 'axis')
+  .attr('transform', `translate(${x(0)},0)`)
+  .call(d3.axisLeft(y).tickSize(0))
+  .selectAll('text')
+  .attr('x', d => {
+    const item = items.find(i => i.label === d);
+    return item && item.value >= 0 ? -8 : 8;
+  })
+  .attr('text-anchor', d => {
+    const item = items.find(i => i.label === d);
+    return item && item.value >= 0 ? 'end' : 'start';
+  })
+  .style('font-size', '11px')
+  .style('fill', M7.text);
+
+// Zero line
+g.append('line')
+  .attr('x1', x(0)).attr('x2', x(0))
+  .attr('y1', 0).attr('y2', innerHeight)
+  .attr('stroke', M7.separator)
+  .attr('stroke-width', 1.5);
+
+// Bars
+const fmt = d3.format(DATA.valueFormat || '+,.1f');
+const suffix = DATA.valueSuffix || '';
+
+g.selectAll('.bar')
+  .data(items)
+  .enter()
+  .append('rect')
+  .attr('y', d => y(d.label))
+  .attr('x', d => d.value >= 0 ? x(0) : x(d.value))
+  .attr('width', d => Math.abs(x(d.value) - x(0)))
+  .attr('height', y.bandwidth())
+  .attr('fill', d => d.value >= 0 ? M7.positive : M7.negative)
+  .attr('rx', 2);
+
+// Value labels
+g.selectAll('.data-label')
+  .data(items)
+  .enter()
+  .append('text')
+  .attr('class', 'data-label')
+  .attr('x', d => d.value >= 0 ? x(d.value) + 6 : x(d.value) - 6)
+  .attr('y', d => y(d.label) + y.bandwidth() / 2)
+  .attr('dy', '0.35em')
+  .attr('text-anchor', d => d.value >= 0 ? 'start' : 'end')
+  .attr('fill', d => d.value >= 0 ? M7.positive : M7.negative)
+  .text(d => fmt(d.value) + suffix);
+
+document.documentElement.setAttribute('data-rendered', 'true');
+</script>
+</body>
+</html>

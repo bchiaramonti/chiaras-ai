@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding: 0; background: #fffdef; font-family: "twkEverett", Arial, sans-serif; }
+  svg { display: block; }
+  .axis text { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #AEADA8; }
+  .axis path, .axis line { stroke: #D0D0CC; }
+  .axis .domain { stroke: #D0D0CC; }
+  .data-label { font-family: "twkEverett", Arial, sans-serif; font-size: 9px; fill: #4F4E3C; }
+  .legend-text { font-family: "twkEverett", Arial, sans-serif; font-size: 10px; fill: #79755C; }
+  @font-face { font-family: twkEverett; src: url("https://multi7.com.br/_next/static/media/TWKEverett_Regular-s.p.4411e19a.otf") format("opentype"); font-weight: 400; font-display: swap; }
+</style>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<svg id="chart" width="880" height="350"></svg>
+<script>
+const M7 = {
+  series: ['#424135', '#EEF77C', '#79755C', '#4CAF50', '#3B82F6', '#14B8A6'],
+  dark: '#424135', text: '#4F4E3C', textMed: '#79755C', textLight: '#AEADA8',
+  grid: '#F6F6F5', separator: '#D0D0CC', white: '#FFFFFF', offWhite: '#fffdef',
+};
+
+const WIDTH = 880, HEIGHT = 350;
+const MARGIN = { top: 40, right: 30, bottom: 40, left: 60 };
+const innerWidth = WIDTH - MARGIN.left - MARGIN.right;
+const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+
+// DATA FORMAT:
+// {
+//   categories: ["Q1", "Q2", "Q3", "Q4"],
+//   series: [
+//     { name: "PF", values: [45, 48, 52, 55] },
+//     { name: "PJ", values: [30, 32, 28, 35] },
+//     { name: "Institucional", values: [25, 20, 20, 10] }
+//   ],
+//   normalized: true,  // true = 100% stacked, false = absolute
+//   valueFormat: ",.0f"
+// }
+const DATA = {{DATA_JSON}};
+
+const svg = d3.select('#chart');
+const g = svg.append('g').attr('transform', `translate(${MARGIN.left},${MARGIN.top})`);
+
+const seriesNames = DATA.series.map(s => s.name);
+const color = d3.scaleOrdinal().domain(seriesNames).range(M7.series);
+
+// Compute stacked data
+const stackData = DATA.categories.map((cat, ci) => {
+  const row = { category: cat };
+  const total = DATA.series.reduce((sum, s) => sum + s.values[ci], 0);
+  DATA.series.forEach(s => {
+    row[s.name] = DATA.normalized ? (s.values[ci] / total * 100) : s.values[ci];
+  });
+  row._total = DATA.normalized ? 100 : total;
+  return row;
+});
+
+const stack = d3.stack().keys(seriesNames);
+const stacked = stack(stackData);
+
+// Scales
+const x = d3.scaleBand()
+  .domain(DATA.categories)
+  .range([0, innerWidth])
+  .padding(0.25);
+
+const yMax = DATA.normalized ? 100 : d3.max(stackData, d => d._total);
+const y = d3.scaleLinear()
+  .domain([0, yMax])
+  .range([innerHeight, 0]);
+
+// Axes
+g.append('g')
+  .attr('class', 'axis')
+  .attr('transform', `translate(0,${innerHeight})`)
+  .call(d3.axisBottom(x).tickSize(0));
+
+g.append('g')
+  .attr('class', 'axis')
+  .call(d3.axisLeft(y).tickFormat(d => DATA.normalized ? d + '%' : d3.format(DATA.valueFormat || ',.0f')(d)));
+
+// Stacked bars
+stacked.forEach(layer => {
+  g.selectAll(`.bar-${layer.key}`)
+    .data(layer)
+    .enter()
+    .append('rect')
+    .attr('x', d => x(d.data.category))
+    .attr('y', d => y(d[1]))
+    .attr('width', x.bandwidth())
+    .attr('height', d => y(d[0]) - y(d[1]))
+    .attr('fill', color(layer.key));
+
+  // Labels inside bars (if segment is tall enough)
+  g.selectAll(`.label-${layer.key}`)
+    .data(layer)
+    .enter()
+    .append('text')
+    .attr('class', 'data-label')
+    .attr('x', d => x(d.data.category) + x.bandwidth() / 2)
+    .attr('y', d => (y(d[0]) + y(d[1])) / 2)
+    .attr('dy', '0.35em')
+    .attr('text-anchor', 'middle')
+    .attr('fill', d => {
+      const height = y(d[0]) - y(d[1]);
+      return height > 18 ? M7.white : 'none';
+    })
+    .style('font-weight', 'bold')
+    .text(d => {
+      const height = y(d[0]) - y(d[1]);
+      if (height < 18) return '';
+      const val = d[1] - d[0];
+      return DATA.normalized ? Math.round(val) + '%' : d3.format(DATA.valueFormat || ',.0f')(val);
+    });
+});
+
+// Legend (top)
+const legend = svg.append('g')
+  .attr('transform', `translate(${MARGIN.left}, 8)`);
+
+seriesNames.forEach((name, i) => {
+  const lg = legend.append('g')
+    .attr('transform', `translate(${i * 120}, 0)`);
+  lg.append('rect')
+    .attr('width', 12).attr('height', 12).attr('rx', 2)
+    .attr('fill', color(name));
+  lg.append('text')
+    .attr('class', 'legend-text')
+    .attr('x', 16).attr('y', 10)
+    .text(name);
+});
+
+document.documentElement.setAttribute('data-rendered', 'true');
+</script>
+</body>
+</html>

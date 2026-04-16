@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding: 0; background: #fffdef; font-family: "twkEverett", Arial, sans-serif; }
+  svg { display: block; }
+  .axis text { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #AEADA8; }
+  .axis path, .axis line { stroke: #D0D0CC; }
+  .axis .domain { display: none; }
+  .grid line { stroke: #F6F6F5; stroke-width: 1; }
+  .grid .domain { display: none; }
+  .data-label { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #4F4E3C; font-weight: bold; }
+  .bar-label { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #4F4E3C; }
+  @font-face { font-family: twkEverett; src: url("https://multi7.com.br/_next/static/media/TWKEverett_Regular-s.p.4411e19a.otf") format("opentype"); font-weight: 400; font-display: swap; }
+</style>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<svg id="chart" width="880" height="350"></svg>
+<script>
+const M7 = {
+  series: ['#424135', '#EEF77C', '#79755C', '#4CAF50', '#3B82F6', '#14B8A6'],
+  positive: '#4CAF50', negative: '#E46962',
+  dark: '#424135', text: '#4F4E3C', textMed: '#79755C', textLight: '#AEADA8',
+  axis: '#AEADA8', grid: '#F6F6F5', separator: '#D0D0CC', white: '#FFFFFF', offWhite: '#fffdef',
+};
+
+const WIDTH = 880, HEIGHT = 350;
+const MARGIN = { top: 20, right: 80, bottom: 20, left: 160 };
+const innerWidth = WIDTH - MARGIN.left - MARGIN.right;
+const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+
+// DATA FORMAT:
+// {
+//   items: [
+//     { label: "Assessor A", value: 42.5, highlight: true },
+//     { label: "Assessor B", value: 38.2 },
+//     { label: "Assessor C", value: 25.1 }
+//   ],
+//   sorted: true,
+//   valueFormat: ",.1f",
+//   valueSuffix: "%",
+//   highlightTop: 3
+// }
+const DATA = {{DATA_JSON}};
+
+const svg = d3.select('#chart');
+const g = svg.append('g').attr('transform', `translate(${MARGIN.left},${MARGIN.top})`);
+
+// Sort if requested
+let items = DATA.items;
+if (DATA.sorted !== false) {
+  items = [...items].sort((a, b) => b.value - a.value);
+}
+
+// Mark top N as highlight
+if (DATA.highlightTop) {
+  items.forEach((d, i) => { if (i < DATA.highlightTop) d.highlight = true; });
+}
+
+// Scales
+const y = d3.scaleBand()
+  .domain(items.map(d => d.label))
+  .range([0, innerHeight])
+  .padding(0.3);
+
+const x = d3.scaleLinear()
+  .domain([0, d3.max(items, d => d.value) * 1.15])
+  .range([0, innerWidth]);
+
+// Grid
+g.append('g')
+  .attr('class', 'grid')
+  .call(d3.axisTop(x).tickSize(-innerHeight).tickFormat(''));
+
+// Y axis (category labels)
+g.append('g')
+  .attr('class', 'axis')
+  .call(d3.axisLeft(y).tickSize(0))
+  .selectAll('text')
+  .style('font-size', '11px')
+  .style('fill', M7.text);
+
+// Bars
+g.selectAll('.bar')
+  .data(items)
+  .enter()
+  .append('rect')
+  .attr('y', d => y(d.label))
+  .attr('x', 0)
+  .attr('width', d => x(d.value))
+  .attr('height', y.bandwidth())
+  .attr('fill', (d, i) => d.highlight ? M7.series[0] : M7.grid)
+  .attr('rx', 2);
+
+// Value labels
+const fmt = d3.format(DATA.valueFormat || ',.1f');
+const suffix = DATA.valueSuffix || '';
+
+g.selectAll('.data-label')
+  .data(items)
+  .enter()
+  .append('text')
+  .attr('class', 'data-label')
+  .attr('x', d => x(d.value) + 8)
+  .attr('y', d => y(d.label) + y.bandwidth() / 2)
+  .attr('dy', '0.35em')
+  .attr('fill', d => d.highlight ? M7.darkSlate : M7.textMed)
+  .text(d => fmt(d.value) + suffix);
+
+document.documentElement.setAttribute('data-rendered', 'true');
+</script>
+</body>
+</html>

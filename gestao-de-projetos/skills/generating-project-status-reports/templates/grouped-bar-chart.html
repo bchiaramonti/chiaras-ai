@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding: 0; background: #fffdef; font-family: "twkEverett", Arial, sans-serif; }
+  svg { display: block; }
+  .axis text { font-family: "twkEverett", Arial, sans-serif; font-size: 11px; fill: #AEADA8; }
+  .axis path, .axis line { stroke: #D0D0CC; }
+  .axis .domain { stroke: #D0D0CC; }
+  .grid line { stroke: #F6F6F5; stroke-width: 1; }
+  .grid .domain { display: none; }
+  .data-label { font-family: "twkEverett", Arial, sans-serif; font-size: 9px; fill: #4F4E3C; font-weight: bold; }
+  .legend-text { font-family: "twkEverett", Arial, sans-serif; font-size: 10px; fill: #79755C; }
+  @font-face { font-family: twkEverett; src: url("https://multi7.com.br/_next/static/media/TWKEverett_Regular-s.p.4411e19a.otf") format("opentype"); font-weight: 400; font-display: swap; }
+</style>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<svg id="chart" width="880" height="350"></svg>
+<script>
+const M7 = {
+  series: ['#424135', '#EEF77C', '#79755C', '#4CAF50', '#3B82F6', '#14B8A6'],
+  dark: '#424135', text: '#4F4E3C', textMed: '#79755C', textLight: '#AEADA8',
+  grid: '#F6F6F5', separator: '#D0D0CC', white: '#FFFFFF', offWhite: '#fffdef',
+};
+
+const WIDTH = 880, HEIGHT = 350;
+const MARGIN = { top: 40, right: 30, bottom: 40, left: 60 };
+const innerWidth = WIDTH - MARGIN.left - MARGIN.right;
+const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
+
+// DATA FORMAT:
+// {
+//   categories: ["Q1", "Q2", "Q3", "Q4"],
+//   series: [
+//     { name: "2024", values: [120, 135, 142, 150] },
+//     { name: "2025", values: [140, 155, 160, 175] }
+//   ],
+//   yLabel: "R$ MM",
+//   valueFormat: ",.0f"
+// }
+const DATA = {{DATA_JSON}};
+
+const svg = d3.select('#chart');
+const g = svg.append('g').attr('transform', `translate(${MARGIN.left},${MARGIN.top})`);
+
+const seriesNames = DATA.series.map(s => s.name);
+
+// Scales
+const x0 = d3.scaleBand()
+  .domain(DATA.categories)
+  .range([0, innerWidth])
+  .padding(0.2);
+
+const x1 = d3.scaleBand()
+  .domain(seriesNames)
+  .range([0, x0.bandwidth()])
+  .padding(0.08);
+
+const allVals = DATA.series.flatMap(s => s.values);
+const y = d3.scaleLinear()
+  .domain([0, d3.max(allVals) * 1.15])
+  .range([innerHeight, 0])
+  .nice();
+
+const color = d3.scaleOrdinal()
+  .domain(seriesNames)
+  .range(M7.series);
+
+// Grid
+g.append('g')
+  .attr('class', 'grid')
+  .call(d3.axisLeft(y).tickSize(-innerWidth).tickFormat(''));
+
+// Axes
+g.append('g')
+  .attr('class', 'axis')
+  .attr('transform', `translate(0,${innerHeight})`)
+  .call(d3.axisBottom(x0).tickSize(0));
+
+g.append('g')
+  .attr('class', 'axis')
+  .call(d3.axisLeft(y).tickFormat(d => d3.format(DATA.valueFormat || ',.0f')(d)));
+
+// Bars
+const fmt = d3.format(DATA.valueFormat || ',.0f');
+
+DATA.categories.forEach((cat, ci) => {
+  DATA.series.forEach((series, si) => {
+    const val = series.values[ci];
+    g.append('rect')
+      .attr('x', x0(cat) + x1(series.name))
+      .attr('y', y(val))
+      .attr('width', x1.bandwidth())
+      .attr('height', innerHeight - y(val))
+      .attr('fill', color(series.name))
+      .attr('rx', 2);
+
+    // Value label on top
+    g.append('text')
+      .attr('class', 'data-label')
+      .attr('x', x0(cat) + x1(series.name) + x1.bandwidth() / 2)
+      .attr('y', y(val) - 5)
+      .attr('text-anchor', 'middle')
+      .text(fmt(val));
+  });
+});
+
+// Legend (top-right)
+const legend = svg.append('g')
+  .attr('transform', `translate(${WIDTH - MARGIN.right - 10}, 10)`);
+
+seriesNames.forEach((name, i) => {
+  const lg = legend.append('g')
+    .attr('transform', `translate(${-i * 100}, 0)`);
+  lg.append('rect')
+    .attr('width', 12).attr('height', 12).attr('rx', 2)
+    .attr('fill', color(name));
+  lg.append('text')
+    .attr('class', 'legend-text')
+    .attr('x', 16).attr('y', 10)
+    .text(name);
+});
+
+document.documentElement.setAttribute('data-rendered', 'true');
+</script>
+</body>
+</html>

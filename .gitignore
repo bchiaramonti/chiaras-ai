@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Claude Code runtime
+.claude/settings.local.json
+.claude/logs/
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Temp
+*.tmp
+*.bak

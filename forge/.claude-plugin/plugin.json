@@ -1,0 +1,18 @@
+{
+  "name": "forge",
+  "description": "Meta-plugin de engenharia de software que transforma ideias em software pronto para produção através de 8 fases sequenciais com 17 skills e 2 agents.",
+  "version": "1.0.2",
+  "author": {
+    "name": "Bruno Chiaramonti"
+  },
+  "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+  "repository": "https://github.com/bchiaramonti/chiaras-ai",
+  "license": "MIT",
+  "keywords": [
+    "software-engineering",
+    "pipeline",
+    "sdlc",
+    "product-development",
+    "architecture"
+  ]
+}

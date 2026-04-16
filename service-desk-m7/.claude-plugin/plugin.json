@@ -1,0 +1,12 @@
+{
+  "name": "service-desk-m7",
+  "version": "1.0.0",
+  "description": "Create well-structured IT support tickets for M7 systems. Guides users through conversational information gathering and generates formatted markdown tickets for three categories: problem reports, database requests, and new functionality requests. Outputs dated markdown files ready for submission.",
+  "author": {
+    "name": "Bruno Chiaramonti"
+  },
+  "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+  "repository": "https://github.com/bchiaramonti/chiaras-ai",
+  "license": "MIT",
+  "keywords": ["service-desk", "tickets", "it-support", "m7", "chamados", "helpdesk"]
+}
