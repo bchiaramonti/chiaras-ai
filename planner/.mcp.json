@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "trainingpeaks": {
-      "command": "tp-mcp",
-      "args": ["serve"]
+      "command": "/usr/bin/env",
+      "args": ["tp-mcp", "serve"],
+      "env": {
+        "PATH": "/Users/bchiaramonti/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+      }
     }
   }
 }

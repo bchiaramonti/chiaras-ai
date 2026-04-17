@@ -29,7 +29,9 @@ Quando o Bruno pede um planner diario, daily dashboard, pagina de planejamento d
 
 ## MCP: TrainingPeaks
 
-O plugin declara um server MCP stdio (`trainingpeaks`) via `.mcp.json` apontando para `tp-mcp` no PATH. Expoe ~58 tools (workouts, calendar, fitness metrics CTL/ATL/TSB, power/running PRs, weekly summaries, health metrics como peso/sono/HRV). Usado pela Fase 1 de extracao para popular a zona Corpo do planner com dados reais.
+O plugin declara um server MCP stdio (`trainingpeaks`) via `.mcp.json` usando o wrapper `/usr/bin/env tp-mcp serve` com `PATH` explicito. Expoe ~58 tools (workouts, calendar, fitness metrics CTL/ATL/TSB, power/running PRs, weekly summaries, health metrics como peso/sono/HRV). Usado pela Fase 1 de extracao para popular a zona Corpo do planner com dados reais.
+
+**Por que o wrapper `/usr/bin/env` em vez de so `tp-mcp`?** Apps GUI no macOS (Cowork, Claude Desktop, anything spawned from Dock/Finder) herdam o PATH minimalista do `launchd` (`/usr/bin:/bin:/usr/sbin:/sbin`), que **nao inclui `~/.local/bin/`** onde o `uv tool install` deposita binarios. Terminais carregam `~/.zprofile` e por isso `tp-mcp` resolve la — mas apps GUI nao. O wrapper `/usr/bin/env` injeta um PATH explicito no spawn do processo, garantindo que o Cowork/Claude Desktop encontrem o binario.
 
 **Fonte:** https://github.com/JamsusMaximus/trainingpeaks-mcp (MIT license, clonado em `3-resources/ai-mcp/trainingpeaks-mcp/`).
 

@@ -113,7 +113,7 @@
     {
       "name": "planner",
       "description": "Gera planners pessoais executivos em HTML aplicando o sistema de design Editorial Noturno (dark mode quente, Georgia serif + Inter sans, terracota + azul petroleo). Header 5-zone (Dia, Lide, Insight, Mes, Corpo) + body 3-col (Agenda, Tres inadiaveis + Tarefas ClickUp, Delegadas) + footer 2-col (Notas, Amanha). Zero ornamento, hierarquia tipografica. Escopo estrito: uso pessoal, nao corporativo.",
-      "version": "1.5.0",
+      "version": "1.5.1",
       "author": {
         "name": "Bruno Chiaramonti"
       },

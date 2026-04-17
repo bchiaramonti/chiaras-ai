@@ -2,6 +2,16 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.5.1] - 2026-04-17
+
+### Fixed
+- **`.mcp.json` compatibility with GUI-spawned Claude apps** (Cowork, Claude Desktop). The v1.5.0 config used `"command": "tp-mcp"`, relying on PATH resolution. That works in terminal-spawned Claude Code (which inherits `~/.zprofile` PATH) but **fails in GUI apps** because macOS `launchd` provides only a minimalist PATH (`/usr/bin:/bin:/usr/sbin:/sbin`) that excludes `~/.local/bin/` where `uv tool install` places binaries. Symptom: Cowork listed the server in Connectors but chats reported "trainingpeaks nao esta instalado" when trying to use it.
+- Fix: wrap the command in `/usr/bin/env` with an explicit `PATH` env var that includes `~/.local/bin`, `/opt/homebrew/bin`, `/usr/local/bin`, and the standard system paths. `/usr/bin/env` exists on every Unix-like system at a fixed absolute path and does PATH lookup using the env passed to the child process.
+
+### Notes
+- Trade-off: this reintroduces a user-specific absolute path (`/Users/bchiaramonti/.local/bin`) in the plugin config, which technically violates plugin rules P5 ("no paths outside plugin dir") and is less portable than the v1.5.0 approach. Accepted as explicit trade-off for a **personal** plugin: the only consumer is the author's machine, and without this fix the MCP is not reachable from the primary consumer app (Cowork). README section documenting the `uv tool install` prereq makes this explicit.
+- README "MCP: TrainingPeaks" updated with a paragraph explaining why the wrapper is needed and what the launchd PATH limitation is.
+
 ## [1.5.0] - 2026-04-17
 
 ### Added
