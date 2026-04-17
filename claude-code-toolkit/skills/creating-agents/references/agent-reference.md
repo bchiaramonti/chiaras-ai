@@ -10,17 +10,18 @@ Only `name` and `description` are required.
 | `description`     | Yes      | When Claude should delegate to this agent. Include "use proactively" if auto-invoke.  |
 | `tools`           | No       | Allowed tools. Inherits all if omitted.                                               |
 | `disallowedTools` | No       | Tools to deny. Removed from inherited/specified list.                                 |
-| `model`           | No       | `sonnet`, `opus`, `haiku`, `inherit`, or full model ID (e.g., `claude-opus-4-6`). Default: `inherit`. |
-| `effort`          | No       | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only). |
-| `initialPrompt`   | No       | Auto-submitted as first user turn when running as main agent (`--agent`). Commands and skills processed. |
-| `permissionMode`  | No       | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`.                     |
+| `model`           | No       | `sonnet`, `opus`, `haiku`, `inherit`, or full model ID (e.g., `claude-opus-4-7`, `claude-sonnet-4-6`). Default: `inherit`. |
+| `effort`          | No       | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `xhigh`, `max`. Available levels depend on the model. |
+| `initialPrompt`   | No       | Auto-submitted as first user turn when running as main agent (`--agent`). Commands and skills processed. Prepended to any user prompt. |
+| `permissionMode`  | No       | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`.             |
 | `maxTurns`        | No       | Maximum agentic turns before stopping.                                                |
 | `skills`          | No       | Skills to preload into context at startup. Full content injected, not just available.  |
 | `mcpServers`      | No       | MCP servers: name reference or inline definition.                                     |
 | `hooks`           | No       | Lifecycle hooks scoped to this agent.                                                 |
 | `memory`          | No       | Persistent memory: `user`, `project`, or `local`.                                     |
 | `background`      | No       | `true` = always runs as background task. Default: `false`.                            |
-| `isolation`       | No       | `worktree` = runs in temporary git worktree.                                          |
+| `isolation`       | No       | `worktree` = runs in temporary git worktree. Auto-cleaned if the subagent makes no changes. |
+| `color`           | No       | Display color in task list and transcript. Options: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`. |
 
 ## Available Tools
 
@@ -39,10 +40,13 @@ Use `Agent(worker, researcher)` in `tools` to restrict which subagents can be sp
 | Mode                | Behavior                                           |
 |---------------------|----------------------------------------------------|
 | `default`           | Standard permission prompts                        |
-| `acceptEdits`       | Auto-accept file edits                             |
-| `dontAsk`           | Auto-deny prompts (explicitly allowed tools work)  |
-| `bypassPermissions` | Skip all checks (use with caution)                 |
+| `acceptEdits`       | Auto-accept file edits + common filesystem commands for paths in working dir / additionalDirectories |
+| `auto`              | Auto mode: a background classifier reviews commands and protected-directory writes |
+| `dontAsk`           | Auto-deny prompts (explicitly allowed tools still work) |
+| `bypassPermissions` | Skip all checks (use with caution). Writes to `.git`, `.claude`, `.vscode`, `.idea`, `.husky` still prompt (except `.claude/commands`, `.claude/agents`, `.claude/skills`). |
 | `plan`              | Read-only exploration mode                         |
+
+**Parent precedence:** If the parent uses `bypassPermissions` or `acceptEdits`, this cannot be overridden by the subagent. If the parent uses `auto`, the subagent inherits auto mode and its `permissionMode` is ignored — the classifier evaluates tool calls with the same rules as the parent.
 
 ## Persistent Memory
 
@@ -90,10 +94,9 @@ hooks:
 
 | Agent              | Model   | Tools     | Purpose                              |
 |--------------------|---------|-----------|--------------------------------------|
-| Explore            | Haiku   | Read-only | Fast codebase search/analysis        |
-| Plan               | Inherit | Read-only | Research for plan mode               |
-| general-purpose    | Inherit | All       | Complex multi-step tasks             |
-| Bash               | Inherit | Bash      | Running terminal commands separately |
+| Explore            | Haiku   | Read-only | Fast codebase search/analysis. Thoroughness levels: `quick`, `medium`, `very thorough`. |
+| Plan               | Inherit | Read-only | Research during plan mode            |
+| general-purpose    | Inherit | All       | Complex multi-step tasks requiring exploration + action |
 | statusline-setup   | Sonnet  | Read/Edit | Configuring status line (`/statusline`) |
 | Claude Code Guide  | Haiku   | Read-only | Answering Claude Code feature questions |
 
@@ -119,7 +122,7 @@ Pass JSON subagent definitions for a single session:
 ```bash
 claude --agents '{"reviewer": {"description": "Code reviewer", "prompt": "...", "tools": ["Read"], "model": "sonnet"}}'
 ```
-JSON accepts same fields as frontmatter: `description`, `prompt`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `initialPrompt`, `memory`, `effort`, `background`, `isolation`.
+JSON accepts same fields as frontmatter: `description`, `prompt`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `initialPrompt`, `memory`, `effort`, `background`, `isolation`, `color`.
 
 ### Running as main session agent
 
@@ -161,6 +164,14 @@ Subagents auto-compact at ~95% capacity. Override with `CLAUDE_AUTOCOMPACT_PCT_O
 - Agents loaded at session start; restart or use `/agents` to reload
 - **Task → Agent rename** (v2.1.63): The Task tool was renamed to Agent. `Task(...)` still works as alias.
 - **`model` parameter on Agent tool**: Per-invocation model overrides restored in v2.1.72.
+
+### Plugin subagent restrictions
+
+Plugin-shipped agents **do not support** the `hooks`, `mcpServers`, or `permissionMode` frontmatter fields (security). These are silently ignored when the agent is loaded from a plugin. If you need them, copy the agent into `.claude/agents/` or `~/.claude/agents/`, or add rules to `permissions.allow` in settings.
+
+### Subagent definitions as agent-team teammates
+
+Subagent definitions (any scope: project, user, plugin, or CLI-defined) can be referenced when spawning an agent-teams teammate. The teammate honors the definition's `tools` and `model`, and the definition body is **appended** to the teammate's system prompt (not replacing it). On this path, the definition's `skills` and `mcpServers` are **not** applied — teammates load skills and MCP servers from project/user settings like a regular session.
 
 ## Agent Teams (Experimental)
 

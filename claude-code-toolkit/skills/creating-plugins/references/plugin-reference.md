@@ -10,7 +10,10 @@
 - Hooks in plugins
 - MCP servers in plugins
 - LSP servers in plugins
+- Monitors (background watchers)
 - Settings in plugins
+- Executables (`bin/`)
+- Plugin dependencies
 - CLI commands
 
 ## Plugin Manifest Schema (plugin.json)
@@ -47,7 +50,9 @@ Custom paths **replace** default directories for `commands`, `agents`, `skills`,
 | `hooks`        | string\|array\|object | `hooks/hooks.json`         |
 | `mcpServers`   | string\|array\|object | `.mcp.json`                |
 | `lspServers`   | string\|array\|object | `.lsp.json`                |
-| `outputStyles` | string\|array         | (none)                     |
+| `outputStyles` | string\|array         | `output-styles/`           |
+| `monitors`     | string\|array         | `monitors/monitors.json`   |
+| `dependencies` | array                 | (none)                     |
 
 ### Environment Variables
 
@@ -110,10 +115,12 @@ Declare message channels that inject content into conversations via an MCP serve
 
 ## Plugin Caching
 
-Marketplace plugins are copied to `~/.claude/plugins/cache`. Implications:
+Marketplace plugins are copied to `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`. Each installed version is a separate directory; previous versions are marked orphaned after update/uninstall and removed automatically after **7 days** (grace period lets concurrent sessions keep running). Claude's Glob and Grep tools skip orphaned version directories.
+
+Implications:
 - Paths referencing files outside the plugin directory won't work
-- Use symlinks for shared dependencies (honored during copy)
-- Always use `${CLAUDE_PLUGIN_ROOT}` for paths in hooks/MCP
+- Use symlinks for shared dependencies (honored during copy — not dereferenced)
+- Always use `${CLAUDE_PLUGIN_ROOT}` for paths in hooks/MCP/LSP configs
 
 ## Version Management
 
@@ -200,29 +207,91 @@ Required: `command`, `extensionToLanguage`. Optional: `args`, `transport`, `env`
 
 **Note:** The language server binary must be installed separately.
 
-## Settings in Plugins
+## Monitors (background watchers)
 
-Location: `settings.json` at plugin root. Only `agent` key is currently supported.
+Location: `monitors/monitors.json` or inline `monitors` in `plugin.json`. Requires Claude Code v2.1.105+.
+
+Each monitor runs a persistent shell command for the session lifetime and delivers every stdout line to Claude as a notification. Monitors run only in interactive CLI sessions and are skipped where the Monitor tool is unavailable.
 
 ```json
-{ "agent": "my-default-agent" }
+[
+  {
+    "name": "error-log",
+    "command": "tail -F ./logs/error.log",
+    "description": "Application error log"
+  },
+  {
+    "name": "deploy-status",
+    "command": "${CLAUDE_PLUGIN_ROOT}/scripts/poll-deploy.sh ${user_config.api_endpoint}",
+    "description": "Deployment status changes",
+    "when": "on-skill-invoke:debug"
+  }
+]
 ```
 
-Activates a plugin agent as the main thread when the plugin is enabled.
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Unique within the plugin. Prevents duplicate processes on reload. |
+| `command` | Yes | Shell command run as a persistent background process in the session CWD. |
+| `description` | Yes | Short summary shown in the task panel and notification summaries. |
+| `when` | No | `"always"` (default) starts at session start + reload. `"on-skill-invoke:<skill-name>"` defers start until the named skill in this plugin is first dispatched. |
+
+`command` supports the same substitutions as MCP/LSP configs: `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`, `${user_config.*}`, and any `${ENV_VAR}`. Disabling a plugin mid-session does **not** stop already-running monitors — they stop at session end.
+
+## Settings in Plugins
+
+Location: `settings.json` at plugin root. Currently supports **only** the `agent` and `subagentStatusLine` keys. Unknown keys are silently ignored. Priority: plugin `settings.json` > `settings` declared in `plugin.json`.
+
+```json
+{
+  "agent": "my-default-agent",
+  "subagentStatusLine": {
+    "command": "${CLAUDE_PLUGIN_ROOT}/scripts/statusline.sh"
+  }
+}
+```
+
+Setting `agent` activates one of the plugin's custom agents as the main thread when the plugin is enabled (applies its system prompt, tool restrictions, and model).
+
+## Executables (`bin/`)
+
+Files in `bin/` are added to the Bash tool's `PATH` while the plugin is enabled, so they're invokable as bare commands in any Bash tool call.
+
+```
+my-plugin/
+└── bin/
+    └── my-tool          # Invokable as `my-tool` in Bash
+```
+
+## Plugin Dependencies
+
+Declare other plugins your plugin requires with optional semver constraints. Auto-installed when the plugin is installed.
+
+```json
+{
+  "dependencies": [
+    "helper-lib",
+    { "name": "secrets-vault", "version": "~2.1.0" }
+  ]
+}
+```
 
 ## CLI Commands
 
 | Command                              | Description                    |
 |--------------------------------------|--------------------------------|
 | `claude plugin install <p> [-s scope]` | Install plugin               |
-| `claude plugin uninstall <p> [-s scope] [--keep-data]`| Remove plugin (--keep-data preserves ${CLAUDE_PLUGIN_DATA}) |
+| `claude plugin uninstall <p> [-s scope] [--keep-data]`| Remove plugin (`--keep-data` preserves `${CLAUDE_PLUGIN_DATA}`) |
 | `claude plugin enable <p> [-s scope]`  | Enable disabled plugin       |
 | `claude plugin disable <p> [-s scope]` | Disable without uninstalling |
 | `claude plugin update <p> [-s scope]`  | Update to latest version     |
-| `claude plugin validate .`            | Validate plugin/marketplace   |
-| `/reload-plugins`                      | Activate plugin changes without restart (v2.1.69) |
+| `claude plugin list [--json] [--available]` | List installed plugins with version/source/status. `--available` (requires `--json`) also includes plugins from marketplaces |
+| `claude plugin validate .`             | Validate plugin/marketplace   |
+| `/reload-plugins`                      | Activate plugin changes without restart. Reloads skills, agents, hooks, plugin MCP servers, and plugin LSP servers (v2.1.69) |
 
 Scopes: `user` (default), `project`, `local`, `managed`
+
+**Development loading:** use `claude --plugin-dir ./my-plugin` to test a plugin without installing it. The flag can be repeated to load multiple plugins (`--plugin-dir ./a --plugin-dir ./b`). When a `--plugin-dir` plugin has the same name as an installed marketplace plugin, the local copy takes precedence for that session (except force-enabled plugins).
 
 ## Official Marketplace Submission
 

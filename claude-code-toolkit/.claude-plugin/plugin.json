@@ -1,7 +1,7 @@
 {
   "name": "claude-code-toolkit",
   "description": "Meta-plugin for creating and validating Claude Code commands, skills, agents, hooks, plugins, and marketplaces following official best practices. Includes artifact validation with graded reports, versioning/release automation, and a self-improving research skill that keeps all reference material up-to-date.",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "author": {
     "name": "Bruno Chiaramonti"
   },

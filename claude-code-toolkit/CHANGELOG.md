@@ -5,6 +5,23 @@ All notable changes to the claude-code-toolkit plugin are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-04-17
+
+### Added
+- **skill-reference.md**: `when_to_use` frontmatter field, `xhigh` effort tier, multi-line `` ```! `` shell block syntax, `disableSkillShellExecution` setting, **Skill Content Lifecycle** section (post-compaction re-attach: 5k per skill / 25k shared budget).
+- **agent-reference.md**: `color` frontmatter field (red/blue/green/yellow/purple/orange/pink/cyan), `auto` permission mode with parent-precedence rules, plugin subagent restrictions (`hooks`/`mcpServers`/`permissionMode` ignored for plugin agents), subagent-definition semantics when used as agent-team teammates.
+- **plugin-reference.md**: `monitors` field + full Monitors section (including `when: on-skill-invoke:<skill>` trigger), `bin/` directory on Bash PATH, `dependencies` field with semver constraints, `subagentStatusLine` settings key, `claude plugin list [--json] [--available]` CLI.
+- **marketplace-reference.md**: `@ref` / `#ref` add shortcuts, full `claude plugin marketplace` CLI subcommands incl. `--sparse`, `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE` for airgapped setups, `CLAUDE_CODE_PLUGIN_CACHE_DIR` for build-time seed construction, `knowledge-work-plugins` added to reserved names.
+- **hooks-reference.md**: `PermissionDenied` event with `retry: true` pattern, `asyncRewake` command-hook option, `defer` permission decision with precedence (`deny > defer > ask > allow`), `updatedPermissions` types table (addRules/replaceRules/removeRules/setMode/addDirectories/removeDirectories), `updatedMCPToolOutput`, `allowManagedHooksOnly` managed setting, full headless deferred-tool-call flow.
+
+### Changed
+- **skill-reference.md**: Clarified combined `description` + `when_to_use` 1,536-char cap; removed incorrect "250 chars per entry" claim.
+- **agent-reference.md**: Updated full model IDs to `claude-opus-4-7` / `claude-sonnet-4-6`; removed incorrect `Bash` built-in subagent; added Explore thoroughness levels (`quick`/`medium`/`very thorough`).
+- **command-reference.md**: Added `xhigh` effort tier (removed misleading "Opus 4.6 only" wording).
+- **plugin-reference.md**: `outputStyles` default location corrected to `output-styles/`; clarified orphaned cache 7-day cleanup; added `--plugin-dir` multi-flag + precedence-over-installed behavior.
+- **creating-plugins SKILL.md**: Added `monitors/` and `bin/` to the directory tree; `dependencies` + `monitors`/`bin` added to requirements-gathering checklist.
+- **sources.md**: Last-updated date + 2026-04-17 changelog entry summarizing this sync.
+
 ## [2.2.1] - 2026-04-06
 
 ### Added

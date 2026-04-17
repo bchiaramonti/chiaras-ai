@@ -14,8 +14,9 @@ Create plugins and plugin marketplaces following the official Claude Code specif
 1. **Gather requirements** — ask the user:
    - Plugin name (kebab-case, no spaces)
    - What the plugin does (description)
-   - Which components it needs (skills, agents, hooks, MCP, LSP, output-styles, channels)
+   - Which components it needs (skills, agents, hooks, MCP, LSP, output-styles, channels, monitors, bin executables)
    - Whether it needs user configuration (`userConfig` for API keys, endpoints)
+   - Whether it depends on other plugins (`dependencies`)
    - Whether it will be distributed via a marketplace
    - Target audience: personal, team, or community
 
@@ -50,9 +51,13 @@ my-plugin/
 ├── hooks/
 │   └── hooks.json            # Event handlers
 ├── output-styles/            # Output style definitions
+├── monitors/
+│   └── monitors.json         # Background watchers (v2.1.105+)
+├── bin/                      # Executables added to Bash PATH
+│   └── my-tool
 ├── .mcp.json                 # MCP server configurations
 ├── .lsp.json                 # LSP server configurations
-├── settings.json             # Default settings (only "agent" key supported)
+├── settings.json             # Default settings (agent + subagentStatusLine)
 ├── README.md                 # Documentation
 ├── CHANGELOG.md              # Version history
 └── LICENSE                   # License file

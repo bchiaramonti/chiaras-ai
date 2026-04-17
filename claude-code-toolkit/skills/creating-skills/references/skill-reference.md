@@ -6,19 +6,20 @@ All fields are optional. Only `description` is recommended.
 
 | Field                      | Required    | Description                                                                                     |
 |----------------------------|-------------|-------------------------------------------------------------------------------------------------|
-| `name`                     | No          | Display name and `/slash-command`. Lowercase, numbers, hyphens (max 64 chars). Default: dir name.|
-| `description`              | Recommended | What the skill does and when to use it. Max 1024 chars. No XML tags.                            |
-| `argument-hint`            | No          | Hint for autocomplete. Example: `[issue-number]`.                                                |
+| `name`                     | No          | Display name and `/slash-command`. Lowercase letters, numbers, hyphens (max 64 chars). Reserved words forbidden (`anthropic`, `claude`). Default: directory name. |
+| `description`              | Recommended | What the skill does and when to use it. Max 1024 chars; no XML tags. Combined with `when_to_use` is truncated at 1,536 chars in the skill listing. |
+| `when_to_use`              | No          | Extra trigger context appended to `description` in the skill listing (e.g., example phrases). Counts toward the 1,536-char cap. |
+| `argument-hint`            | No          | Hint shown during autocomplete. Example: `[issue-number]` or `[filename] [format]`. |
 | `disable-model-invocation` | No          | `true` = only user can invoke. Default: `false`.                                                 |
 | `user-invocable`           | No          | `false` = hidden from `/` menu, only Claude invokes. Default: `true`.                            |
-| `allowed-tools`            | No          | Tools allowed without permission prompt when skill is active.                                    |
-| `model`                    | No          | Model: `sonnet`, `opus`, `haiku`, or `inherit`.                                                  |
-| `context`                  | No          | `fork` = runs in isolated subagent context.                                                      |
-| `agent`                    | No          | Subagent type when `context: fork`. Built-in: `Explore`, `Plan`, `general-purpose`. Or custom.   |
+| `allowed-tools`            | No          | Tools allowed without permission prompt when skill is active. Accepts space-separated string or YAML list. |
+| `model`                    | No          | Model when skill is active: `sonnet`, `opus`, `haiku`, full model ID, or `inherit`.              |
+| `context`                  | No          | `fork` = runs in a forked subagent context (isolated from main conversation).                    |
+| `agent`                    | No          | Subagent type when `context: fork`. Built-in: `Explore`, `Plan`, `general-purpose`. Or any custom subagent. Default: `general-purpose`. |
 | `hooks`                    | No          | Lifecycle hooks scoped to this skill. See hooks docs for config format.                          |
 | `paths`                    | No          | Glob patterns limiting auto-activation. Comma-separated string or YAML list. Same format as path-specific rules. |
-| `effort`                   | No          | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only). |
-| `shell`                    | No          | Shell for `` !`command` `` blocks: `bash` (default) or `powershell`. Requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`. |
+| `effort`                   | No          | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `xhigh`, `max`. Available levels depend on the model. |
+| `shell`                    | No          | Shell for `` !`command` `` and ` ```! ` blocks: `bash` (default) or `powershell`. `powershell` requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`. |
 
 ## String Substitutions
 
@@ -45,6 +46,19 @@ Files changed: !`gh pr diff --name-only`
 
 Review this pull request.
 ```
+
+For multi-line commands, use a fenced code block opened with ` ```! ` (instead of ` ``` `):
+
+````markdown
+## Environment
+```!
+node --version
+npm --version
+git status --short
+```
+````
+
+**Disable shell execution:** Set `"disableSkillShellExecution": true` in settings to neuter `!` blocks — each command is replaced with `[shell command execution disabled by policy]`. Useful in managed settings. Bundled/managed skills are exempt.
 
 ## Invocation Control
 
@@ -120,4 +134,10 @@ These ship with Claude Code and are available in every session:
 
 ## Context Budget
 
-Skill descriptions consume ~1% of the context window (fallback: 8,000 chars). Each entry is capped at 250 characters. If too many skills exceed the budget, descriptions are shortened. Override with `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var.
+Skill descriptions consume **~1% of the context window** (fallback: **8,000 chars**). Skill names are always included, but if the budget fills up, descriptions are **shortened** to fit. Each entry's combined `description` + `when_to_use` text is capped at **1,536 characters** regardless of budget, so front-load the key use case. Override the total budget with `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var.
+
+## Skill Content Lifecycle
+
+When a skill is invoked, its rendered SKILL.md content enters the conversation as a single message and stays there for the rest of the session. Claude Code does **not** re-read the skill file on later turns — write guidance as standing instructions rather than one-time steps.
+
+**After auto-compaction:** invoked skills are re-attached after the summary, keeping the first **5,000 tokens** of each. Re-attached skills share a **25,000-token** combined budget, filled starting from the most recently invoked, so older skills may be dropped. To restore a dropped skill, re-invoke it.

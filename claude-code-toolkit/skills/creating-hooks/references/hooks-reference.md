@@ -18,8 +18,9 @@
 |----------------------|---------------------|------------------------------------------------|------------|
 | `SessionStart`       | Source (`startup`, `resume`, `clear`, `compact`) | When session begins or resumes | No |
 | `UserPromptSubmit`   | (none)              | When user submits a prompt                     | Yes        |
-| `PreToolUse`         | Tool name           | Before a tool call executes                    | Yes        |
+| `PreToolUse`         | Tool name           | Before a tool call executes                    | Yes (allow/deny/ask/defer) |
 | `PermissionRequest`  | Tool name           | When a permission dialog appears               | Yes        |
+| `PermissionDenied`   | Tool name           | When a tool call is denied by the auto-mode classifier | No (can request retry via `retry: true`) |
 | `PostToolUse`        | Tool name           | After a tool call succeeds                     | No         |
 | `PostToolUseFailure` | Tool name           | After a tool call fails                        | No         |
 | `Notification`       | Type (`permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`) | When Claude Code sends a notification | No |
@@ -136,11 +137,12 @@ Runs a subagent with tools for complex multi-step verification.
 | Field           | Required | Description                                                                |
 |-----------------|----------|----------------------------------------------------------------------------|
 | `command`       | Yes      | Shell command to execute. Receives JSON on stdin.                          |
-| `async`         | No       | Run in background without blocking. Default: `false`.                      |
+| `async`         | No       | Run in background without blocking. Results not returned. Default: `false`. |
+| `asyncRewake`   | No       | Background execution; **exit code 2** wakes Claude with stderr/stdout as a system reminder. Implies `async`. Default: `false`. |
 | `shell`         | No       | `bash` (default) or `powershell`.                                          |
 | `statusMessage` | No       | Custom spinner message shown during execution.                             |
-| `if`            | No       | Permission rule filter for fine-grained matching. Example: `Bash(git *)`.  |
-| `once`          | No       | Run only once per session then removed. Skills/agents only. Default: `false`. |
+| `if`            | No       | Permission rule filter for fine-grained matching (tool events only). Skips process spawn if unmatched. Example: `Bash(git *)`, `Edit(*.ts)`. |
+| `once`          | No       | Run only once per session then removed. Skills only. Default: `false`.     |
 
 ### `http` type fields
 
@@ -241,21 +243,53 @@ Return JSON on stdout with exit code 0 for structured control:
   "reason": "explanation",
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
-    "permissionDecision": "allow|deny|ask",
+    "permissionDecision": "allow|deny|ask|defer",
     "permissionDecisionReason": "explanation",
     "updatedInput": {"field": "new_value"},
-    "additionalContext": "text added to context"
+    "additionalContext": "text added to context",
+    "updatedMCPToolOutput": "replacement output for MCP tools (PostToolUse)",
+    "retry": false,
+    "action": "accept|decline|cancel",
+    "content": {"field_name": "value"},
+    "worktreePath": "/path/to/worktree",
+    "sessionTitle": "Auto-named session title"
   }
 }
 ```
 
 ### Key JSON output patterns
 
-- **PreToolUse**: `permissionDecision` (`allow`/`deny`/`ask`), `updatedInput` to modify tool input before execution
-- **PermissionRequest**: `decision.behavior` (`allow`/`deny`), `updatedInput`, `updatedPermissions`
-- **UserPromptSubmit/Stop**: `decision: "block"` + `reason`
-- **SessionStart**: `additionalContext` added to session context
-- **WorktreeCreate**: Return path via stdout (command) or `hookSpecificOutput.worktreePath` (http)
+- **PreToolUse**: `permissionDecision` — `allow` / `deny` / `ask` / `defer`. `updatedInput` modifies the tool input. Decision precedence: **`deny > defer > ask > allow`**.
+- **PermissionRequest**: `decision.behavior` (`allow`/`deny`), `updatedInput`, `updatedPermissions` (array of permission updates).
+- **PermissionDenied**: return `{"hookSpecificOutput": {"retry": true}}` to let the model retry the denied tool call.
+- **PostToolUse**: `decision: "block"` + `reason`. `updatedMCPToolOutput` replaces output for MCP tools.
+- **UserPromptSubmit/Stop**: `decision: "block"` + `reason`. Prints text to stdout also injects context.
+- **SessionStart**: `additionalContext` added to session context.
+- **WorktreeCreate**: Return path via stdout (command) or `hookSpecificOutput.worktreePath` (http). Any non-zero exit aborts worktree creation.
+- **Elicitation / ElicitationResult**: `action` (`accept` / `decline` / `cancel`) + `content` object.
+
+### `updatedPermissions` types (PermissionRequest)
+
+| Type | Purpose |
+|------|---------|
+| `addRules` | Add allow/deny/ask rules |
+| `replaceRules` | Replace all rules of a type |
+| `removeRules` | Remove matching rules |
+| `setMode` | Change permission mode |
+| `addDirectories` | Add working directories |
+| `removeDirectories` | Remove working directories |
+
+Destinations: `session`, `localSettings`, `projectSettings`, `userSettings`.
+
+### Deferred tool calls (PreToolUse, headless only)
+
+For SDK/headless flows (requires v2.1.89+, `-p` flag, single tool call per turn):
+
+1. Claude calls tool → PreToolUse returns `defer`.
+2. Process exits with `stop_reason: "tool_deferred"` and a `deferred_tool_use` object in the SDK result.
+3. Caller provides an answer through its UI.
+4. `claude -p --resume <session-id>` replays the same tool call.
+5. Hook fires again, returns `allow` with `updatedInput` containing the answer. Tool executes and Claude continues.
 
 ## Matchers
 
@@ -328,6 +362,10 @@ Remove individual hooks from settings JSON, or disable all:
 ```
 
 Managed hooks cannot be disabled at user/project level.
+
+### Managed-only hooks
+
+Admins can set `"allowManagedHooksOnly": true` in managed settings to block user, project, and plugin hooks from executing (only managed-policy hooks run). **Force-enabled plugins** (listed in `enabledPlugins`) are exempt — their hooks run even with this flag set.
 
 ## `/hooks` Menu
 

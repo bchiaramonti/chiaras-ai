@@ -24,7 +24,7 @@ Location: `.claude-plugin/marketplace.json` at repository root.
 
 ### Reserved Marketplace Names
 
-Cannot use: `claude-code-marketplace`, `claude-code-plugins`, `claude-plugins-official`, `anthropic-marketplace`, `anthropic-plugins`, `agent-skills`, `life-sciences`. Names impersonating official marketplaces are also blocked.
+Cannot use: `claude-code-marketplace`, `claude-code-plugins`, `claude-plugins-official`, `anthropic-marketplace`, `anthropic-plugins`, `agent-skills`, `knowledge-work-plugins`, `life-sciences`. Names impersonating official marketplaces (like `official-claude-plugins`, `anthropic-tools-v2`) are also blocked.
 
 ### Optional Metadata
 
@@ -127,9 +127,28 @@ Sparse clone of a subdirectory within a git repo. Minimizes bandwidth for monore
 | Method          | Command                                          |
 |-----------------|--------------------------------------------------|
 | GitHub          | `/plugin marketplace add owner/repo`             |
+| GitHub @ ref    | `/plugin marketplace add owner/repo@v2.0`        |
 | Git URL         | `/plugin marketplace add https://gitlab.com/...` |
+| Git URL # ref   | `/plugin marketplace add https://gitlab.com/...git#v1.0` |
 | Local path      | `/plugin marketplace add ./my-marketplace`       |
 | Remote URL      | `/plugin marketplace add https://example.com/marketplace.json` |
+
+> **Marketplace source vs plugin source** — these pin independently. Marketplace sources support `ref` (branch/tag) but not `sha`. Plugin sources inside a marketplace entry support both `ref` and `sha`.
+
+### CLI equivalents
+
+`claude plugin marketplace` subcommands mirror the interactive `/plugin marketplace` commands:
+
+```bash
+claude plugin marketplace add <source> [--scope user|project|local] [--sparse <paths...>]
+claude plugin marketplace list [--json]
+claude plugin marketplace remove <name>        # alias: rm
+claude plugin marketplace update [name]
+```
+
+- `--sparse`: limit checkout to specific subdirectories via git sparse-checkout (useful for monorepos, e.g., `--sparse .claude-plugin plugins`).
+- `remove` also **uninstalls** any plugins installed from that marketplace. Use `update` to refresh without losing installed plugins.
+- Seed-managed marketplaces are read-only: `remove` and `update` fail against them.
 
 ## Team Configuration
 
@@ -202,6 +221,29 @@ To disable all auto-updates: `DISABLE_AUTOUPDATER=true`. To keep plugin auto-upd
 ## Pre-Populating for Containers
 
 Set `CLAUDE_CODE_PLUGIN_SEED_DIR` to a directory mirroring `~/.claude/plugins/` structure. Layer multiple: separate with `:` (Unix) or `;` (Windows). Seed is read-only; auto-updates disabled for seed marketplaces.
+
+**Building a seed:** run Claude Code during image build with `CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed` so plugins install directly into your seed path:
+
+```bash
+CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin marketplace add your-org/plugins
+CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install my-tool@your-plugins
+# Then at runtime:
+export CLAUDE_CODE_PLUGIN_SEED_DIR=/opt/claude-seed
+```
+
+**Seed semantics:** seed marketplaces **overwrite** any matching entries in the user's config on each startup. To opt out of a seed plugin, use `/plugin disable` (don't try to remove — that fails for seed-managed marketplaces).
+
+## Offline / Flaky Network Behavior
+
+By default, a failed `git pull` on a marketplace **wipes the cache and re-clones** — which fails again in offline environments, leaving plugins unavailable.
+
+Set `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1` to retain the stale cache on pull failure and continue using the last-known-good state:
+
+```bash
+export CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1
+```
+
+For fully airgapped deployments, use `CLAUDE_CODE_PLUGIN_SEED_DIR` instead.
 
 ## Git Timeout
 

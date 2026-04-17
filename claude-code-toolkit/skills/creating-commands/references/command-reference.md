@@ -17,7 +17,7 @@ All fields are optional. Only `description` is recommended.
 | `agent`                    | No          | Subagent type when `context: fork`. Options: `Explore`, `Plan`, `general-purpose`, or custom.|
 | `hooks`                    | No          | Hooks scoped to this command's lifecycle.                                                    |
 | `paths`                    | No          | Glob patterns limiting auto-activation. Comma-separated string or YAML list.                 |
-| `effort`                   | No          | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only). |
+| `effort`                   | No          | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `xhigh`, `max`. Available levels depend on the model. |
 | `shell`                    | No          | Shell for `` !`command` `` blocks: `bash` (default) or `powershell`.                         |
 
 ## String Substitutions
