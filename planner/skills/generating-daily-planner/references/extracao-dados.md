@@ -121,39 +121,94 @@ Agrupar por **projeto/lista** e ordenar cada grupo por atraso (atrasadas no topo
 
 **Fonte:** TrainingPeaks MCP (`mcp__trainingpeaks__*`) via autenticacao cookie-based — bypassa aprovacao de API e nao e afetado por Cloudflare TLS fingerprinting (diferente do Garmin, removido em v1.3.0).
 
+### Ordem fixa dos KPIs (v1.7.0)
+
+A zona Corpo tem **4 rows em ordem fixa**:
+
+```
+1. peso       (kg)
+2. sono       (h)
+3. TSS sem    (pontos de training stress, semana ate hoje)
+4. TSB        (training stress balance)
+```
+
+A ordem e parte do design — peso abre (dado estavel, diario), sono vem logo em seguida (dado cognitivo imediato), TSS mostra volume de treino da semana, TSB fecha com a sintese (forma). Nao reordenar.
+
 ### Rota primaria · TrainingPeaks MCP
 
-Cinco chamadas independentes (paralelizar quando possivel):
+Quatro chamadas independentes (paralelizar quando possivel):
 
-| KPI do planner | Tool MCP | Observacao |
-|---|---|---|
-| **peso (kg)** | `mcp__trainingpeaks__log_weight` (get last) ou tool de metricas de saude | Ultimo valor registrado |
-| **sono (h)** | tool de health metrics (sleep) | Noite mais recente. Se vazio, pedir ao usuario |
-| **HRV (opcional)** | tool de health metrics (HRV) | Pode entrar como KPI extra de corpo |
-| **TSS semana** | `mcp__trainingpeaks__weekly_summary` | Total de TSS da semana ate hoje (seg-hoje) |
-| **Forma (TSB)** | `mcp__trainingpeaks__fitness_metrics` | TSB atual — signal de overreach/recovery. Opcional como 4o KPI |
+| # | KPI do planner | Tool MCP | Observacao |
+|---|---|---|---|
+| 1 | **peso (kg)** | health-metrics (weight, last + -7d) | Ultimo valor + comparar com ha 7 dias para calcular variacao e tag |
+| 2 | **sono (h)** | health-metrics (sleep, last night) | Noite mais recente. Se vazio, valor vira `&mdash;` e tag e omitida |
+| 3 | **TSS sem** | `mcp__trainingpeaks__weekly_summary` | Total de TSS seg-hoje. Tambem retornar contagem de dias sem treino para aplicar tag "critico" |
+| 4 | **TSB** | `mcp__trainingpeaks__fitness_metrics` | TSB atual (signed integer, pode ser negativo) |
 
 Consultar a lista completa de 58 tools do TrainingPeaks MCP via `claude mcp list-tools trainingpeaks` ou pela documentacao do repo em `3-resources/ai-mcp/trainingpeaks-mcp/README.md`.
 
-### Regras de cor do numero
+### Matriz de faixas → tag classificatoria (v1.7.0)
 
-Aplicadas apos extracao, antes de renderizar (ver [componentes.md secao 5](componentes.md)):
-- peso → default (neutro)
-- TSS semana → `--body` (azul petroleo, dado de performance)
-- sono < 7h → `--alert` (terracota escuro)
-- sono >= 7h → `--body` (azul petroleo)
-- TSB positivo (>5) → `--body` (recuperado)
-- TSB muito negativo (<-30) → `--alert` (overreach)
+Cada KPI renderiza no HTML com uma **tag de 1 palavra** a direita do valor, com cor semantica. A tag e derivada automaticamente da faixa em que o valor cai. Se o valor e `&mdash;` (MCP indisponivel), a tag e omitida — regra de ouro: **nunca inventar classificacao**.
+
+**Peso** — comparar valor atual com valor de 7 dias atras:
+
+| Faixa | Tag | Classe CSS do numero + tag |
+|---|---|---|
+| variacao absoluta <=1% em 7 dias | `estável` | default (sem modifier) |
+| queda >1% em 7 dias | `em queda` | `--body` (azul petroleo) |
+| alta >1% em 7 dias | `subindo` | (warn · `--accent-primary`) |
+
+**Sono** — horas da ultima noite:
+
+| Faixa | Tag | Classe CSS |
+|---|---|---|
+| >=7h | `ideal` | `--body` (azul petroleo) |
+| 6-7h | `ok` | default (neutro) |
+| <6h | `baixo` | `--alert` (terracota escuro) |
+
+**TSS sem** — total semanal (seg → hoje):
+
+| Faixa | Tag | Classe CSS |
+|---|---|---|
+| 0 TSS nos ultimos 3+ dias consecutivos | `crítico` | `--alert` |
+| TSS >0 e <150 na semana | `leve` | (warn · `--accent-primary`) |
+| TSS 150-450 na semana | `saudável` | `--body` |
+| TSS >450 na semana | `pesado` | `--alert` (sobrecarga, sinal de overtraining se persistir) |
+
+**TSB** — training stress balance atual:
+
+| Faixa | Tag | Classe CSS |
+|---|---|---|
+| TSB < -30 | `overreach` | `--alert` |
+| -30 <= TSB < -10 | `produtivo` | `--body` |
+| -10 <= TSB <= +5 | `neutro` | default |
+| +5 < TSB <= +25 | `fresco` | (warn · `--accent-primary`) |
+| TSB > +25 | `destreino` | `--alert` |
+
+**Mapeamento de classe CSS:** a tag usa os mesmos modifiers do numero para coerencia visual. Ver [componentes.md secao 5](componentes.md#5-corpo--stack-vertical) para o HTML completo. Quando o texto indica "(warn · `--accent-primary`)", a classe e `header__corpo-tag--warn` e o numero pode levar classe correspondente se o status o justificar.
+
+### Regras de cor do numero (complementares a tag)
+
+O numero segue a mesma classe CSS que a tag:
+- default primary (neutro) → peso estavel, sono ok, TSB neutro
+- `--body` (azul petroleo) → peso em queda, sono ideal, TSS saudavel, TSB produtivo
+- `--alert` (terracota escuro) → sono baixo, TSS critico/pesado, TSB overreach/destreino
+- `--empty` (`--text-subtle`) → valor ausente (`&mdash;`), tag omitida
 
 ### Fallback
 
-Se o TrainingPeaks MCP falhar (cookie expirado, API fora do ar, tool nao disponivel):
+Se o TrainingPeaks MCP falhar parcial ou totalmente (cookie expirado, API fora do ar, tool indisponivel, metrica faltando):
 
-> TrainingPeaks MCP nao respondeu. Voce quer:
-> (a) Deixar a zona Corpo com `—` nos campos que faltam
-> (b) Me passar manualmente: peso, TSS semana, sono ultima noite
+- Os campos que nao chegarem ficam com `&mdash;` (classe `header__corpo-number--empty`)
+- A tag daqueles campos e **omitida** do HTML (nao renderiza `<div class="header__corpo-tag">`)
+- Perguntar ao usuario:
 
-Se a autenticacao expirou, sugerir ao usuario:
+> TrainingPeaks MCP nao respondeu para [lista dos KPIs faltantes]. Voce quer:
+> (a) Deixar em `—` sem tag (recomendado se o dia for curto)
+> (b) Me passar manualmente os numeros
+
+Se a autenticacao expirou, sugerir:
 ```bash
 tp-mcp auth-status  # confirma se o problema e auth
 ```

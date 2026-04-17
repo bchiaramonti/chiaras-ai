@@ -114,7 +114,7 @@
   --zone-dia: 220px;
   --zone-insight: 240px;
   --zone-mes: 150px;
-  --zone-corpo: 130px;
+  --zone-corpo: 240px;
   --zone-amanha: 500px;
 
   /* ---------------------------------------------------------
@@ -388,9 +388,8 @@ body {
 }
 
 .header__corpo-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
   align-items: baseline;
   gap: 8px;
 }
@@ -403,7 +402,7 @@ body {
 
 .header__corpo-value {
   display: flex;
-  flex-direction: row;
+  justify-content: flex-end;
   align-items: baseline;
   gap: 2px;
 }
@@ -420,12 +419,27 @@ body {
 
 .header__corpo-number--body { color: var(--accent-secondary); }
 .header__corpo-number--alert { color: var(--alert); }
+.header__corpo-number--empty { color: var(--text-subtle); }
 
 .header__corpo-unit {
   font-family: var(--font-sans);
   font-size: 10px;
   color: var(--text-secondary);
 }
+
+/* Tag de classificacao por KPI (v1.7.0) */
+.header__corpo-tag {
+  font-family: var(--font-serif);
+  font-size: 10px;
+  font-style: italic;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.header__corpo-tag--body  { color: var(--accent-secondary); }
+.header__corpo-tag--alert { color: var(--alert); }
+.header__corpo-tag--warn  { color: var(--accent-primary); }
 
 /* =============================================================
    BODY · 3 colunas

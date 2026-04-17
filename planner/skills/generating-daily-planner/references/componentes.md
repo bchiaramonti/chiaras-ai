@@ -153,9 +153,11 @@ Grid de 7x5 mostrando o mes inteiro. Dia atual destacado com `.is-today` (accent
 
 ### 5. Corpo · stack vertical
 
-**Classes:** `.header__corpo` + `.header__corpo-row` + `.header__corpo-label` + `.header__corpo-value` + `.header__corpo-number` + `.header__corpo-unit`
+**Classes:** `.header__corpo` + `.header__corpo-row` + `.header__corpo-label` + `.header__corpo-value` + `.header__corpo-number` + `.header__corpo-unit` + `.header__corpo-tag` (v1.7.0)
 
-Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, 3 rows verticais de KPI: label esquerda, numero direita. Numeros em Inter sans 20px tabular. Sem grafico, sem barra — so numero puro.
+Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em ordem fixa — `peso → sono → TSS sem → TSB` (v1.7.0). Cada row e um **grid de 3 colunas** (`48px 1fr auto`): label esquerda, valor no meio alinhado a direita, tag classificatoria no fim. Numeros em Inter sans 20px tabular. Sem grafico, sem barra — so numero + tag textual.
+
+**Zona Corpo tem 240px** (`--zone-corpo`) em v1.7.0 (era 130px) — necessario para acomodar as tags sem quebrar linha. Lide (flex:1) continua absorvendo o espaco restante.
 
 ```html
 <div class="header__corpo">
@@ -164,16 +166,10 @@ Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, 3 rows vertica
   <div class="header__corpo-row">
     <div class="header__corpo-label">peso</div>
     <div class="header__corpo-value">
-      <div class="header__corpo-number">104.8</div>
+      <div class="header__corpo-number">103</div>
       <div class="header__corpo-unit">kg</div>
     </div>
-  </div>
-
-  <div class="header__corpo-row">
-    <div class="header__corpo-label">TSS sem</div>
-    <div class="header__corpo-value">
-      <div class="header__corpo-number header__corpo-number--body">387</div>
-    </div>
+    <div class="header__corpo-tag">estável</div>
   </div>
 
   <div class="header__corpo-row">
@@ -182,14 +178,47 @@ Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, 3 rows vertica
       <div class="header__corpo-number header__corpo-number--alert">6.8</div>
       <div class="header__corpo-unit">h</div>
     </div>
+    <div class="header__corpo-tag header__corpo-tag--alert">baixo</div>
+  </div>
+
+  <div class="header__corpo-row">
+    <div class="header__corpo-label">TSS sem</div>
+    <div class="header__corpo-value">
+      <div class="header__corpo-number header__corpo-number--body">387</div>
+    </div>
+    <div class="header__corpo-tag header__corpo-tag--body">saudável</div>
+  </div>
+
+  <div class="header__corpo-row">
+    <div class="header__corpo-label">TSB</div>
+    <div class="header__corpo-value">
+      <div class="header__corpo-number header__corpo-number--body">-18</div>
+    </div>
+    <div class="header__corpo-tag header__corpo-tag--body">produtivo</div>
   </div>
 </div>
 ```
 
-**Regras de cor do numero:**
-- Dados neutros (peso) → default primary
-- Dados de performance/treino (TSS, FTP, VO2, ritmo) → `--body` (azul petroleo)
-- Dados em alerta (sono baixo, fadiga alta, semana zerada) → `--alert` (terracota escuro)
+**Regra de ouro:** quando o MCP TrainingPeaks esta indisponivel ou o dado esta ausente, o valor fica em `&mdash;` (classe `header__corpo-number--empty`) **e a tag e omitida** — nunca invente classificacao. Exemplo:
+
+```html
+<div class="header__corpo-row">
+  <div class="header__corpo-label">sono</div>
+  <div class="header__corpo-value">
+    <div class="header__corpo-number header__corpo-number--empty">&mdash;</div>
+    <div class="header__corpo-unit">h</div>
+  </div>
+  <!-- sem <div class="header__corpo-tag"> -->
+</div>
+```
+
+**Regras de cor** (numero + tag seguem a mesma cor semantica por faixa):
+- Default (`--text-primary` numero, `--text-secondary` tag) → neutro
+- `--body` (azul petroleo) → dado saudavel/produtivo
+- `--alert` (terracota escuro) → dado em alerta (sono <6h, TSS zerada 3+ dias, TSB overreach/destreino)
+- `--warn` (terracota primary) → dado de atencao (sono alta, TSS leve, TSB fresco)
+
+As faixas exatas e as palavras de tag de cada KPI estao documentadas em [extracao-dados.md secao 4](extracao-dados.md#4-corpo--saude). **Tag tem no maximo 1 palavra** — sem parenteses, sem pontos finais.
 
 ## BODY · 3 colunas
 

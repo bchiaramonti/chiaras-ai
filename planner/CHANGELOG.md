@@ -2,6 +2,26 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.7.0] - 2026-04-17
+
+### Added
+- **Tags de classificacao na zona Corpo do header** (apenas skill `generating-daily-planner`). Cada um dos 4 KPIs agora exibe, a direita do numero, uma tag de 1 palavra classificando o status (ex: `estável`, `baixo`, `produtivo`, `overreach`). Cor da tag segue semantica do design system: `--body` (azul petroleo) para saudavel, `--alert` (terracota escuro) para alerta, `--accent-primary` (warn) para atencao, `--text-secondary` para neutro. Feature validada no planner gerado em 2026-04-17.
+- **Classes CSS novas em `references/tokens.css`**: `.header__corpo-tag` com 3 modifiers (`--body`, `--alert`, `--warn`) + `.header__corpo-number--empty` para dados ausentes.
+- **Matriz de faixas -> tag** em `references/extracao-dados.md` secao 4. Cada KPI (peso, sono, TSS sem, TSB) tem 3-5 faixas mapeadas para tags especificas, com a classe CSS correspondente. Inclui regra de classificacao de peso por variacao de 7 dias (estavel/em queda/subindo), sono por horas absolutas, TSS por volume semanal + contagem de dias zerados, TSB por 5 bandas do metodo de Banister (overreach/produtivo/neutro/fresco/destreino).
+
+### Changed
+- **Ordem fixa dos 4 KPIs** da zona Corpo: `peso -> sono -> TSS sem -> TSB` (antes: peso -> TSS -> sono, com HRV e TSB como "opcionais"). TSB deixa de ser opcional e entra como 4o KPI fixo — metrica de Banister que sintetiza forma do atleta, importante para modulacao de intensidade no dia.
+- **Layout da row da zona Corpo** passa de flex 2-col para **grid 3-col** (`48px 1fr auto`): label fixa na esquerda, valor ocupa o meio alinhado a direita, tag no fim com largura auto. `white-space: nowrap` impede quebra de linha da tag.
+- **`--zone-corpo` de 130px para 240px** em `tokens.css` para acomodar as tags sem quebrar. Lide continua em `flex:1` absorvendo o espaco restante (o header continua somando 100% da largura, so redistribui entre as 5 zonas).
+- **`references/componentes.md` secao 5 (Corpo) reescrita** com a estrutura de 3 colunas, exemplos HTML de todos os 4 KPIs com tags, exemplo de fallback (valor `&mdash;` com tag omitida) e link para matriz de faixas em `extracao-dados.md`.
+- **`references/template-html.html`** atualizado no bloco da Zona 5 (Corpo) com os 4 KPIs na nova ordem, cada um com sua tag-exemplo.
+
+### Notes
+- **Regra de ouro mantida e reforcada:** quando um KPI nao tem dado (MCP indisponivel, metrica ausente), o valor renderiza como `&mdash;` com classe `--empty` E a tag e **totalmente omitida** do HTML (nao se renderiza uma tag vazia ou "?"). Nunca inventar classificacao.
+- Altura do header **nao aumenta** — as tags ocupam a mesma linha do valor via grid horizontal, nao adicionam row.
+- Tag tem **no maximo 1 palavra** — sem parenteses, sem pontos finais, sem compostos ligados por hifen se puder ser reformulado. Ex: `em queda` ok (2 palavras mas 1 conceito), `ok` ok, `overreach` ok, `sobrecarga funcional` **ruim** (reformular pra `pesado`).
+- A skill `generating-weekly-planner` (v1.6.0) **nao foi alterada** — o weekly tem seu proprio layout de Corpo com 4 KPIs agregados (peso Delta, TSS total, sono medio, TSB) que pode receber o mesmo tratamento de tags em versao futura, mas esta PR esta escopada em daily.
+
 ## [1.6.0] - 2026-04-17
 
 ### Added
