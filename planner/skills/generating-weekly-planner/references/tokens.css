@@ -456,7 +456,7 @@ body {
 
 .band-1__corpo-row {
   display: grid;
-  grid-template-columns: 48px 1fr auto;  /* v1.8.0: 3-col (label | valor right-aligned | tag) */
+  grid-template-columns: 72px 1fr auto;  /* v1.8.1: label 48->72px para caber "sono medio" sem quebra */
   align-items: baseline;
   gap: 8px;
 }
@@ -465,6 +465,7 @@ body {
   font-size: var(--fs-micro);
   font-style: italic;
   color: var(--text-secondary);
+  white-space: nowrap;                   /* v1.8.1: reforca anti-quebra em labels compostos */
 }
 
 .band-1__corpo-value {

@@ -2,6 +2,16 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.8.1] - 2026-04-17
+
+### Fixed
+- **Quebra de linha do label `sono medio`** na zona Corpo da skill `generating-weekly-planner`. A coluna de label do grid 3-col estava em 48px (herdado da daily, cujos labels sao palavras unicas: `peso`, `sono`, `TSS sem`, `TSB`). No weekly os labels sao compostos (`peso Δ`, `sono medio`, `TSS total`, `TSB`) e "sono medio" (~58px em Georgia italic 11px) quebrava em duas linhas, inflando a altura da row e desalinhando o baseline vertical.
+- Fix: `grid-template-columns: 48px 1fr auto` -> `72px 1fr auto` em `.band-1__corpo-row`, acomoda todos os labels compostos sem quebra. Adicionado `white-space: nowrap` em `.band-1__corpo-label` como reforco anti-quebra (belt-and-suspenders).
+
+### Notes
+- Diferenca intencional em relacao a daily (que mantem 48px): labels do weekly sao semanticamente diferentes porque sao agregados (Δ, medio, total), e a qualificacao e estruturalmente parte do label. Reduzir para `sono` apenas tornaria ambigua a natureza agregada da metrica.
+- Escopo limitado a css: nenhuma outra mudanca de comportamento, metodologia ou template.
+
 ## [1.8.0] - 2026-04-17
 
 ### Added
