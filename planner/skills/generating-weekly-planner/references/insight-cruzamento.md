@@ -9,12 +9,31 @@ O bloco "Insight · cruzamento" nao e decorativo nem randomico. E uma **provocac
 ## Indice
 
 - [Quando gerar o insight](#quando-gerar-o-insight)
+- [Atalho Pfeffer (v1.10.0)](#atalho-pfeffer-v1100)
 - [Processo em 7 passos](#processo-em-7-passos)
 - [Regras do texto final](#regras-do-texto-final)
 - [Padrao de cruzamento](#padrao-de-cruzamento)
 - [Anti-padroes](#anti-padroes)
 - [Exemplos comentados](#exemplos-comentados)
 - [Fallback quando 3-resources nao ajuda](#fallback-quando-3-resources-nao-ajuda)
+
+## Atalho Pfeffer (v1.10.0)
+
+Quando a **semana alvo** tem caracteristicas politicas dominantes, invocar o agente `pfeffer-power-analyst` com horizonte=weekly em vez de seguir o processo em 7 passos. Condicoes:
+
+- Retrospectiva S-1 mencionou oposicao ou falha politica (Pedro travou, Sergio criticou, proposta foi rejeitada publicamente)
+- Semana tem **multiplas** reunioes com superiores (3+ reviews, board, comite executivo)
+- Semana contem apresentacao externa de alto risco (investidores, auditoria, diretoria XP)
+- Gargalo pessoal persistente no workspace M7 (>=3 atrasadas de Bruno ha duas+ semanas)
+- Decisao consequente de posicionamento politico (anunciar reorg, demitir aliado, confrontar peer)
+
+O agente retorna bloco estruturado com:
+- **Insight · cruzamento** (cruzamento de 2 capitulos do livro POWER)
+- **Riscos Pfeffer** (pre-mortem tatico ancorado em capitulos, alimenta Regra 6 da metodologia)
+- **Notas taticas** (para execucao durante a semana, opcional)
+- **Rastro** (auditoria de quais sinais foram lidos e quais capitulos descartados)
+
+Ver [agents/pfeffer-power-analyst.md](../../../agents/pfeffer-power-analyst.md). **Quando NAO usar Pfeffer** no weekly: semanas de ferias, retro S-1 sem angulo politico, semana dedicada a deep work tecnico sem stakeholders externos.
 
 ## Quando gerar o insight
 

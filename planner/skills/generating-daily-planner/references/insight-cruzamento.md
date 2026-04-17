@@ -7,12 +7,41 @@ O bloco "Insight · cruzamento" nao e decorativo nem randomico. E uma **provocac
 ## Indice
 
 - [Quando gerar o insight](#quando-gerar-o-insight)
+- [Atalho Pfeffer (v1.10.0)](#atalho-pfeffer-v1100)
 - [Processo em 7 passos](#processo-em-7-passos)
 - [Regras do texto final](#regras-do-texto-final)
 - [Padrao de cruzamento](#padrao-de-cruzamento)
 - [Anti-padroes](#anti-padroes)
 - [Exemplos comentados](#exemplos-comentados)
 - [Fallback quando 3-resources nao ajuda](#fallback-quando-3-resources-nao-ajuda)
+
+## Atalho Pfeffer (v1.10.0)
+
+Quando a agenda do dia contem **sinais politicos fortes** (qualquer uma das condicoes):
+
+- Reuniao com superior direto (CEO, diretor, board) — especialmente se for review, apresentacao de resultado ou decisao
+- Apresentacao para audiencia externa relevante (diretoria XP, investidores, clientes importantes)
+- 1:1 com subordinado em fila travada, em oposicao declarada ou com performance em risco
+- Reuniao onde voce precisa defender posicionamento ou tomar decisao politica
+- Workspace M7 com gargalo pessoal detectado (>=3 tasks atrasadas de Bruno na coluna 3 do planner)
+- Retrospectiva indicando oposicao recente (se daily pos-weekly)
+
+Nesses casos, **invocar o agente especializado `pfeffer-power-analyst`** em vez de seguir o processo de 7 passos. O agente cruza dois capitulos do livro **POWER** (Pfeffer, 2010) e retorna Markdown pronto com Insight + Notas taticas + Rastro auditavel.
+
+```
+Invocar: agents/pfeffer-power-analyst.md
+Inputs: agenda do dia + MITs + workspace_m7 state + lide rascunhado
+Output: Insight · cruzamento (Pfeffer) + 1-3 Notas do dia
+```
+
+Ver [agents/pfeffer-power-analyst.md](../../../agents/pfeffer-power-analyst.md) para detalhes do agente, inventario conceitual dos 13 capitulos e mapa de cruzamentos sugeridos.
+
+**Quando NAO usar Pfeffer:**
+- Dia operacional puro (deep work solo, sem interacoes politicas relevantes)
+- Usuario pediu explicitamente outro framework (GPD, Shape Up, Newport, etc.)
+- Dia pessoal/familia dominante — Pfeffer e sobre poder organizacional, nao cabe em todo contexto
+
+Nesses casos, seguir o processo em 7 passos abaixo.
 
 ## Quando gerar o insight
 

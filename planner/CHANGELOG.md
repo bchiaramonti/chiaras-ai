@@ -2,6 +2,43 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.10.0] - 2026-04-17
+
+### Added · Novo agente `pfeffer-power-analyst`
+
+Primeiro agente do plugin planner. Especializado em analise de dinamicas de poder organizacional baseado no livro **POWER: Why Some People Have It — and Others Don't** (Jeffrey Pfeffer, Stanford GSB, 2010). Localizado em `agents/pfeffer-power-analyst.md`.
+
+**Funcao:** analisar a agenda do dia ou semana atraves das lentes do livro de Pfeffer e retornar Markdown estruturado pronto para os campos **Insight · cruzamento** e **Notas do dia** dos planners (daily e weekly).
+
+**Design:**
+- Ferramentas read-only (Read, Grep, Glob) — principio do menor privilegio. O agente nao escreve no HTML; retorna Markdown que a skill do planner incorpora.
+- Modelo: `opus`. Analise de dinamicas de poder exige nuance e cruzamento de frameworks.
+- System prompt carrega inventario completo dos 13 capitulos do livro com conceitos-chave, mapa de cruzamentos frequentemente uteis (agenda-tipo → 2 capitulos com tensao), exemplo completo de entrada e saida, e anti-padroes.
+- Voz descritiva nao-prescritiva. Pfeffer e explicito: *"the world is not a just place — don't wish it were different, understand it"*. O tom do agente carrega essa disposicao.
+
+**Quando e invocado:**
+- Daily: quando agenda contem reuniao com superior, 1:1 com subordinado em oposicao, apresentacao para audiencia externa, decisao de posicionamento, ou gargalo pessoal no workspace M7 (>=3 atrasadas de Bruno).
+- Weekly: quando retro S-1 menciona oposicao, semana tem >=3 reunioes com superiores, apresentacao externa de alto risco, ou decisao consequente de posicionamento politico.
+
+**Output estruturado (Markdown):**
+- `## Insight · cruzamento` — tese argumentativa cruzando 2 capitulos em tensao
+- `## Notas do dia` — 1-3 notas taticas em bullets compativeis com componente `.note`
+- `## Riscos Pfeffer` (weekly, opcional) — pre-mortem tatico alimenta Regra 6 da metodologia
+- `## Rastro` — auditoria dos sinais lidos e capitulos descartados
+
+**Integracao com as skills existentes:**
+- `generating-daily-planner/SKILL.md`: Fase 2b ganha **atalho Pfeffer** como alternativa ao `insight-cruzamento.md` padrao quando agenda tem sinais politicos fortes.
+- `generating-daily-planner/references/insight-cruzamento.md`: nova secao "Atalho Pfeffer" com criterios de invocacao e anti-padroes (quando NAO usar).
+- `generating-weekly-planner/SKILL.md`: Fase 2 ganha trigger equivalente para horizonte semanal.
+- `generating-weekly-planner/references/insight-cruzamento.md`: nova secao "Atalho Pfeffer" especifica para horizonte semanal.
+- `generating-weekly-planner/references/metodologia-planejamento.md` Regra 6 (Riscos & fogos): agente alimenta pre-mortem com leituras Pfeffer quando relevante.
+
+### Notes
+
+- O agente nao substitui o `insight-cruzamento.md` padrao — coexiste como alternativa especializada para dias/semanas com conteudo politico dominante. Dias puramente operacionais continuam usando scan de `brain/3-resources/`.
+- System prompt e extenso (~300 linhas) por design: agentes rodam em contexto isolado sem acesso ao livro; o inventario dos 13 capitulos no prompt garante aplicacao especifica (capitulo + conceito) em vez de conselho generico.
+- Memoria do agente nao foi ativada nesta versao. Pode ser adicionada em v2.0.0 se o uso indicar valor em lembrar padroes recorrentes de Bruno (rede, opositores conhecidos, tolerancia a conflito).
+
 ## [1.9.0] - 2026-04-17
 
 ### Fixed · Tres bugs de integridade detectados em produ&ccedil;&atilde;o

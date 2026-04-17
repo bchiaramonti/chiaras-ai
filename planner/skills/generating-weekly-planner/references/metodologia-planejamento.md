@@ -232,6 +232,7 @@ Derivar 3-4 riscos dos seguintes sinais:
 1. **Da retrospectiva S-1**: o que "travou" pode travar de novo
 2. **Da Orquestra**: onde ha acumulo (todos os meetings no mesmo dia, deep work contra reuniao, etc.)
 3. **Da extracao Workspace M7**: tarefas com status `atrasada` ou `bloqueada` em qualquer frente (ver [extracao-dados.md secao 3](extracao-dados.md)). Se `is_self==true` (assignee=Bruno), o risco se transforma em "gargalo pessoal na frente X". Se a mesma frente tem 3+ atrasadas no mesmo responsavel, vira risco "fila travada em <pessoa> · <frente>"
+4. **Do agente `pfeffer-power-analyst` (v1.10.0)**: quando a semana tem sinais politicos fortes (multiplas reunioes com superiores, oposicao declarada na retro, decisao estrategica publica), o agente retorna bloco opcional `## Riscos Pfeffer` com pre-mortem tatico ancorado em capitulos especificos do livro POWER. Exemplos frequentes: "reuniao com CEO apos falha de entrega da semana passada · risco Cap 1 (make boss feel better) vs Cap 7 (anger/self-respect)"; "apresentacao externa apos rumor de problema · risco Cap 8 (first impressions durables, biased assimilation)"
 4. **Dos Prazos duros**: prazos com pouco buffer
 
 ### Estrutura de cada risco

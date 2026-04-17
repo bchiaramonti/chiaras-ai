@@ -66,6 +66,8 @@ Ler [references/metodologia-planejamento.md](references/metodologia-planejamento
 
 Em paralelo, gerar o **Insight · cruzamento** seguindo [references/insight-cruzamento.md](references/insight-cruzamento.md): derivar 2-3 tensionamentos estrategicos da semana (nao do dia) → dominios → scan de `brain/3-resources/` → cruzamento binario de frameworks.
 
+**Alternativa Pfeffer (v1.10.0):** quando a semana contiver sinais politicos dominantes (multiplas reunioes com superiores, apresentacoes estrategicas, oposicao identificada na retrospectiva S-1, gargalo pessoal persistente no workspace M7 ou decisao consequente de posicionamento), invocar o agente `pfeffer-power-analyst` com horizonte=weekly. O agente cruza dois capitulos do livro POWER e retorna Markdown estruturado que alimenta o Insight **e** a Regra 6 (Riscos & fogos) com pre-mortem tatico. Ver [agents/pfeffer-power-analyst.md](../../agents/pfeffer-power-analyst.md).
+
 Antes de avancar para Fase 3, validar o **checklist de sanidade** (final de metodologia-planejamento.md).
 
 ### Fase 3 · Renderizar (design system aplicado)
@@ -180,6 +182,13 @@ generating-weekly-planner/
     ├── componentes.md                # Fase 3 · componentes weekly especificados
     ├── regras-texto.md               # Fase 3 · tom editorial, labels weekly, metadata
     └── template-html.html            # Fase 3 · starter HTML completo
+
+Agente relacionado (pasta `agents/` do plugin):
+└── pfeffer-power-analyst.md          # Atalho Fase 2b e insumo para Regra 6 (Riscos).
+                                       Invocado quando semana tem sinais politicos
+                                       dominantes (oposicao na retro, multiplas reunioes
+                                       com superiores, apresentacao externa de alto risco,
+                                       decisao de posicionamento).
 ```
 
 ## Output esperado

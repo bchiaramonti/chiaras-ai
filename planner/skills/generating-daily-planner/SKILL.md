@@ -59,6 +59,8 @@ Ler [references/metodologia-planejamento.md](references/metodologia-planejamento
 
 Em paralelo, gerar o **Insight · cruzamento** seguindo [references/insight-cruzamento.md](references/insight-cruzamento.md): 2-3 desafios do dia → dominios → scan de `brain/3-resources/` → cruzamento binario de frameworks com tensao explicita.
 
+**Alternativa Pfeffer (v1.10.0):** quando a agenda do dia contiver sinais politicos relevantes (reuniao com superior, 1:1 com subordinado em oposicao, apresentacao para diretoria/externos, decisao de posicionamento, gargalo pessoal no workspace M7 com >=3 atrasadas proprias de Bruno), invocar o agente `pfeffer-power-analyst` como substituto do `insight-cruzamento.md` padrao. O agente cruza dois capitulos do livro POWER (Pfeffer, 2010) e retorna Markdown estruturado pronto para Insight + 1-3 Notas do dia. Se o dia e puramente operacional, seguir o fluxo padrao. Ver [agents/pfeffer-power-analyst.md](../../agents/pfeffer-power-analyst.md).
+
 Antes de avancar para Fase 3, validar o **checklist de sanidade** (final de metodologia-planejamento.md).
 
 ### Fase 3 · Renderizar (design system aplicado)
@@ -154,6 +156,12 @@ generating-daily-planner/
     ├── componentes.md             # Fase 3 · 12 componentes especificados
     ├── regras-texto.md            # Fase 3 · tom editorial, labels, metadata
     └── template-html.html         # Fase 3 · starter HTML completo
+
+Agente relacionado (pasta `agents/` do plugin):
+└── pfeffer-power-analyst.md       # Atalho Fase 2b para dias com sinais politicos
+                                    (substitui insight-cruzamento.md padrao quando
+                                    agenda contem reuniao com superior, apresentacao,
+                                    oposicao declarada ou gargalo pessoal detectado)
 ```
 
 ## Output esperado
