@@ -643,7 +643,7 @@ Cada coluna de dia tem `display: flex; flex-direction: column` e a `.day__entreg
 | Daily | Weekly | Motivo |
 |---|---|---|
 | Header 5-zone com Mes calendario | Header 5-zone com Ano (52 semanas) | Horizonte maior → calendario trimestral |
-| Body 3-col (Agenda + MITs + Delegadas) | Band 2 Orquestra 5 cols dia a dia | Orquestracao vs execucao |
+| Body 3-col (Agenda + MITs + Workspace M7) | Band 2 Orquestra 5 cols dia a dia | Orquestracao vs execucao |
 | Footer 2-col (Notas + Amanha) | Band 4 Preflight 4 perguntas ancorado | Shutdown reverso vs preview do proximo dia |
 | Corpo 3 rows (peso, TSS sem, sono) | Corpo 4 rows (peso Δ, TSS total, sono medio, TSB) | Agregados semanais + TSB |
 | Lide do dia | Lide da semana + Tese + Criterio | Aposta argumentativa vs resumo descritivo |

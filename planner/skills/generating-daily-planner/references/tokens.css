@@ -22,7 +22,7 @@
     17. AGENDA ENUMERADA
     18. TRES INADIAVEIS
     19. TAREFAS CLICKUP
-    20. DELEGADAS
+    20. WORKSPACE M7 (antes: DELEGADAS — v1.9.0)
     21. FOOTER · 2 colunas
     22. NOTAS DO DIA
     23. METRICA INLINE
@@ -176,7 +176,7 @@ body {
   color: var(--text-secondary);
 }
 
-/* Header de secao · label + meta direita (usado em agenda, tarefas, delegadas, notas, amanha) */
+/* Header de secao · label + meta direita (usado em agenda, tarefas, workspace m7, notas, amanha) */
 .section-header {
   display: flex;
   flex-direction: row;
@@ -443,7 +443,7 @@ body {
 
 /* =============================================================
    BODY · 3 colunas
-   Agenda | Tres inadiaveis + Tarefas ClickUp | Delegadas
+   Agenda | Tres inadiaveis + Tarefas ClickUp | Workspace M7
    ============================================================= */
 
 .body {
@@ -606,6 +606,13 @@ body {
 .tasks__row--delayed .tasks__title { color: var(--alert); }
 .tasks__row--delayed .tasks__due { color: var(--alert); }
 
+/* Bloqueada (workspace M7) — texto muted + due italic em warn */
+.tasks__row--blocked .tasks__title { color: var(--text-secondary); }
+.tasks__row--blocked .tasks__due { color: var(--accent-primary); font-style: italic; }
+
+/* Bruno-as-assignee (gargalo pessoal na coluna workspace M7) */
+.tasks__row--self .tasks__title-meta { color: var(--alert); font-weight: 700; }
+
 .tasks__more {
   font-family: var(--font-sans);
   font-size: 11px;
@@ -615,21 +622,27 @@ body {
 }
 
 /* =============================================================
-   DELEGADAS · agrupadas por projeto
+   WORKSPACE M7 · agrupado por frente (lista/sprint)
+   Coluna 3 do body. Escopo: saude das frentes do workspace M7 inteiro
+   (status=atrasada/bloqueada), nao "tasks delegadas por Bruno".
+   .delegadas__* permanecem como alias de retrocompatibilidade (v1.9.0).
    ============================================================= */
 
+.workspace__group,
 .delegadas__group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
+.workspace__group + .workspace__group,
 .delegadas__group + .delegadas__group {
   padding-top: 8px;
   border-top: var(--divider-thin);
   margin-top: 6px;
 }
 
+.workspace__frente,
 .delegadas__project {
   font-size: 11px;
   font-style: italic;

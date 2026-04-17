@@ -2,6 +2,64 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.9.0] - 2026-04-17
+
+### Fixed · Tres bugs de integridade detectados em produ&ccedil;&atilde;o
+
+**Bug 1 · Task `cancelada` entrando no planner como `atrasada`.** A skill confiava cegamente no campo `status` retornado pela ClickUp API, sem cruzar com `date_closed`, `archived` ou `status.type`. Uma task marcada como **cancelada** no ClickUp chegou a ser incluida como MIT #1 no planner diario.
+
+Fix aplicado em `generating-daily-planner/references/extracao-dados.md` e `generating-weekly-planner/references/extracao-dados.md` secao 2 (ClickUp):
+
+- **Whitelist explicita** de status aceitos: `["pendente", "em andamento", "atrasada", "bloqueada", "em revisao", "em aprovacao"]`
+- **Blacklist** de status proibidos: `["cancelada", "descartada", "won't do", "concluida", "arquivada", "duplicada", "rejeitada"]`
+- **Regra de deteccao em ordem**: (1) `status.status` na blacklist, (2) `status.type == closed`, (3) `date_closed != null`, (4) `archived == true` — qualquer match descarta a task
+- **Regra de duvida**: tasks destinadas a MIT/Big 3/Prazos duros com status fora da whitelist sao **confirmadas via `AskUserQuestion`** antes de entrar no topo do planner
+- **Descoberta de status customizados**: sugerir chamada a `clickup_get_list(list_id=...)` para inspecionar `statuses[]` e identificar automaticamente status com `type=closed|done`
+
+Checklists pre-render (`SKILL.md` + `metodologia-planejamento.md`) validam explicitamente "nenhuma task em status blacklist" e "tasks em status ambiguo destinadas a MIT foram confirmadas".
+
+**Bug 2 · Coluna 3 do daily ("Delegadas") com escopo errado.** Tratava a secao como "tasks que Bruno delegou" (filtro `assignee != Bruno, created_by = Bruno`), quando o escopo correto do cargo Head of Performance e saude do workspace M7 inteiro — independente de quem assinou ou criou. A coluna entregava vazio ou mostrava apenas o time imediato, escondendo gargalos sistemicos.
+
+Fix aplicado com renome estrutural:
+
+- **Renomeada a coluna** de "Delegadas" para **"Workspace M7"** no template, componentes, label editorial e schema
+- **Query trocada** de `assignees=[!Bruno]` por `statuses=["atrasada", "bloqueada"]` no workspace inteiro (sem filtro de assignee)
+- **Agrupamento** passa de "por projeto que Bruno delegou" para "por frente (lista/sprint)" com contadores reais do workspace
+- **Regra "Bruno e o gargalo"**: tasks com `assignee == Bruno` aparecem destacadas com `.tasks__row--self` e, se >=3, o header ganha meta `<span class="alert">N minhas</span>`. Nao duplicam com a coluna 2 (Tarefas ClickUp)
+- **Novas classes CSS**: `.workspace__group`, `.workspace__frente`, `.tasks__row--blocked`, `.tasks__row--self` em `tokens.css`. `.delegadas__group` / `.delegadas__project` mantidas como alias de retrocompatibilidade
+- **Weekly**: a extracao Workspace M7 alimenta especificamente a Regra 6 (Riscos & fogos) e informa Big 3 quando ha gargalo pessoal de Bruno em uma frente
+
+Atualizados: `SKILL.md` (tabela da Fase 1 + Regra 5), `metodologia-planejamento.md` (Regra 5 reescrita), `componentes.md` (secao 10 renomeada), `regras-texto.md` (vocabulario de labels), `template-html.html` (Coluna 3 do daily) em ambas skills.
+
+**Bug 3 · Contadores sem rastreabilidade com a fonte.** O planner exibia "42 atrasadas" quando a query real retornava 28. O numero provavelmente somava `status=pendente + due vencido` com `status=atrasada` (dupla contagem, porque o ClickUp automaticamente muda para `atrasada` quando o due passa). Sem mapa metrica→query, impossivel auditar.
+
+Fix aplicado em ambos `extracao-dados.md`:
+
+- **Nova secao "Rastreabilidade de metricas"** exigindo que todo numero exibido tenha entrada em `extracao.metricas` com `{metrica, query, count, fonte}`
+- **Regra de unica fonte para "atrasada"**: status customizado `atrasada` e a fonte canonica. Proibido somar com `status=pendente + due vencido`
+- **Regra de recalculo na Fase 2**: contadores recalculados a partir das linhas extraidas, nao reusados dos headers da API
+- **Validacao antes de renderizar**: Fase 3 recusa renderizar se um numero no HTML nao tem entrada correspondente em `metricas`
+- Checklists pre-render (`SKILL.md` + `metodologia-planejamento.md`) incluem explicitamente "cada contador tem entrada rastreavel" e "contador recalculado, nao reusado"
+
+### Added
+
+- Secoes novas em `references/extracao-dados.md` (daily + weekly): "Whitelist e blacklist de status", "Rastreabilidade de metricas"
+- Blocos novos no schema YAML: `workspace_m7:` (substitui `delegadas:`) com `is_self` por task, `contadores:`, e `metricas:` global
+- Classes CSS novas em `tokens.css` do daily: `.workspace__group`, `.workspace__frente`, `.tasks__row--blocked`, `.tasks__row--self`
+- Anti-padroes novos em "Nunca fazer" das duas `SKILL.md`: incluir task em blacklist, tratar coluna 3 como "o que eu deleguei", exibir numero sem rastreabilidade, somar heuristicas redundantes
+
+### Changed
+
+- Label editorial "Delegadas." → "Workspace M7." (daily). Weekly nao tinha label visivel (extracao alimentava Riscos & fogos); agora a conexao esta explicitamente documentada na metodologia
+- Coluna 3 do daily passa a exibir contadores do workspace inteiro (ex: "28 atrasadas · 4 bloqueadas · 3 minhas") em vez de contadores do subset delegado (ex: "1 atrasada · 7 abertas")
+- Todas tabelas de "Nunca fazer" + checklists pre-render atualizadas
+
+### Notes
+
+- `delegadas__*` CSS classes permanecem como alias para nao quebrar HTMLs gerados antes de v1.9.0 — remover em v2.0.0
+- Os tres bugs compartilham raiz comum: **skill tratava a API ClickUp como fonte de verdade sem questionar**. A correcao introduz boundaries de interrogacao em cada ponto de ingestao (status validation, scope validation, count validation)
+- Usuario adicionou nota semantica ao `brain/CLAUDE.md` reforcando que Bruno responde pelo workspace M7 inteiro (contexto para coluna 3)
+
 ## [1.8.1] - 2026-04-17
 
 ### Fixed

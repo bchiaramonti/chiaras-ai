@@ -30,7 +30,7 @@ Sempre em sentence case com ponto final. Sempre em Georgia italic 13px terracota
 | Cronograma do dia | "Agenda." |
 | 3 prioridades maximas | "Tres inadiaveis." |
 | Tarefas atribuidas (ClickUp) | "Tarefas ClickUp." |
-| Tarefas delegadas a outros | "Delegadas." |
+| Saude das frentes do workspace M7 (atrasadas + bloqueadas) | "Workspace M7." |
 | Ideias capturadas | "Notas do dia." |
 | Previsao do proximo dia | "Amanha." |
 
@@ -42,7 +42,8 @@ Estes labels foram substituidos. Mantidos aqui apenas por contexto historico:
 |---|---|
 | "Foco do dia." | "Lide do dia." |
 | "Semana 16." (secao dedicada) | "(sem. 16)" inline no header Abril |
-| "PRs da equipe." | "Delegadas." (agrupada por projeto) |
+| "PRs da equipe." | "Delegadas." (v1.0-v1.8) → "Workspace M7." (v1.9+, escopo workspace inteiro) |
+| "Delegadas." | "Workspace M7." (escopo passou de "tasks delegadas por Bruno" para "saude do workspace M7 inteiro") |
 
 ### Nunca usar
 

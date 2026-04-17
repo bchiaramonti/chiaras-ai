@@ -71,7 +71,7 @@ cd ~/planner-pessoal
 claude-code "Leia os dados em ./data/$(date +%Y-%m-%d).json e gere
 o planner do dia em ./output/$(date +%Y-%m-%d).html usando a skill
 generating-daily-planner. Dados incluem: tres inadiaveis, agenda,
-metricas de corpo, tarefas, delegadas, notas capturadas ontem."
+metricas de corpo, tarefas, workspace m7 (atrasadas + bloqueadas), notas capturadas ontem."
 ```
 
 Adicionar no crontab:

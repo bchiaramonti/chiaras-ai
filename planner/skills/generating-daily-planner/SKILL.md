@@ -37,8 +37,8 @@ Ler [references/extracao-dados.md](references/extracao-dados.md) e reunir dados 
 | Fonte | Rota primaria | Fallback |
 |---|---|---|
 | Agenda | Google Calendar MCP + Outlook (manual) | Pedir print/lista |
-| Tarefas | ClickUp MCP (assignee=Bruno) | Pedir lista "Hoje" |
-| Delegadas | ClickUp MCP (criadas por Bruno, assignee != Bruno) | Pedir resumo |
+| Tarefas | ClickUp MCP (assignee=Bruno) + filtro de status (whitelist/blacklist) | Pedir lista "Hoje" |
+| Workspace M7 | ClickUp MCP (statuses=[atrasada, bloqueada], workspace inteiro) | Pedir resumo por frente |
 | Corpo | *Sem MCP* (Garmin removido em v1.3.0) | Sempre perguntar |
 | Contexto insight | Filesystem `brain/3-resources/` (PARA) | — |
 
@@ -49,11 +49,13 @@ Ler [references/extracao-dados.md](references/extracao-dados.md) e reunir dados 
 Ler [references/metodologia-planejamento.md](references/metodologia-planejamento.md) e aplicar as 6 regras de decisao:
 
 1. **Lide do dia** — tese argumentativa unica (nao lista descritiva), 200-400 chars
-2. **Tres inadiaveis** — Eisenhower Q2 > Eat-the-frog > balance de papeis (>=2 dimensoes), com pre-mortem de 1 linha cada
+2. **Tres inadiaveis** — Eisenhower Q2 > Eat-the-frog > balance de papeis (>=2 dimensoes), com pre-mortem de 1 linha cada; confirmar status via `AskUserQuestion` se nao estiver na whitelist explicita
 3. **Agenda** — capacidade 60/40, bloco >=90min para MIT #1 em 9h-12h (pico cognitivo), almoco obrigatorio
-4. **Tarefas ClickUp** — 5-6 visiveis ordenadas ABCDE, "+N" para resto
-5. **Delegadas** — agrupadas por projeto, atrasadas no topo, max 4-5 grupos
+4. **Tarefas ClickUp** — 5-6 visiveis ordenadas ABCDE, "+N" para resto; descartar status na blacklist (cancelada, descartada, etc)
+5. **Workspace M7** — agrupadas por frente (lista/sprint), atrasadas + bloqueadas do workspace inteiro, Bruno-as-assignee destacado como gargalo pessoal, max 4-5 grupos
 6. **Amanha** — Ancora (1 frase imperativa) + 0-2 bullets de Preparar hoje (<=15min cada)
+
+**Rastreabilidade obrigatoria:** cada numero que aparece no HTML deve ter entrada em `extracao.metricas` com `{metrica, query, count, fonte}`. Contadores sao recalculados a partir das linhas extraidas, nao reusados dos headers da API.
 
 Em paralelo, gerar o **Insight · cruzamento** seguindo [references/insight-cruzamento.md](references/insight-cruzamento.md): 2-3 desafios do dia → dominios → scan de `brain/3-resources/` → cruzamento binario de frameworks com tensao explicita.
 
@@ -82,8 +84,15 @@ Antes de emitir o HTML final, confirmar:
 [ ] Agenda <=60% ocupada em 9h-18h, almoco presente
 [ ] MIT #1 tem bloco >=90min reservado em 9h-12h
 [ ] Tarefas ClickUp ordenadas ABCDE, cortadas em 5-6 + "+N"
+[ ] Nenhuma task na blacklist (cancelada/descartada/won't do/arquivada) aparece no planner
+[ ] Tasks em status fora da whitelist destinadas a MIT foram confirmadas via AskUserQuestion
 [ ] Tarefas__title-meta mostra `· <lista> · <tag>` (regra da componentes.md s9)
-[ ] Delegadas agrupadas por projeto
+[ ] Coluna 3 (Workspace M7) usa query de status, nao assignee — agrupa por frente
+[ ] Tasks com assignee=Bruno na coluna 3 aparecem com modifier `--self` (gargalo)
+[ ] Tasks na coluna 3 NAO duplicam com coluna 2 (Tarefas ClickUp)
+[ ] Cada numero exibido tem entrada em `metricas` com query e count rastreaveis
+[ ] Contadores recalculados a partir de linhas extraidas (nao reusados da API)
+[ ] "atrasadas" usa status unico como fonte (nao soma pendente+due-vencido)
 [ ] Insight cruza DUAS (nao 3+) perguntas de frameworks distintos
 [ ] Ancora de Amanha cabe em 1 frase imperativa
 [ ] Preparar hoje tem 0-2 bullets, cada <=15min hoje
@@ -124,6 +133,10 @@ Antes de emitir o HTML final, confirmar:
 - Serif para dados tabulares, sans para texto narrativo
 - **Inventar dados** quando a extracao falha (perguntar ao usuario ou omitir)
 - **Pre-mortem ficticio** ("risco: tudo pode dar errado") — escrever `risco: —` se nao ha risco real
+- **Incluir task em status blacklist** (cancelada, descartada, won't do, arquivada, rejeitada) — mesmo que o ClickUp retorne com `status=aberta`, validar via `date_closed`/`archived`/`status.type`
+- **Tratar coluna 3 como "o que eu deleguei"** — o escopo e workspace inteiro; Bruno responde pela saude das frentes, nao so pelo que assinou
+- **Usar numero sem rastreabilidade** — todo contador precisa de entrada em `extracao.metricas`. Se nao tem, recalcular ou nao exibir
+- **Somar `status=pendente+due-vencido` com `status=atrasada`** — duplica. Usar uma fonte unica (preferencia: status customizado `atrasada`)
 
 ## Arquivos da skill
 

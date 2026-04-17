@@ -47,7 +47,7 @@ O Claude Code vai:
 
 1. Reconhecer o trigger (planner semanal pessoal, nao corporativo)
 2. Ler `SKILL.md` para entender o contexto
-3. **Fase 1 · Extrair**: Google Calendar (5 dias), ClickUp (tarefas/delegadas da semana), TrainingPeaks (peso, TSS, sono, TSB), ClickUp goals (Metas Q2), perguntar retrospectiva S-1
+3. **Fase 1 · Extrair**: Google Calendar (5 dias), ClickUp (tarefas da semana + workspace M7 com status=atrasada/bloqueada no workspace inteiro), TrainingPeaks (peso, TSS, sono, TSB), ClickUp goals (Metas Q2), perguntar retrospectiva S-1
 4. **Fase 2 · Planejar**: aplicar as 8 regras de decisao (Tese, Criterio, Orquestra, Big 3, Prazos, Riscos, Preflight, Corpo)
 5. **Fase 2b · Insight**: cruzamento de frameworks em `brain/3-resources/`
 6. **Fase 3 · Renderizar**: template HTML com fit-screen 4 bands, Preflight ancorado ao fundo
@@ -125,7 +125,7 @@ Extrai agenda seg-sex da semana alvo. Sem setup adicional (ja configurado).
 
 ### ClickUp MCP
 
-Extrai tarefas, delegadas e goals (Metas Q2). Sem setup adicional.
+Extrai tarefas, saude do workspace M7 (status=atrasada/bloqueada) e goals (Metas Q2). Sem setup adicional.
 
 ## Estrutura da skill
 

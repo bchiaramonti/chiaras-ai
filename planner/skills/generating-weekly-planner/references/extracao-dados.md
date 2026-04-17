@@ -12,12 +12,13 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 - [Janela temporal alvo](#janela-temporal-alvo)
 - [1. Agenda (5 dias)](#1-agenda-5-dias)
 - [2. Tarefas ClickUp (semana)](#2-tarefas-clickup-semana)
-- [3. Delegadas (horizonte semanal)](#3-delegadas-horizonte-semanal)
+- [3. Workspace M7 (saude das frentes)](#3-workspace-m7-saude-das-frentes)
 - [4. Corpo · semana (TrainingPeaks MCP)](#4-corpo--semana-trainingpeaks-mcp)
 - [5. Metas Q2 (conexao trimestral)](#5-metas-q2-conexao-trimestral)
 - [6. Retrospectiva S-1 (sempre perguntar)](#6-retrospectiva-s-1-sempre-perguntar)
 - [7. Contexto para o insight](#7-contexto-para-o-insight)
 - [Protocolo de fallback](#protocolo-de-fallback)
+- [Rastreabilidade de metricas](#rastreabilidade-de-metricas)
 - [Schema da extracao](#schema-da-extracao)
 
 ## Matriz de fontes
@@ -26,7 +27,7 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 |---|---|---|---|
 | Agenda (5 dias) | Google Calendar + Outlook M7 | `mcp__claude_ai_Google_Calendar__list_events` · *Outlook sem MCP* | Pedir print ou lista |
 | Tarefas da semana | ClickUp (due <= sex, assignee=Bruno) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir lista |
-| Delegadas | ClickUp (assignee != Bruno, criadas por Bruno, status aberto) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo verbal |
+| **Workspace M7** | ClickUp (statuses=[atrasada, bloqueada] workspace inteiro) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo por frente |
 | **Corpo · semana** | **TrainingPeaks MCP** (v1.5.0+) | `tp-mcp` (weight, sleep, HRV, weekly_summary, fitness_metrics) | Perguntar se MCP falhar |
 | **Metas Q2** | ClickUp goals → `brain/3-resources/` → perguntar | `mcp__claude_ai_ClickUp__clickup_get_workspace_hierarchy` + `clickup_search` | Perguntar confidence por objetivo |
 | **Retrospectiva S-1** | *Sempre perguntar ao usuario* | — | — (e a propria fonte) |
@@ -107,7 +108,21 @@ mcp__claude_ai_ClickUp__clickup_filter_tasks (
 )
 ```
 
-Filtrar o resultado em dois grupos:
+### Whitelist e blacklist de status (v1.9.0)
+
+Identica ao daily. O ClickUp retorna tasks com status `cancelada`, `descartada`, `won't do` quando `statuses=open` — filtrar pos-query:
+
+**Whitelist:** `["pendente", "em andamento", "atrasada", "bloqueada", "em revisao", "em aprovacao"]`
+
+**Blacklist:** `["cancelada", "descartada", "won't do", "concluida", "arquivada", "duplicada", "rejeitada"]`
+
+**Regra de deteccao:** aplicar em ordem — (1) `status.status` na blacklist, (2) `status.type == closed`, (3) `date_closed != null`, (4) `archived == true`. Se qualquer regra bate, descartar. Tasks destinadas ao topo do weekly (candidatas a **Big 3**, **Prazos duros** ou **Riscos**) com status fora da whitelist explicita devem ser confirmadas via `AskUserQuestion` antes de entrar.
+
+Para descobrir status customizados M7, chamar `clickup_get_list(list_id=...)` uma vez por sessao e inspecionar `statuses[]`.
+
+### Filtragem em grupos
+
+Apos aplicar whitelist/blacklist, separar em:
 
 **Grupo A · Candidatos a Big 3 / Tres grandes** (5-10 tasks)
 - Tags contem `big3`, `mit`, `semana`, `urgente`, `critico`, OU
@@ -144,43 +159,68 @@ Se ClickUp MCP falhar:
 > 2. Uma lista de **prazos duros** da semana (task + dia especifico)
 > 3. Uma lista curta (ate 10) de outras tarefas com due ate sexta
 
-## 3. Delegadas (horizonte semanal)
+## 3. Workspace M7 (saude das frentes)
+
+**Escopo (reformulado em v1.9.0):** no horizonte semanal, esta secao alimenta principalmente **Riscos & fogos** (Band 3) e informa os **Prazos duros**. O escopo e saude do workspace M7 inteiro (todas as frentes, todos os assignees), nao "tasks delegadas por Bruno". Bruno como Head of Performance responde pela execucao de todas as frentes — o weekly usa essa extracao pra detectar gargalos sistemicos na semana e informar pre-mortem.
 
 ### Rota primaria
 
 ```
 mcp__claude_ai_ClickUp__clickup_filter_tasks (
-  assignees=[NOT Bruno],  # filtrar pos-query
-  created_by=Bruno,
-  statuses=open,
-  due_date_lt=sexta_proxima_semana  # horizonte semanal + buffer
+  statuses=["atrasada", "bloqueada"],     # custom statuses M7
+  due_date_lt=sexta_proxima_semana,       # horizonte semanal + buffer
+  # sem filtro de assignee — escopo e workspace inteiro
+  # sem filtro de created_by — escopo e workspace inteiro
 )
 ```
 
-**Agrupar por projeto/lista**. Ordenar cada grupo por atraso (atrasadas no topo). Limite: **4-5 grupos**, 2-3 linhas por grupo.
+Apos query, aplicar a mesma blacklist da secao 2 (cancelada/descartada/closed/archived/date_closed).
+
+### Regra de agrupamento
+
+Agrupar por **frente** (lista/sprint/projeto). Ordenar:
+1. Frentes com mais atrasadas no topo
+2. Dentro da frente, atrasadas antes de bloqueadas
+3. Dentro de cada classe, mais antigas primeiro
+
+Limite: **4-5 grupos visiveis** para alimentar Riscos, 2-3 linhas por grupo.
+
+### Regra "Bruno e o gargalo"
+
+Tasks com `assignee == Bruno` aparecem com marca `is_self: true` no schema. No weekly elas sao insumo para:
+
+- **Pre-mortem (Riscos)**: gargalo pessoal vira risco explicito
+- **Big 3**: se Bruno tem 3+ atrasadas proprias numa frente, essa frente pode virar Big 3 ("Desafogar fila de X")
+- **Preflight ("onde vou dizer nao?")**: contagem de atrasadas proprias informa essa resposta
 
 ### Metadata obrigatoria
 
-- `title`
-- `assignee` (nome) — vira display `· <pessoa>`
-- `project` ou `list_name` — cabecalho do grupo
+- `id`, `title`
+- `assignee` (ou lista) — display `· <pessoa>`
+- `list_name` ou `project` — cabecalho do grupo
 - `due_date`
-- `status`
+- `status.status` + `status.type`
+- `date_closed`, `archived`
+- `is_self` (booleano: assignee inclui Bruno)
 
 ### Filtro weekly-especifico
 
-Na weekly, incluir apenas delegadas que:
-- Tem due date dentro da semana alvo OU atrasadas, OU
+Incluir apenas tasks `atrasada` ou `bloqueada` que:
+- Tem due date dentro da semana alvo OU ja atrasadas, OU
 - Bloqueiam tarefas da propria semana (dependencia), OU
-- Tem SLA de follow-up na semana (ex: "aguardando resposta ha 5d")
+- Tem SLA de follow-up que estoura na semana
 
-Delegadas distantes (due em 3 semanas) ficam fora — nao sao decisao desta weekly.
+Tasks atrasadas ha muito tempo e sem bloqueio ativo ficam fora — nao sao decisao desta weekly.
 
 ### Fallback
 
-> Nao consegui extrair as delegadas. Me passa um resumo por projeto:
-> - [Projeto X] 2-3 tarefas · pessoa · due
-> - [Projeto Y] ...
+Se ClickUp MCP falhar:
+
+> Nao consegui extrair o estado do workspace M7. Me passa um resumo por frente das tarefas atrasadas ou bloqueadas:
+> - [Frente X] 2-3 tarefas · responsavel · dias de atraso
+> - [Frente Y] ...
+>
+> Nao preciso das suas tasks pessoais aqui — essa secao alimenta Riscos & fogos, escopo e workspace inteiro.
 
 ## 4. Corpo · semana (TrainingPeaks MCP)
 
@@ -427,6 +467,78 @@ Ruim: "me passa os dados da semana"
 Bom: "A tool weekly_summary do TP nao respondeu. Me passa o TSS total da semana passada (se lembrar) e a contagem de treinos — default para o TSS e 250-350 numa semana base, 400+ numa semana all-in."
 `──────────────────────────────────────────────────`
 
+## Rastreabilidade de metricas
+
+**Problema que esta regra resolve (v1.9.0):** contadores como `X atrasadas` ou `Y bloqueadas` em Riscos & fogos e no section-header apareciam sem lastro, podendo resultar de soma redundante de heuristicas (`status=pendente + due vencido + status=atrasada`) ou de headers cached da API que nao batem com as linhas exibidas.
+
+### Regra de ouro
+
+**Todo numero que aparece no HTML final deve ter uma entrada em `extracao.metricas`** com:
+1. `metrica` — rotulo (ex: `atrasadas_workspace_semana`, `big3_count`)
+2. `query` — string da query com parametros reais
+3. `count` — valor numerico
+4. `fonte` — `clickup_mcp` | `google_calendar_mcp` | `trainingpeaks_mcp` | `usuario`
+
+Se um numero no HTML nao tem entrada, a Fase 3 **recusa renderizar** e volta para Fase 2 pedindo a origem.
+
+### Regra de unica fonte para "atrasada"
+
+Status customizado `atrasada` no workspace M7 e a fonte unica. **Nunca somar** `status=pendente + due_date < hoje` com `status=atrasada`. Se em algum workspace o `atrasada` nao existir como custom status, usar **uma** das duas heuristicas, nunca somadas:
+
+- Preferencia 1: `status == atrasada`
+- Preferencia 2: `status.type in ["open", "custom"] AND due_date < hoje AND status NOT IN blacklist`
+
+### Regra de recalculo na Fase 2
+
+Antes de renderizar cada contador, recalcular a partir das linhas extraidas — nao reusar contadores retornados no header da API:
+
+```
+# CERTO
+total_atrasadas_semana = len([
+    t for t in workspace_tasks
+    if t["status.status"] == "atrasada"
+    and t["due_date"] <= sexta_semana_alvo
+    and not t["archived"] and not t["date_closed"]
+])
+```
+
+### Schema do bloco `metricas` (weekly)
+
+```yaml
+metricas:
+  - metrica: "atrasadas_workspace_semana"
+    query: "clickup_filter_tasks(statuses=[atrasada], due_lt=sex_semana) | len"
+    count: 14
+    fonte: clickup_mcp
+  - metrica: "bloqueadas_workspace_semana"
+    query: "clickup_filter_tasks(statuses=[bloqueada], due_lt=sex_semana) | len"
+    count: 3
+    fonte: clickup_mcp
+  - metrica: "atrasadas_bruno_semana"
+    query: "atrasadas_workspace_semana AND assignee==bruno | len"
+    count: 2
+    fonte: clickup_mcp
+  - metrica: "prazos_duros_count"
+    query: "grupo_c_prazos_duros | len"
+    count: 5
+    fonte: clickup_mcp
+  - metrica: "big3_confidence_media"
+    query: "avg(objetivos_q2[i].confidence)"
+    count: 48
+    fonte: clickup_goals
+```
+
+### Validacao antes de renderizar
+
+Incluso no checklist de sanidade da Fase 2:
+
+```
+[ ] Cada numero planejado tem entrada em `metricas`
+[ ] Contadores recalculados a partir das linhas (nao reusados da API)
+[ ] Nenhum numero soma heuristicas redundantes (pendente+due vencido+atrasada)
+[ ] "atrasadas_*" usa status=atrasada como fonte unica
+```
+
 ## Schema da extracao
 
 Saida consolidada apos Fase 1 (estrutura interna, nao HTML):
@@ -486,15 +598,31 @@ tarefas:
       task: "Apresentacao diretoria"
       sla: "10h"
 
-delegadas:
+workspace_m7:
+  escopo: "statuses=[atrasada, bloqueada] no workspace inteiro, due_lt=sex_semana"
   grupos:
-    - projeto: "Padronizacao Rituais"
+    - frente: "Padronizacao Rituais"
       tarefas:
-        - title: "Validar fluxograma G2.3"
+        - id: "TSM-1140"
+          title: "Validar fluxograma G2.3"
           assignee: "Ana"
           due: "2026-04-15"
-          urgencia: urgent
+          status: "atrasada"
+          is_self: false
           aging_dias: 2
+    - frente: "Desdobramento Metas 2026"
+      tarefas:
+        - id: "TSM-1155"
+          title: "SQL consorcios"
+          assignee: "Rafa"
+          due: "2026-04-12"
+          status: "bloqueada"
+          is_self: false
+          aging_dias: 5
+  contadores:
+    atrasadas_total: 14
+    bloqueadas_total: 3
+    atrasadas_bruno: 2           # se >=3, alimenta Pre-mortem como gargalo
 
 corpo:
   fonte: trainingpeaks_mcp
@@ -537,6 +665,24 @@ contexto_insight:
   tensionamentos: [validacao-vs-autonomia, delegacao-vs-fazer-eu-mesmo]
   candidatos_3resources:
     - brain/3-resources/...
+
+metricas:
+  - metrica: "atrasadas_workspace_semana"
+    query: "clickup_filter_tasks(statuses=[atrasada], due_lt=sex_semana) | len"
+    count: 14
+    fonte: clickup_mcp
+  - metrica: "bloqueadas_workspace_semana"
+    query: "clickup_filter_tasks(statuses=[bloqueada], due_lt=sex_semana) | len"
+    count: 3
+    fonte: clickup_mcp
+  - metrica: "atrasadas_bruno_semana"
+    query: "atrasadas_workspace_semana AND assignee==bruno | len"
+    count: 2
+    fonte: clickup_mcp
+  - metrica: "prazos_duros_count"
+    query: "grupo_c_prazos_duros | len"
+    count: 5
+    fonte: clickup_mcp
 ```
 
 Essa estrutura e consumida pela Fase 2 (planejamento) e pela Fase 3 (renderizacao). Nao e exposta ao usuario — e artefato interno da skill.

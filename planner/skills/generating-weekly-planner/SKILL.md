@@ -1,6 +1,6 @@
 ---
 name: generating-weekly-planner
-description: Gera o weekly planner pessoal executivo de Bruno em HTML seguindo tres fases aplicadas ao horizonte semanal (seg-sex). Fase 1 (Extrair) le dados via Google Calendar MCP (5 dias), ClickUp MCP (tarefas/delegadas da semana), TrainingPeaks MCP (peso, TSS, sono, TSB - pos v1.5.0), metas Q2 (ClickUp goals ou filesystem brain/3-resources) e retrospectiva S-1 perguntada ao usuario. Fase 2 (Planejar) aplica 8 regras destiladas de Hyatt Weekly Preview (Tese + Big 3 + Critério), Cal Newport Time-Block (Orquestra dos 5 dias com deep work blocks), 4DX (Critério de vitória), Kahneman Pre-mortem (Riscos com mitigação pronta) e Newport Shutdown Reverso (Preflight com 4 perguntas editoriais), gerando o Insight cruzando frameworks de brain/3-resources. Fase 3 (Renderizar) aplica o design system Planner Editorial Noturno em fit-screen 1440x1000 com 4 bands (Contexto + Orquestra HERO + Compromissos + Preflight ancorado ao fundo). Use quando Bruno pedir para criar, editar ou gerar seu planner semanal, weekly preview, dashboard da semana ou HTML para sunday planning. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
+description: Gera o weekly planner pessoal executivo de Bruno em HTML seguindo tres fases aplicadas ao horizonte semanal (seg-sex). Fase 1 (Extrair) le dados via Google Calendar MCP (5 dias), ClickUp MCP (tarefas da semana + workspace M7 com status=atrasada/bloqueada no workspace inteiro para alimentar Riscos), TrainingPeaks MCP (peso, TSS, sono, TSB - pos v1.5.0), metas Q2 (ClickUp goals ou filesystem brain/3-resources) e retrospectiva S-1 perguntada ao usuario. Fase 2 (Planejar) aplica 8 regras destiladas de Hyatt Weekly Preview (Tese + Big 3 + Critério), Cal Newport Time-Block (Orquestra dos 5 dias com deep work blocks), 4DX (Critério de vitória), Kahneman Pre-mortem (Riscos com mitigação pronta) e Newport Shutdown Reverso (Preflight com 4 perguntas editoriais), gerando o Insight cruzando frameworks de brain/3-resources. Fase 3 (Renderizar) aplica o design system Planner Editorial Noturno em fit-screen 1440x1000 com 4 bands (Contexto + Orquestra HERO + Compromissos + Preflight ancorado ao fundo). Use quando Bruno pedir para criar, editar ou gerar seu planner semanal, weekly preview, dashboard da semana ou HTML para sunday planning. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
 license: Proprietary
 ---
 
@@ -40,8 +40,8 @@ Ler [references/extracao-dados.md](references/extracao-dados.md) e reunir dados 
 | Fonte | Rota primaria | Fallback |
 |---|---|---|
 | Agenda (5 dias) | Google Calendar MCP (range seg-sex) | Pedir print/lista |
-| Tarefas da semana | ClickUp MCP (due <= sex, assignee=Bruno) | Pedir lista |
-| Delegadas | ClickUp MCP (criadas por Bruno, assignee != Bruno) | Pedir resumo |
+| Tarefas da semana | ClickUp MCP (due <= sex, assignee=Bruno) + filtro status whitelist/blacklist | Pedir lista |
+| Workspace M7 | ClickUp MCP (statuses=[atrasada, bloqueada], workspace inteiro) — alimenta Riscos & fogos | Pedir resumo por frente |
 | **Corpo · semana** | **TrainingPeaks MCP** (weight/sleep/HRV/weekly_summary/fitness_metrics) | Perguntar se MCP falhar |
 | **Metas Q2** | ClickUp goals → brain/3-resources (metas-2026.md) → perguntar | Perguntar confidence (0-100%) |
 | **Retrospectiva S-1** | *Sempre perguntar ao usuario* | — |
@@ -101,6 +101,12 @@ Antes de emitir o HTML final, confirmar:
 [ ] Tres grandes derivam de Q2 e cada um tem criterio "pronto quando"
 [ ] Prazos ancorados a dia especifico (seg/ter/qua/qui/sex)
 [ ] Cada risco tem mitigacao escrita (nao generica)
+[ ] Riscos usam extracao Workspace M7 como insumo (status=atrasada/bloqueada, workspace inteiro)
+[ ] Nenhuma task em status blacklist (cancelada/descartada/won't do/arquivada) no weekly
+[ ] Tasks em status ambiguo candidatas a Big 3 ou Prazos duros foram confirmadas via `AskUserQuestion`
+[ ] Cada contador exibido tem entrada em `metricas` com query rastreavel
+[ ] Contadores recalculados a partir das linhas extraidas (nao reusados da API)
+[ ] "atrasadas_*" usa status unico como fonte (nao soma pendente+due-vencido)
 [ ] Preflight tem 4 perguntas respondidas em italic curto
 [ ] Insight cruza DUAS perguntas de frameworks distintos
 [ ] Corpo tem 4 KPIs na ordem peso Δ → sono medio → TSS total → TSB, cada um com tag de classificacao (numero e tag compartilham a mesma classe CSS; dado ausente = &mdash; + tag omitida)
@@ -153,6 +159,10 @@ Sao os mesmos 6 principios da daily (identidade visual compartilhada). Ver [refe
 - **Usar sinonimos livres nas tags** — vocabulario e fixo por KPI (ver regras-texto.md): `estável/em queda/subindo`, `ideal/ok/baixo`, `saudável/leve/pesado/crítico`, `produtivo/neutro/fresco/overreach/destreino`
 - Preflight sem ancoragem ao fundo — isso quebra o contrato visual de one-pager report
 - **Weekly Big 3 desconectados de Q2** — se nao derivam das Metas Q2, nao sao Big 3, sao so tarefas grandes
+- **Incluir task em status blacklist** (cancelada/descartada/won't do/arquivada/rejeitada) — validar via `status.type == closed`, `date_closed`, `archived` mesmo quando `status=aberta` na API
+- **Tratar a extracao de Workspace M7 como "o que eu deleguei"** — o escopo e workspace inteiro (status=atrasada/bloqueada). Bruno responde pela saude das frentes, nao so pelo que assinou
+- **Exibir numero sem rastreabilidade** — todo contador (Riscos, Big 3 confidence, prazos) precisa entrada em `extracao.metricas` com query reprodutivel
+- **Somar `status=pendente+due-vencido` com `status=atrasada`** — duplica. Usar fonte unica (preferencia: status customizado `atrasada`)
 
 ## Arquivos da skill
 
@@ -198,7 +208,7 @@ Se o usuario pedir algo que contradiga os principios (ex: "adiciona sabado e dom
 | Hero visual | Data do dia ("16") | Orquestra (5 cols lado a lado) |
 | Header | 5 zonas (Dia/Lide/Insight/Mes/Corpo) | Mesmo, com "Semana 16" hero e "2026" grid de 52 semanas |
 | Corpo | Snapshot (peso, TSS semana, sono ultima noite) | Agregado (peso Δ, TSS total, sono medio, TSB) |
-| Metodologia | 6 regras (Lide/MITs/Agenda/Tarefas/Delegadas/Amanha) | 8 regras (+ Criterio de vitoria, Preflight) |
+| Metodologia | 6 regras (Lide/MITs/Agenda/Tarefas/Workspace M7/Amanha) | 8 regras (+ Criterio de vitoria, Preflight) |
 | Fim | Footer 2-col (Notas + Amanha) | Preflight 4 perguntas ancorado ao fundo |
 | Altura | 900px natural | 1000px fit-screen forcado |
 | MCP Corpo | TP MCP (snapshot) | TP MCP (weekly_summary + fitness_metrics) |

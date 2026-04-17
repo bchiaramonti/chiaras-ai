@@ -231,7 +231,7 @@ Derivar 3-4 riscos dos seguintes sinais:
 
 1. **Da retrospectiva S-1**: o que "travou" pode travar de novo
 2. **Da Orquestra**: onde ha acumulo (todos os meetings no mesmo dia, deep work contra reuniao, etc.)
-3. **Das dependencias**: tarefas bloqueadas por terceiros (delegadas atrasadas)
+3. **Da extracao Workspace M7**: tarefas com status `atrasada` ou `bloqueada` em qualquer frente (ver [extracao-dados.md secao 3](extracao-dados.md)). Se `is_self==true` (assignee=Bruno), o risco se transforma em "gargalo pessoal na frente X". Se a mesma frente tem 3+ atrasadas no mesmo responsavel, vira risco "fila travada em <pessoa> · <frente>"
 4. **Dos Prazos duros**: prazos com pouco buffer
 
 ### Estrutura de cada risco
@@ -366,6 +366,12 @@ Antes de passar para a Fase 3 (renderizacao), validar:
 [ ] Cada Big 3 tem criterio "pronto quando"?
 [ ] Prazos duros ancorados a dia especifico (seg/ter/qua/qui/sex)?
 [ ] Cada risco tem mitigacao concreta e acionavel (nao generica)?
+[ ] Riscos usam extracao Workspace M7 como insumo (status=atrasada/bloqueada, workspace inteiro)?
+[ ] Nenhuma task em status blacklist (cancelada/descartada/won't do) foi incluida nos Big 3, Prazos duros ou Riscos?
+[ ] Tasks em status ambiguo (fora whitelist) candidatas ao topo do weekly foram confirmadas via `AskUserQuestion`?
+[ ] Cada contador exibido tem entrada em `extracao.metricas` com query rastreavel?
+[ ] Contadores recalculados a partir das linhas extraidas (nao reusados do header da API)?
+[ ] "atrasadas_*" usa status unico como fonte (nao soma pendente+due-vencido)?
 [ ] Preflight tem as 4 perguntas respondidas em italic curto?
 [ ] Respostas do Preflight sao concretas (dia, hora, projeto)?
 [ ] Corpo · semana tem 4 KPIs na ordem fixa peso Δ → sono medio → TSS total → TSB, cada um com tag de classificacao (cor aplicada tanto no numero quanto na tag)?

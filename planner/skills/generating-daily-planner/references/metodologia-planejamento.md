@@ -10,7 +10,7 @@ A segunda passada transforma os dados extraidos (Fase 1) em decisoes de planejam
 - [Regra 2 · Tres inadiaveis](#regra-2--tres-inadiaveis)
 - [Regra 3 · Agenda](#regra-3--agenda)
 - [Regra 4 · Tarefas ClickUp](#regra-4--tarefas-clickup)
-- [Regra 5 · Delegadas](#regra-5--delegadas)
+- [Regra 5 · Workspace M7](#regra-5--workspace-m7)
 - [Regra 6 · Amanha](#regra-6--amanha)
 - [Checklist de sanidade final](#checklist-de-sanidade-final)
 
@@ -173,28 +173,44 @@ Cada linha exibe `· <lista> · <tag(s)>` no `tasks__title-meta` (ver [component
 | Ordem aleatoria do ClickUp | Aplicar ABCDE acima |
 | Mostrar so o titulo sem lista | Sempre `titulo · lista · tag` |
 
-## Regra 5 · Delegadas
+## Regra 5 · Workspace M7
 
-**O que e:** tracking das tarefas que voce **delegou e estao te bloqueando**. Foco: quem trava o quê?
+**O que e (reformulado em v1.9.0):** tracking da **saude das frentes do workspace M7 inteiro**. Bruno e Head of Performance — responde pela execucao de todas as frentes, nao so pelas tasks que assinou ou delegou pessoalmente. Foco: *onde o trabalho esta travando, independente de quem e o assignee*?
+
+### Escopo
+
+- Query por **status** (`atrasada`, `bloqueada`), nao por assignee
+- Cobertura: workspace inteiro (todas as listas visiveis ao Bruno)
+- Bruno-as-assignee aparece destacado como sinal de gargalo pessoal (nao e filtrado fora)
 
 ### Regra de curadoria
 
-- **Agrupar por projeto/lista.** Cada grupo tem 2-3 linhas no maximo
-- **Atrasadas no topo** do grupo
-- **Comeco do grupo sinaliza o que o grupo destrava** (ex: `PA-Resultado · Seguros` = o grupo que destrava o funil de seguros)
-- Nunca mais de **4-5 grupos** total. Se tiver mais, o problema nao e delegacao — e falta de prioridade de projeto
+- **Agrupar por frente** (lista/sprint/projeto do ClickUp). Cada grupo tem 2-3 linhas no maximo
+- **Atrasadas no topo**, bloqueadas depois
+- **Nome da frente sinaliza o que esta travando** (ex: `PA-Resultado · Seguros` = funil de seguros travado)
+- Nunca mais de **4-5 grupos** visiveis. Se tiver mais frentes travadas, priorizar as com maior numero de atrasadas
+- Contador no section-header mostra **total real no workspace** (nao o truncado): `<span class="alert">28 atrasadas</span> · 4 bloqueadas`
+
+### Regra "Bruno e o gargalo"
+
+Se Bruno aparece como assignee em uma task dessa coluna:
+- Renderizar com modifier visual `.tasks__row--self` (ver componentes.md)
+- Nao duplicar: se a task ja aparece na coluna 2 (Tarefas ClickUp), omitir aqui
+- Se Bruno tem 3+ atrasadas proprias no workspace, header ganha meta extra `<span class="alert">N minhas</span>` — sinal claro de que ele e o gargalo
 
 ### Regra de follow-up visivel
 
-Se um grupo tem 3+ tarefas atrasadas, vira candidato a MIT ("Cobrar <pessoa> em <projeto>"). Marque mentalmente para a Fase 2 Regra 2.
+Se uma frente tem 3+ atrasadas num mesmo responsavel, vira candidato a MIT ("Alinhar <pessoa> em <frente>"). Se as 3+ sao de Bruno, o MIT vira "Desafogar minha fila de <frente>".
 
 ### Anti-padroes
 
 | Ruim | Melhor |
 |---|---|
-| Delegadas sem agrupamento | Agrupar por projeto com `.delegadas__project` |
-| Tarefa delegada ha 30 dias sem acao | Vira MIT "Fechar ou reatribuir <task>" |
-| Mostrar delegadas concluidas | Delegadas = abertas. Concluidas saem do display |
+| Filtrar coluna 3 por `assignee != Bruno` | Escopo e workspace inteiro, inclui Bruno como sinal de gargalo |
+| Filtrar coluna 3 por `created_by = Bruno` | Escopo e saude das frentes, nao "meu backlog delegado" |
+| Coluna 3 vazia porque "nao deleguei hoje" | Coluna 3 vazia = workspace M7 sem atrasadas/bloqueadas (raro — questionar se extracao funcionou) |
+| Contador `8 abertas` no header sem rastreabilidade | Cada numero precisa entrada em `metricas` com query |
+| Tarefa de gargalo de Bruno duplicando entre col 2 e col 3 | Aparece so numa, com `--self` na col 3 se for atrasada/bloqueada |
 
 ## Regra 6 · Amanha
 
@@ -250,7 +266,14 @@ Antes de passar para a Fase 3 (renderizacao), validar:
 [ ] Almoco presente (mesmo que vazio) como quebra?
 [ ] Tarefas ClickUp cortadas em 5-6 + "+N futuras"?
 [ ] Tarefas ordenadas por ABCDE, nao por ordem do ClickUp?
-[ ] Delegadas agrupadas por projeto?
+[ ] Nenhuma task em status blacklist (cancelada/descartada/won't do) no planner?
+[ ] Tasks em status ambiguo destinadas a MIT foram confirmadas via `AskUserQuestion`?
+[ ] Coluna 3 usa query por status (atrasada/bloqueada) no workspace inteiro (nao filtro de assignee)?
+[ ] Tasks com `assignee==Bruno` na coluna 3 aparecem com `--self` (gargalo)?
+[ ] Nenhuma task duplicada entre coluna 2 e coluna 3?
+[ ] Cada contador no HTML tem entrada em `extracao.metricas` com query rastreavel?
+[ ] Contadores recalculados a partir das linhas extraidas (nao reusados do header da API)?
+[ ] Numero de atrasadas usa UMA fonte (status=atrasada ou due vencido, nunca soma)?
 [ ] Ancora de Amanha cabe em 1 frase imperativa?
 [ ] Preparar hoje tem 0-2 bullets (cada um <=15min)?
 ```

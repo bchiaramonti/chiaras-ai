@@ -16,7 +16,7 @@ Especificacao de cada componente do sistema. Use estas classes CSS (definidas em
   - [7. Agenda enumerada](#7-agenda-enumerada)
   - [8. Tres inadiaveis](#8-tres-inadiaveis)
   - [9. Tarefas ClickUp](#9-tarefas-clickup)
-  - [10. Delegadas](#10-delegadas)
+  - [10. Workspace M7](#10-workspace-m7)
 - [FOOTER · 2 colunas](#footer--2-colunas)
   - [11. Notas do dia](#11-notas-do-dia)
   - [12. Amanha](#12-amanha)
@@ -227,7 +227,7 @@ As faixas exatas e as palavras de tag de cada KPI estao documentadas em [extraca
 Composicao fixa:
 1. Coluna 1 → Agenda
 2. Coluna 2 → Tres inadiaveis + Tarefas ClickUp
-3. Coluna 3 → Delegadas
+3. Coluna 3 → Workspace M7 (saude das frentes)
 
 ### 6. Section header (label + meta direita)
 
@@ -384,35 +384,47 @@ Evitar:
 
 **Limite visivel:** 5-6 linhas. Acima disso, truncar com `.tasks__more` ("+ N tarefas · ver todas ↗").
 
-### 10. Delegadas
+### 10. Workspace M7
 
-**Classes:** `.delegadas__group` + `.delegadas__project`. Usa `.tasks__row` e variantes internamente.
+**Classes:** `.workspace__group` + `.workspace__frente` + `.tasks__row--self`. Usa `.tasks__row` e variantes internamente. As classes `.delegadas__group` / `.delegadas__project` permanecem disponiveis como alias temporario de retrocompatibilidade (v1.9.0) — nao usar em novos outputs.
 
-Tarefas que voce delegou e precisa acompanhar. **Agrupadas por projeto** (unico bloco no sistema com subgrupos). Cada projeto tem seu mini-header italic muted. Rows seguem o mesmo padrao de `.tasks__row` (titulo · pessoa + due).
+**Renomeado em v1.9.0:** esta coluna **nao** e "tarefas que Bruno delegou". E um monitor de saude do workspace M7 inteiro — tasks `atrasada` e `bloqueada` em qualquer frente, independente de assignee. Bruno responde pela execucao de toda a M7 como Head of Performance; tarefas com ele proprio como assignee aparecem destacadas (`--self`) como sinal de gargalo pessoal, nao filtradas fora.
+
+**Agrupadas por frente** (lista/sprint do ClickUp). Cada frente tem seu mini-header italic muted. Rows seguem o mesmo padrao de `.tasks__row` (titulo · pessoa + due).
 
 ```html
 <div class="section-header">
-  <div class="section-label">Delegadas.</div>
-  <div class="section-header__meta"><span class="alert">1 atrasada</span> · 7 abertas</div>
+  <div class="section-label">Workspace M7.</div>
+  <div class="section-header__meta"><span class="alert">28 atrasadas</span> · 4 bloqueadas · <span class="alert">3 minhas</span></div>
 </div>
 
-<div class="delegadas__group">
-  <div class="delegadas__project">Padronizacao Rituais</div>
+<div class="workspace__group">
+  <div class="workspace__frente">Padronizacao Rituais</div>
   <div class="tasks__row tasks__row--delayed">
     <div class="tasks__title">Validar fluxograma G2.3 <span class="tasks__title-meta">· Ana</span></div>
     <div class="tasks__due">ontem</div>
   </div>
-  <div class="tasks__row">
-    <div class="tasks__title">Testar material-generator <span class="tasks__title-meta">· Paulo</span></div>
-    <div class="tasks__due">hoje</div>
+  <div class="tasks__row tasks__row--delayed tasks__row--self">
+    <div class="tasks__title">Revisar POP N2 Investimentos <span class="tasks__title-meta">· Bruno</span></div>
+    <div class="tasks__due">-3d</div>
   </div>
 </div>
 
-<div class="delegadas__group">
-  <div class="delegadas__project">Desdobramento Metas 2026</div>
-  <!-- ... -->
+<div class="workspace__group">
+  <div class="workspace__frente">Desdobramento Metas 2026</div>
+  <div class="tasks__row tasks__row--blocked">
+    <div class="tasks__title">SQL consorcios <span class="tasks__title-meta">· Rafa</span></div>
+    <div class="tasks__due">bloq</div>
+  </div>
 </div>
 ```
+
+**Regras de display:**
+
+- `.tasks__row--self` indica que o assignee e Bruno (gargalo pessoal) — numero/texto em `--alert` + tracking extra
+- `.tasks__row--delayed` + `.tasks__row--blocked` nunca se misturam: atrasada priorizada quando ambas verdadeiras
+- Header meta exibe ate 3 contadores maximos: `atrasadas` · `bloqueadas` · `minhas` (este ultimo so se >=3)
+- Row sem assignee mostra `· sem responsavel` em `--alert` (orfa, sinal forte de tarefa esquecida)
 
 ## FOOTER · 2 colunas
 
@@ -524,4 +536,4 @@ Para destacar numeros dentro de paragrafo corrido:
 
 **Classe:** `.section-label` (terracota padrao), `.section-label--body` (azul petroleo para Corpo), `.section-label--muted` (cinza para auxiliares).
 
-Sempre em sentence case com ponto final. Exemplos: "Lide do dia.", "Tres inadiaveis.", "Agenda.", "Corpo.", "Delegadas.", "Tarefas ClickUp.", "Insight · cruzamento.", "Notas do dia.", "Amanha.".
+Sempre em sentence case com ponto final. Exemplos: "Lide do dia.", "Tres inadiaveis.", "Agenda.", "Corpo.", "Workspace M7.", "Tarefas ClickUp.", "Insight · cruzamento.", "Notas do dia.", "Amanha.".

@@ -112,8 +112,8 @@
     },
     {
       "name": "planner",
-      "description": "Gera planners pessoais executivos em HTML (daily + weekly) aplicando o sistema de design Editorial Noturno (dark mode quente, Georgia serif + Inter sans, terracota + azul petroleo). Daily: header 5-zone + body 3-col + footer 2-col, foco em execucao. Weekly: 4 bands fit-screen (Contexto + Orquestra dos 5 dias + Compromissos + Preflight ancorado ao fundo), foco em orquestracao, derivado de Hyatt Weekly Preview + Newport Time-Block + 4DX + Kahneman Pre-mortem. Zona Corpo (daily + weekly) exibe 4 KPIs com tags de classificacao semantica (estavel/em queda/subindo, ideal/ok/baixo, saudavel/pesado/leve/critico, overreach/produtivo/neutro/fresco/destreino). Integra MCPs TrainingPeaks (corpo agregado), Google Calendar e ClickUp. Zero ornamento, hierarquia tipografica. Escopo estrito: uso pessoal, nao corporativo.",
-      "version": "1.8.1",
+      "description": "Gera planners pessoais executivos em HTML (daily + weekly) aplicando o sistema de design Editorial Noturno (dark mode quente, Georgia serif + Inter sans, terracota + azul petroleo). Daily: header 5-zone + body 3-col (coluna 3 \"Workspace M7\" monitora saude de todas as frentes com status=atrasada/bloqueada no workspace inteiro, incluindo gargalos pessoais de Bruno como Head of Performance) + footer 2-col. Weekly: 4 bands fit-screen (Contexto + Orquestra dos 5 dias + Compromissos + Preflight ancorado ao fundo), derivado de Hyatt Weekly Preview + Newport Time-Block + 4DX + Kahneman Pre-mortem. ClickUp com whitelist/blacklist de status (bloqueia cancelada/descartada/won't do mesmo quando API retorna como aberta) e rastreabilidade metrica->query->count obrigatoria. Zona Corpo (daily + weekly) exibe 4 KPIs com tags de classificacao semantica. Integra MCPs TrainingPeaks, Google Calendar e ClickUp. Zero ornamento, hierarquia tipografica. Escopo estrito: uso pessoal, nao corporativo.",
+      "version": "1.9.0",
       "author": {
         "name": "Bruno Chiaramonti"
       },

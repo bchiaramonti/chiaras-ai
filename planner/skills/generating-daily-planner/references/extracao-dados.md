@@ -9,10 +9,11 @@ A primeira passada da skill e **levantamento**. Antes de planejar o dia, o Claud
 - [Matriz de fontes](#matriz-de-fontes)
 - [1. Agenda](#1-agenda)
 - [2. Tarefas ClickUp (tres inadiaveis + tarefas do dia)](#2-tarefas-clickup-tres-inadiaveis--tarefas-do-dia)
-- [3. Delegadas](#3-delegadas)
+- [3. Workspace M7 (saude das frentes)](#3-workspace-m7-saude-das-frentes)
 - [4. Corpo / saude](#4-corpo--saude)
 - [5. Contexto para o insight](#5-contexto-para-o-insight)
 - [Protocolo de fallback](#protocolo-de-fallback)
+- [Rastreabilidade de metricas](#rastreabilidade-de-metricas)
 - [Schema da extracao](#schema-da-extracao)
 
 ## Matriz de fontes
@@ -22,7 +23,7 @@ A primeira passada da skill e **levantamento**. Antes de planejar o dia, o Claud
 | Agenda | Google Calendar + Outlook M7 | `mcp__claude_ai_Google_Calendar__*` (Google) · *Outlook sem MCP* | Pedir print ou texto da agenda |
 | Tres inadiaveis | ClickUp (tags `mit`, `hoje`, `inadiavel`) ou usuario | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir ao usuario os 3 diretamente |
 | Tarefas ClickUp | ClickUp (due = hoje/amanha/atrasadas, assignee = Bruno) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir print da lista "Hoje" |
-| Delegadas | ClickUp (assignee != Bruno, criadas por Bruno, status aberto) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo verbal |
+| Workspace M7 | ClickUp (statuses=[atrasada, bloqueada], workspace inteiro) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo por frente |
 | Corpo (peso, TSS, sono, HRV, forma) | TrainingPeaks (cookie-based auth) | `mcp__trainingpeaks__*` | Perguntar ao usuario se o MCP falhar |
 | Contexto insight | Filesystem `brain/3-resources/` (PARA) | `Glob`, `Grep`, `Read` | Nao ha fallback — se vazio, pular insight |
 
@@ -58,16 +59,65 @@ mcp__claude_ai_ClickUp__clickup_filter_tasks (
 )
 ```
 
-Filtrar o resultado em dois grupos:
+### Whitelist e blacklist de status (v1.9.0)
+
+O ClickUp retorna qualquer task que nao esteja em `closed`, **mesmo quando o status customizado e cancelada, descartada ou won't do**. O campo `status` da API e a fonte da verdade visual do card no ClickUp, mas nao e a fonte da verdade executiva — uma task `cancelada` nao deve entrar no planner nem mesmo no Grupo B.
+
+**Status aceitos (whitelist)** — aparecem no planner:
+
+```
+["pendente", "em andamento", "atrasada", "bloqueada", "em revisao", "em aprovacao"]
+```
+
+**Status proibidos (blacklist)** — filtrar ANTES de classificar em grupos:
+
+```
+["cancelada", "descartada", "won't do", "concluida", "arquivada", "duplicada", "rejeitada"]
+```
+
+**Regra de detec&ccedil;&atilde;o de blacklist** (aplicar em ordem):
+
+1. `status.status` (case-insensitive) esta na blacklist → descartar
+2. `status.type == "closed"` → descartar (captura status customizados fechados)
+3. `date_closed != null` → descartar (task foi fechada mesmo com status estranho)
+4. `archived == true` → descartar
+
+Para workspaces com status customizados que nao aparecem nas listas acima, chamar **uma vez** no inicio da sessao:
+
+```
+mcp__claude_ai_ClickUp__clickup_get_list (list_id=<id da lista>)
+```
+
+e inspecionar `statuses[]` para descobrir o mapa (ordem, tipo `open|custom|closed|done`). Status com `type=closed` ou `type=done` sao blacklist automatica. Status customizados novos que nao batem com a whitelist sao **ambiguos** — tratar como Regra de duvida (abaixo).
+
+### Regra de duvida (tasks candidatas a MIT ou ao Destaque do dia)
+
+Se uma task esta destinada ao **topo do planner** (candidata a MIT ou destaque) e seu status NAO esta na whitelist explicita, confirmar com o usuario via `AskUserQuestion` antes de incluir:
+
+> A task TSM-874 "Executar primeiro ciclo do Ritual" esta com status **<status exato retornado>**. Isso aparece para mim como aberta, mas quero confirmar antes de colocar como MIT #1. Ela deve entrar no planner de hoje?
+
+Para tasks do Grupo B (tarefas do dia, nao-destacadas), aplicar a blacklist sem perguntar — se nao passar, descartar silenciosamente.
+
+### Anti-padr&atilde;o
+
+| Ruim | Melhor |
+|---|---|
+| Confiar cegamente no `status.status` retornado | Cruzar com `date_closed`, `archived`, `status.type` |
+| Usar `statuses=open` sem filtrar cancelada pos-query | Aplicar blacklist manual apos extracao |
+| Incluir task `cancelada` porque o ClickUp retornou | Blacklist antes de grupo A/B |
+
+### Filtragem em grupos
+
+Apos aplicar whitelist/blacklist, separar em:
 
 **Grupo A · Candidatos a Tres inadiaveis** (5-10 tasks)
 - Tags contem `mit`, `hoje`, `inadiavel`, `urgente`, `critico`, OU
 - Due date = hoje, OU
-- Prioridade = urgent/high + atrasada
+- Prioridade = urgent/high + status `atrasada`
 - Lista de origem tem peso estrategico (nao helpdesk)
 
 **Grupo B · Tarefas do dia** (resto, ate 15 linhas)
-- Todas as demais due <= amanha ou atrasadas
+- Todas as demais due <= amanha ou atrasadas (status na whitelist)
 
 ### Metadata obrigatoria por task
 
@@ -78,7 +128,9 @@ Para cada task retornada, capturar:
 - `tags[]` (vira display junto da lista)
 - `due_date` (usado para classificar atraso e formatar "+Nd")
 - `priority` (urgent/high/normal/low)
-- `status`
+- `status` (status.status + status.type)
+- `date_closed` (validacao anti-cancelada)
+- `archived`
 
 O display final no HTML segue a regra de [componentes.md secao 9](componentes.md): `<titulo> · <lista> · <tag(s)>` + `<due>`.
 
@@ -90,32 +142,62 @@ Se ClickUp MCP falhar:
 > 1. Os 3 inadiaveis de hoje (titulo + lista + SLA)
 > 2. Uma lista curta (ate 8) de outras tarefas abertas com due <= amanha
 
-## 3. Delegadas
+## 3. Workspace M7 (saude das frentes)
+
+**Escopo (reformulado em v1.9.0):** esta coluna **nao** e sobre "tasks que Bruno delegou". O papel de Bruno como Head of Performance e responder pela saude de **todo o workspace M7**, nao so pelo subset que ele criou ou assignou. O filtro correto e *onde o trabalho esta travando*, nao *quem Bruno delegou para*.
 
 ### Rota primaria
 
 ```
 mcp__claude_ai_ClickUp__clickup_filter_tasks (
-  assignees=[NOT Bruno],  # ClickUp nao suporta NOT — filtrar pos-query
-  created_by=Bruno,
-  statuses=open
+  statuses=["atrasada", "bloqueada"],   # custom statuses M7
+  # sem filtro de assignee — escopo e workspace inteiro
+  # sem filtro de created_by — escopo e workspace inteiro
 )
 ```
 
-Agrupar por **projeto/lista** e ordenar cada grupo por atraso (atrasadas no topo). Limite: 4-5 grupos, 2-3 linhas por grupo.
+Depois aplicar a mesma blacklist da secao 2 (cancelada, descartada, etc — `status.type == closed`, `date_closed`, `archived`).
+
+### Regra de agrupamento
+
+Agrupar por **lista/sprint/projeto** (a dimensao do ClickUp que melhor representa a frente). Ordenar:
+1. Lista com mais atrasadas no topo
+2. Dentro da lista, atrasadas antes de bloqueadas
+3. Dentro de cada classe, mais antigas primeiro
+
+Limite: 4-5 grupos visiveis, 2-3 linhas por grupo. O contador do section-header mostra o **total real** no workspace (nao o truncado).
+
+### Regra de responsavel visivel
+
+Cada linha mostra o **assignee** da task, mesmo que seja gente fora do time direto de Bruno. Se multiplos assignees, separar por vírgula. Sem assignee, escrever `· sem responsavel` (sinal forte de tarefa orfa).
+
+### Regra "Bruno e o gargalo"
+
+Se uma task retornada tiver `assignee == Bruno`, ela vira candidata a **sinal de gargalo**, nao item de acompanhamento:
+
+- Aparece com marca visual `.tasks__row--self` (ver componentes.md)
+- Nao duplicar com a coluna 2 (Tarefas ClickUp): se ja apareceu la, omitir daqui e logar internamente "ja em coluna 2"
+- Se Bruno tem >=3 atrasadas proprias no workspace, gerar nota no section-header `.section-header__meta`: `<span class="alert">N minhas</span>` — sinaliza gargalo pessoal
 
 ### Metadata obrigatoria
 
+- `id`
 - `title`
-- `assignee` (nome) — vira display `· <pessoa>`
-- `project` ou `list_name` — vira cabecalho do grupo `.delegadas__project`
+- `assignee` (nome ou lista de nomes) — display `· <pessoa>`
+- `list_name` ou `project` — cabecalho do grupo
 - `due_date`
-- `status`
+- `status.status` + `status.type`
+- `date_closed`, `archived`
+- `is_self` (booleano: assignee inclui Bruno)
 
 ### Fallback
 
-> Nao consegui extrair as delegadas. Me passa um resumo em formato:
-> - [Projeto] Titulo · [Pessoa] · [SLA]
+Se ClickUp MCP falhar:
+
+> Nao consegui extrair o estado do workspace M7. Me passa um resumo das tarefas atrasadas ou bloqueadas por frente (lista/sprint), no formato:
+> - [Frente] Titulo · [Responsavel] · [SLA ou dias de atraso]
+>
+> Nao preciso das suas tasks pessoais aqui — essa coluna e sobre saude do workspace inteiro.
 
 ## 4. Corpo / saude
 
@@ -260,6 +342,77 @@ Ruim: "me passa os dados do dia"
 Bom: "A agenda do Outlook M7 nao respondeu. Voce pode me colar os eventos de hoje no formato `HH:MM - titulo · local`? Se nao tiver nada no Outlook, responde so `vazio`."
 `──────────────────────────────────────────────────`
 
+## Rastreabilidade de metricas
+
+**Problema que esta regra resolve (v1.9.0):** contadores como `42 atrasadas` no section-header apareciam sem lastro — nao batiam com a soma das linhas exibidas, porque eram derivados de queries legacy ou somavam `status=pendente + due vencido` (duplicando com `status=atrasada`).
+
+### Regra de ouro
+
+**Todo numero que aparece no HTML final deve ter uma entrada em `extracao.metricas`** com:
+1. `metrica` — rotulo que aparece no HTML (ex: `atrasadas_workspace`)
+2. `query` — string da query que gerou o numero (parametros reais)
+3. `count` — valor numerico
+4. `fonte` — `clickup_mcp` | `google_calendar_mcp` | `trainingpeaks_mcp` | `usuario`
+
+Se um numero no HTML nao tem entrada no bloco `metricas`, a Fase 3 deve **recusar renderizar** e voltar pra Fase 2 pedindo a origem.
+
+### Regra de unica fonte da verdade para "atrasada"
+
+Status customizado `atrasada` no workspace M7 ja e a fonte de verdade unica. **Nunca somar** `status=pendente + due_date < hoje` com `status=atrasada` — isso duplica (porque o ClickUp automaticamente muda o status para `atrasada` quando o due passa). Se em algum workspace o `atrasada` nao existir como status custom, usar **uma** das duas heuristicas, nunca as duas somadas:
+
+- Preferencia 1: `status == atrasada` (se custom status existe)
+- Preferencia 2: `status.type in ["open", "custom"] AND due_date < hoje AND status NOT IN blacklist`
+
+### Regra de recalculo na Fase 2
+
+Antes de renderizar um contador, a Fase 2 **recalcula a partir dos dados extraidos**, nao reusa o numero que veio do section-header do ClickUp. Ou seja:
+
+```
+# ERRADO (reusa numero da API)
+total_atrasadas = response["header"]["count"]
+
+# CERTO (recalcula a partir das linhas)
+total_atrasadas = len([t for t in tasks if t["status.status"] == "atrasada"
+                        and t["archived"] is False and t["date_closed"] is None])
+```
+
+### Schema do bloco `metricas`
+
+```yaml
+metricas:
+  - metrica: "atrasadas_workspace"
+    query: "clickup_filter_tasks(statuses=[atrasada], archived=False) | len"
+    count: 28
+    fonte: clickup_mcp
+  - metrica: "atrasadas_bruno"
+    query: "atrasadas_workspace AND assignee==bruno | len"
+    count: 18
+    fonte: clickup_mcp
+  - metrica: "bloqueadas_workspace"
+    query: "clickup_filter_tasks(statuses=[bloqueada]) | len"
+    count: 4
+    fonte: clickup_mcp
+  - metrica: "tarefas_dia_visiveis"
+    query: "grupo_b_dia sorted ABCDE | head(6)"
+    count: 6
+    fonte: clickup_mcp
+  - metrica: "tarefas_dia_cortadas"
+    query: "len(grupo_b_dia) - tarefas_dia_visiveis"
+    count: 12
+    fonte: clickup_mcp
+```
+
+### Validacao antes de renderizar
+
+Ultimo passo da Fase 2 (checklist de sanidade):
+
+```
+[ ] Cada numero no HTML planejado tem entrada em `metricas`
+[ ] Cada contador foi recalculado a partir das linhas extraidas (nao reusado)
+[ ] Nenhum numero vem de soma de duas heuristicas redundantes (pendente + due vencido + atrasada)
+[ ] Se um numero e "atrasadas", a query usa status=atrasada como unica fonte
+```
+
 ## Schema da extracao
 
 Saida consolidada apos Fase 1 (estrutura interna, nao HTML):
@@ -290,14 +443,45 @@ tarefas:
       aging_dias: 75
   grupo_b_dia: [...]
 
-delegadas:
+workspace_m7:
+  escopo: "statuses=[atrasada, bloqueada] no workspace inteiro"
   grupos:
-    - projeto: "PA-Resultado · Seguros"
+    - frente: "PA-Resultado · Seguros"
       tarefas:
-        - title: "TSM-1126 Campos de meta Louro"
+        - id: "TSM-1126"
+          title: "Campos de meta Louro"
           assignee: "Pedro"
           due: "2026-04-15"
-          urgencia: urgent
+          status: "atrasada"
+          is_self: false
+        - id: "TSM-1130"
+          title: "Validar calculo comissao seguros"
+          assignee: "Bruno"
+          due: "2026-04-10"
+          status: "atrasada"
+          is_self: true                # destacar como gargalo pessoal
+  contadores:
+    atrasadas_total: 28
+    bloqueadas_total: 4
+    atrasadas_bruno: 3                 # se >=3, meta gargalo vai pro header
+
+metricas:
+  - metrica: "atrasadas_workspace"
+    query: "clickup_filter_tasks(statuses=[atrasada], archived=False) | len"
+    count: 28
+    fonte: clickup_mcp
+  - metrica: "atrasadas_bruno"
+    query: "atrasadas_workspace AND assignee==bruno | len"
+    count: 3
+    fonte: clickup_mcp
+  - metrica: "tarefas_dia_visiveis"
+    query: "grupo_b_dia sorted ABCDE | head(6)"
+    count: 6
+    fonte: clickup_mcp
+  - metrica: "tarefas_dia_total"
+    query: "len(grupo_b_dia)"
+    count: 18
+    fonte: clickup_mcp
 
 corpo:
   peso: null
