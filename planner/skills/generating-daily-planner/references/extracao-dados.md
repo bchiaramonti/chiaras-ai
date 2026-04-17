@@ -11,7 +11,7 @@ A primeira passada da skill e **levantamento**. Antes de planejar o dia, o Claud
 - [2. Tarefas ClickUp (tres inadiaveis + tarefas do dia)](#2-tarefas-clickup-tres-inadiaveis--tarefas-do-dia)
 - [3. Workspace M7 (saude das frentes)](#3-workspace-m7-saude-das-frentes)
 - [4. Corpo / saude](#4-corpo--saude)
-- [5. Contexto para o insight](#5-contexto-para-o-insight)
+- [5. Contexto para o agente Pfeffer](#5-contexto-para-o-agente-pfeffer)
 - [Protocolo de fallback](#protocolo-de-fallback)
 - [Rastreabilidade de metricas](#rastreabilidade-de-metricas)
 - [Schema da extracao](#schema-da-extracao)
@@ -25,7 +25,7 @@ A primeira passada da skill e **levantamento**. Antes de planejar o dia, o Claud
 | Tarefas ClickUp | ClickUp (due = hoje/amanha/atrasadas, assignee = Bruno) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir print da lista "Hoje" |
 | Workspace M7 | ClickUp (statuses=[atrasada, bloqueada], workspace inteiro) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo por frente |
 | Corpo (peso, TSS, sono, HRV, forma) | TrainingPeaks (cookie-based auth) | `mcp__trainingpeaks__*` | Perguntar ao usuario se o MCP falhar |
-| Contexto insight | Filesystem `brain/3-resources/` (PARA) | `Glob`, `Grep`, `Read` | Nao ha fallback — se vazio, pular insight |
+| Contexto Pfeffer | Agente `pfeffer-power-analyst` recebe agenda + MITs + workspace M7 + Lide | Invocacao direta do agente | Se input incompleto, agente pede dado especifico |
 
 ## 1. Agenda
 
@@ -296,37 +296,32 @@ tp-mcp auth-status  # confirma se o problema e auth
 ```
 E se necessario, renovar o cookie com o metodo documentado no README do plugin.
 
-## 5. Contexto para o insight
+## 5. Contexto para o agente Pfeffer
 
-Fonte unica: **filesystem `/Users/bchiaramonti/Documents/brain/3-resources/`**.
+Desde **v1.11.0**, o Insight · cruzamento e as Notas do dia sao sempre geradas pelo agente [`pfeffer-power-analyst`](../../../agents/pfeffer-power-analyst.md). Nao ha mais scan de `brain/3-resources/` — o agente le a agenda atraves das lentes do livro POWER (Pfeffer, 2010).
 
-Essa extracao e preguicosa — nao le os arquivos ainda, apenas inventaria. A leitura real acontece na geracao do insight (ver [insight-cruzamento.md](insight-cruzamento.md)).
+Esta secao documenta **o que a Fase 1 deve montar** para a Fase 2b conseguir invocar o agente com inputs completos.
 
-### Passo 1 · Identificar temas de desafio do dia
+### Inputs que o agente espera
 
-A partir dos Tres inadiaveis + Lide (ja planejados na Fase 2), derivar 2-3 **temas** (1-3 palavras cada). Exemplos:
-- MIT "Definir KPIs/PPIs do Ritual N2 Investimentos" → tema `rituais-gestao`, `kpis`, `falconi-gpd`
-- MIT "Cobrar Pedro nos chamados TI Louro" → tema `lideranca-situacional`, `delegacao`, `follow-up`
-
-### Passo 2 · Inventariar subdiretorios relevantes em 3-resources
-
-```
-Glob: brain/3-resources/**/*.md
-```
-
-Filtrar por caminhos/nomes que contenham os temas (case-insensitive, stem matching). Limite: ate 10 candidatos.
-
-### Passo 3 · Passar o inventario para a fase de Insight
-
-Saida para a proxima fase:
 ```yaml
-temas: [rituais-gestao, lideranca-situacional]
-candidatos:
-  - brain/3-resources/livros/deep-work.md
-  - brain/3-resources/metodologias/gpd-falconi.md
-  - brain/3-resources/lideranca/situational-leadership-hersey.md
-  ...
+horizonte: daily
+data: "2026-04-20"
+agenda:                      # da secao 1 desta extracao
+  - start, end, titulo, local, calendar
+mits:                        # derivados da Fase 2 Regra 2
+  - titulo, projeto
+workspace_m7:                # da secao 3 desta extracao
+  atrasadas_bruno: <int>
+  frentes_mais_atrasadas: [<nomes>]
+lide_rascunho: "<texto>"     # rascunho da Fase 2 Regra 1
 ```
+
+### Regra
+
+Se qualquer input esta incompleto quando o agente e invocado, o agente pede o dado especifico que falta antes de produzir analise — nao inventa. **Jamais** substitua a invocacao do agente por "improviso de insight".
+
+Nao ha fallback. Pfeffer e a fonte unica por decisao editorial — ver [insight-cruzamento.md](insight-cruzamento.md) para regras de formato do output e racional de commitment.
 
 ## Protocolo de fallback
 
@@ -488,10 +483,11 @@ corpo:
   tss_semana: null
   sono_horas: null
 
-contexto_insight:
-  temas: [rituais-gestao, lideranca-situacional]
-  candidatos_3resources:
-    - brain/3-resources/...
+contexto_pfeffer:                        # v1.11.0 · substitui contexto_insight
+  # Nada a extrair aqui na Fase 1 — o agente recebe agenda + mits + workspace_m7 + lide
+  # diretamente da Fase 2b e produz Insight + Notas. Bloco mantido apenas para
+  # documentar a ausencia de scan em brain/3-resources/.
+  fonte: agents/pfeffer-power-analyst.md
 ```
 
 Essa estrutura e consumida pela Fase 2 (planejamento) e pela Fase 3 (renderizacao). Nao e exposta ao usuario — e artefato interno da skill.

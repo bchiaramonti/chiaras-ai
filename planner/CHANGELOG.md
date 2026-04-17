@@ -2,6 +2,61 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.11.0] - 2026-04-17
+
+### Changed · Pfeffer como **fonte unica** de Insight e Notas (simplificacao editorial)
+
+Consolidacao do agente `pfeffer-power-analyst` (introduzido em v1.10.0 como **alternativa** condicional para dias com sinais politicos fortes) como **fonte unica** de Insight · cruzamento e Notas do dia em ambos os planners (daily e weekly). O caminho dual do v1.10 — "Pfeffer para dias politicos, scan de `brain/3-resources/` para dias operacionais" — foi descontinuado.
+
+**Racional editorial (commitment):**
+
+- O planner ja e committed a um design system nao-configuravel (Editorial Noturno — dark mode quente, Georgia + Inter, tokens fixos). A partir de v1.11.0, o Insight passa a ter o mesmo nivel de commitment — Pfeffer nao e "framework do dia que Bruno escolhe"; e **a** lente.
+- Consistencia diaria cria leitura acumulada. 90 dias lendo o trabalho atraves do mesmo livro ensina mais que 90 frameworks diferentes. Ao ler Pfeffer aplicado a uma reuniao real na segunda e outra na terca, Bruno nao esta estudando Pfeffer — esta **usando**.
+- A lente cobre dias politicos **e** operacionais/pessoais — ver atualizacoes no agente abaixo.
+- Evita a armadilha "qualquer tarefa vira justificativa para invocar qualquer framework". O planner nao e biblioteca rotativa — e diario editorial.
+
+### Changed · Agente `pfeffer-power-analyst` expandido para cobrir qualquer dia
+
+Description e body do agente atualizados para remover o conceito de "quando NAO usar este agente". O agente agora cobre qualquer horizonte:
+
+- **Dias politicos** (reuniao com superior, oposicao, apresentacao, posicionamento) — leitura via Cap 1/4/6/7/8/9
+- **Dias de price-of-power** (sobrecarga, gargalo pessoal, overcommitment) — leitura via Cap 10/11 cruzado com Cap 2
+- **Dias de recovery ou pessoais** (fim de semana, familia, treino, leitura) — leitura via Cap 2 (energia/ambicao) × Cap 10 (autonomia recuperada) × Cap 13 (showing up)
+- **Dias pos-setback** (reuniao anterior deu ruim, projeto foi rejeitado) — Cap 9 × Cap 11 (nao desistir × nao sobrecompensar)
+
+**Novo mapa de cruzamentos** na secao "Passo 2" do agente inclui 16 combinacoes agenda-tipo → 2 capitulos com tensao, cobrindo desde "apresentacao para superior" ate "almoco com familia" e "dia de treino longo".
+
+**Unico limite restante:** input incompleto. Se a agenda, MITs ou retrospectiva nao foram extraidos, o agente pede o dado especifico em vez de produzir analise fictícia. Pfeffer e empirico — sem dado, sem analise.
+
+### Changed · Documentos de referencia reescritos
+
+**`references/insight-cruzamento.md` (daily + weekly):** nao descreve mais um processo de geracao (os antigos 7 passos de scan em `brain/3-resources/` foram removidos). Agora contem apenas:
+
+- Racional do commitment editorial (por que Pfeffer como fonte unica)
+- Formato do Insight (estrutura gramatical, linha de citacao `POWER · Cap X × Cap Y`, extensao 150-250 chars daily / 200-350 chars weekly)
+- Formato das Notas do dia (componente `.note`, 30-80 chars, acionavel, com hora quando ancorado a evento)
+- Formato do bloco opcional `## Riscos Pfeffer` (weekly) que alimenta Regra 6
+- Regras editoriais (2 capitulos, tensao, rotacao, pt-BR com vocabulario Pfeffer em ingles quando natural)
+- Anti-padroes
+- 4 exemplos validados cobrindo dia politico, dia operacional, dia familia, dia pos-setback (+ 3 exemplos para weekly)
+
+**`references/extracao-dados.md` (daily secao 5, weekly secao 7):** reescritas. Nao ha mais scan de `brain/3-resources/`. Documentam apenas **quais inputs a Fase 1 deve montar** para o agente Pfeffer conseguir rodar na Fase 2b.
+
+**`SKILL.md` (daily + weekly):** descricoes, tabelas da Fase 1, workflow Fase 2b, checklists pre-render, lista de arquivos e sumario "Output esperado" atualizados para refletir invocacao sempre do agente.
+
+### Removed
+
+- Processo de 7 passos para gerar Insight via scan de `brain/3-resources/` (descontinuado; regras de formato preservadas)
+- Conceito de "Atalho Pfeffer" (v1.10.0) — Pfeffer agora e o caminho unico, nao um atalho
+- Secao "Quando NAO usar este agente" da description e body do agente (substituida por "Limite unico: dados insuficientes")
+- Campo `contexto_insight` (com `temas` + `candidatos_3resources`) do schema de extracao — substituido por `contexto_pfeffer` documental
+
+### Notes
+
+- Esta versao e **minor** (1.10 → 1.11) porque nao remove capacidades publicas: todo HTML gerado continua valido, todas as classes CSS continuam intactas, o fluxo de 3 fases se mantem. O que muda e a fonte de conteudo do Insight + Notas — uma escolha editorial, nao uma mudanca de API.
+- Semanas/dias que anteriormente teriam insight de `brain/3-resources/` agora tem insight de Pfeffer Cap 2/10/11/13 (dias operacionais). Nada fica vazio. Nada invent.
+- Se em algum dia especifico Bruno quiser insight de outro framework, deve pedir fora da skill (ex: "gera so o insight de hoje usando Shape Up"). A skill nao suporta mais essa opcao como caminho oficial.
+
 ## [1.10.0] - 2026-04-17
 
 ### Added · Novo agente `pfeffer-power-analyst`

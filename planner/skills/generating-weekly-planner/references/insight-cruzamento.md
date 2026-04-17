@@ -1,222 +1,161 @@
-# Fase 2b · Insight · cruzamento (horizonte semanal)
+# Fase 2b · Insight · cruzamento (horizonte semanal) · regras editoriais (v1.11.0)
 
-O bloco "Insight · cruzamento" nao e decorativo nem randomico. E uma **provocacao criativa sintetizada a partir dos tensionamentos reais da semana**, cruzando dois frameworks/ideias distintas encontrados em `brain/3-resources/` (seu sistema PARA).
+Este arquivo **nao descreve mais um processo de geracao**. Desde v1.11.0, o Insight · cruzamento do weekly e sempre gerado pelo agente [`pfeffer-power-analyst`](../../../agents/pfeffer-power-analyst.md) com horizonte=weekly, que le a Tese + Big 3 + Retrospectiva + Riscos atraves das lentes do livro POWER (Pfeffer, 2010).
 
-**Funcao:** forcar voce a olhar o arco da semana por um angulo que nao e o default. Se a Tese diz *"a semana aposta em X"*, o Insight responde *"mas considere Y"*.
+Este arquivo agora contem **as regras editoriais** que a saida do agente **deve** respeitar. A skill valida a saida do agente contra este checklist antes de renderizar no HTML.
 
-**Diferenca em relacao ao daily:** o daily cruza **desafios do dia** (tensionamentos imediatos de execucao); o weekly cruza **tensionamentos estrategicos** da semana (dilemas sobre direcao, alocacao de capacidade, prioridade entre objetivos Q2). O horizonte muda, o padrao de cruzamento e o mesmo.
+## Por que Pfeffer como fonte unica
+
+Commitment editorial alinhado a identidade do planner (mesma racional do daily):
+
+- Consistencia diaria e semanal cria leitura acumulada. Ler Tese + semana atraves da mesma lente por 90 dias ensina mais que 90 frameworks diferentes.
+- A lente Pfeffer cobre semanas politicas (Cap 1/4/6/7/8/9), semanas de recovery ou deep work (Cap 2/10/11/13), semanas pos-setback (Cap 9 × Cap 13), e semanas de transicao (Cap 5 × Cap 10).
+- Alem do Insight, o agente pode alimentar a **Regra 6 (Riscos & fogos)** com bloco opcional `## Riscos Pfeffer` — pre-mortem ancorado em capitulos especificos.
+
+## Diferenca em relacao ao daily
+
+| Aspecto | Daily | Weekly |
+|---|---|---|
+| Horizonte de analise | Desafios do dia (execucao) | Tensionamentos estrategicos da semana (direcao) |
+| Insumos para o agente | Agenda + MITs + Workspace M7 + Lide | Retrospectiva S-1 + Tese + Big 3 + Orquestra + Riscos + Corpo semanal |
+| Output | Insight + 1-3 Notas do dia | Insight + (opcional) Riscos Pfeffer + (opcional) Notas taticas para preflight |
+| Capitulos tipicos | Cap 1 × Cap 7, Cap 9 × Cap 6 | Cap 5 × Cap 10 (alocacao de capital), Cap 2 × Cap 11 (energia sustentada), Cap 1 × Cap 8 (reputacao apos review) |
+
+O padrao de cruzamento binario e identico — muda o horizonte e a profundidade da tese.
 
 ## Indice
 
-- [Quando gerar o insight](#quando-gerar-o-insight)
-- [Atalho Pfeffer (v1.10.0)](#atalho-pfeffer-v1100)
-- [Processo em 7 passos](#processo-em-7-passos)
-- [Regras do texto final](#regras-do-texto-final)
-- [Padrao de cruzamento](#padrao-de-cruzamento)
+- [Formato do Insight semanal](#formato-do-insight-semanal)
+- [Formato dos Riscos Pfeffer](#formato-dos-riscos-pfeffer)
+- [Regras editoriais](#regras-editoriais)
 - [Anti-padroes](#anti-padroes)
-- [Exemplos comentados](#exemplos-comentados)
-- [Fallback quando 3-resources nao ajuda](#fallback-quando-3-resources-nao-ajuda)
+- [Exemplos validados](#exemplos-validados)
 
-## Atalho Pfeffer (v1.10.0)
+## Formato do Insight semanal
 
-Quando a **semana alvo** tem caracteristicas politicas dominantes, invocar o agente `pfeffer-power-analyst` com horizonte=weekly em vez de seguir o processo em 7 passos. Condicoes:
+### Estrutura gramatical
 
-- Retrospectiva S-1 mencionou oposicao ou falha politica (Pedro travou, Sergio criticou, proposta foi rejeitada publicamente)
-- Semana tem **multiplas** reunioes com superiores (3+ reviews, board, comite executivo)
-- Semana contem apresentacao externa de alto risco (investidores, auditoria, diretoria XP)
-- Gargalo pessoal persistente no workspace M7 (>=3 atrasadas de Bruno ha duas+ semanas)
-- Decisao consequente de posicionamento politico (anunciar reorg, demitir aliado, confrontar peer)
-
-O agente retorna bloco estruturado com:
-- **Insight · cruzamento** (cruzamento de 2 capitulos do livro POWER)
-- **Riscos Pfeffer** (pre-mortem tatico ancorado em capitulos, alimenta Regra 6 da metodologia)
-- **Notas taticas** (para execucao durante a semana, opcional)
-- **Rastro** (auditoria de quais sinais foram lidos e quais capitulos descartados)
-
-Ver [agents/pfeffer-power-analyst.md](../../../agents/pfeffer-power-analyst.md). **Quando NAO usar Pfeffer** no weekly: semanas de ferias, retro S-1 sem angulo politico, semana dedicada a deep work tecnico sem stakeholders externos.
-
-## Quando gerar o insight
-
-Apos a Fase 2 principal (8 regras de planejamento), antes da Fase 3 (renderizacao). Pre-requisitos:
-- Tese da semana ja escrita
-- Tres grandes (Big 3) ja definidos
-- Riscos ja mapeados (contem muitos tensionamentos uteis)
-- Tensionamentos derivados na Fase 1 (ver [extracao-dados.md secao 7](extracao-dados.md#7-contexto-para-o-insight))
-
-## Processo em 7 passos
-
-### Passo 1 · Extrair 2-3 tensionamentos centrais da semana
-
-Ler a Tese + Big 3 + Riscos e identificar os **tensionamentos estrategicos** da semana (nao as tarefas, mas os dilemas de direcao). Exemplos tipicos no horizonte semanal:
-
-| Tese / Big 3 / Risco | Tensionamento central |
-|---|---|
-| "Fechar m7-controle com diretoria" | Validacao externa vs iteracao autonoma (buscar aprovacao agora ou continuar refinando) |
-| "SQL consorcios parado no Rafa ha 5d" | Delegacao vs fazer eu mesmo (escalar pressao ou reassumir o trabalho) |
-| "Desdobrar metas Q2 em 4 verticais" | Rigor metrico vs flexibilidade estrategica (formalizar KPIs agora ou deixar orgânico) |
-| "Qua 15 protegida vs demandas do time" | Disponibilidade vs deep work (ser acessivel vs produzir profundamente) |
-
-### Passo 2 · Mapear cada desafio a um dominio de conhecimento
-
-Para cada desafio, listar 2-3 dominios de onde *poderia* vir uma resposta util. Exemplos:
-
-| Desafio | Dominios relevantes |
-|---|---|
-| Escolher poucos indicadores | Lean, ToC, OKR, GPD, Balanced Scorecard, sistemas complexos |
-| Pressionar sem desengajar | Lideranca situacional, nonviolent communication, accountability, coaching |
-| Feedback que move | Radical Candor, SBI, Crucial Conversations, Situational Leadership |
-
-### Passo 3 · Buscar materiais em `brain/3-resources/`
-
-Para cada dominio identificado, fazer uma busca ampla:
+O Insight semanal respeita o mesmo padrao visual da Band 1 do weekly, com leitura em dois capitulos em tensao:
 
 ```
-Glob: brain/3-resources/**/*.md
-Grep (paralelo por dominio): "Lean|ToC|Goldratt|Womack" em *.md
+[Conceito do Cap X] [verbo] [objeto conceitual da semana].
+[Conceito do Cap Y] [verbo] [objeto conceitual da semana].
+&mdash; sao leituras em tensao: <em>"[tensao do Cap X em 1 pergunta]"</em> vs <em>"[tensao do Cap Y em 1 pergunta]"</em>
 ```
 
-Priorizar:
-1. Arquivos cujo **nome** contenha o dominio (`lean-thinking.md`, `goldratt-toc.md`)
-2. Arquivos em **subpastas** relacionadas (`3-resources/metodologias/`, `3-resources/livros/`, `3-resources/lideranca/`)
-3. Arquivos com **tags** ou headers relacionados
+### Linha de citacao
 
-Ler ate 4-5 arquivos candidatos (leitura parcial das primeiras 50-100 linhas de cada para captar a essencia).
-
-### Passo 4 · Extrair a *pergunta fundadora* de cada framework
-
-Todo framework pode ser reduzido a **uma pergunta que ele faz melhor que os outros**. Exemplos ja na biblioteca:
-
-| Framework | Pergunta fundadora |
-|---|---|
-| Lean (Womack) | "O que podemos cortar? (elimina desperdicio)" |
-| ToC (Goldratt) | "O que trava o fluxo? (encontra o gargalo)" |
-| Shape Up (Basecamp) | "Quanto vale investigar?" (Appetite) |
-| GPD (Falconi) | "Por que isso acontece?" (Why-Why) |
-| Radical Candor (Scott) | "Eu me importo pessoalmente O SUFICIENTE para desafiar diretamente?" |
-| Situational Leadership (Hersey) | "Qual e o nivel de prontidao do liderado para esta tarefa?" |
-| OKR (Doerr) | "Qual e o resultado mensuravel que prova o progresso?" |
-| First Principles (Feynman/Musk) | "Desmontar ate ficar sem suposicao — o que sobrou?" |
-| Systems Thinking (Meadows) | "Onde estao os leverage points no sistema?" |
-
-Se o arquivo em `3-resources/` nao deixa a pergunta clara, **extrair** lendo a introducao do autor ou a tese central.
-
-### Passo 5 · Escolher DUAS perguntas que tensionam
-
-O cruzamento funciona quando as duas perguntas sao **fundamentalmente diferentes — e as duas sao legitimas** para o desafio. NAO usar duas que concordam. NAO usar uma certa e uma errada.
-
-Exemplos de cruzamentos bem tensionados:
-
-| Tensionamento da semana | Framework 1 | Framework 2 | Tensao |
-|---|---|---|---|
-| Escolher indicadores | Lean ("o que cortar?") | ToC ("o que trava?") | Cortar vs encontrar — duas perguntas diferentes sobre o mesmo sistema |
-| Feedback a Igor/Katrine | Situational Leadership ("qual nivel?") | Radical Candor ("importo o suficiente?") | Calibracao por maturidade vs coragem de dizer |
-| Cobrar Pedro | Situational Leadership ("qual toque?") | GPD ("por que?") | Gesto de lideranca vs causa-raiz |
-
-### Passo 6 · Redigir o cruzamento (150-250 chars)
-
-Formato-canon (ja estabelecido nos planners anteriores):
+Formato canonico, consistente com daily:
 
 ```
-<Framework 1> <verbo> <objeto>. <Framework 2> <verbo> <objeto>.
-— sao perguntas diferentes: <"pergunta1"> vs <"pergunta2">
+POWER &middot; Cap X (<nome curto>) &times; Cap Y (<nome curto>)
 ```
 
-Exemplos reais dos planners 16 e 17:
-- *"Lean quer eliminar o desperdicio. ToC quer achar o gargalo. — sao perguntas diferentes: 'o que podemos cortar?' vs 'o que trava o fluxo?'"*
-- *"Situational Leadership muda o estilo conforme o nivel do liderado. GPD pergunta Why-Why ate a causa raiz. — sao perguntas diferentes: 'que toque dar agora?' vs 'por que isso acontece?'"*
+### Extensao
 
-### Passo 7 · Adicionar citacao de fontes
+- **200-350 caracteres** no corpo (maior que daily porque a Band 1 do weekly tem mais espaco)
+- O peso estrategico da semana justifica mais densidade que o insight do dia
 
-Linha final `header__insight-cite` com as duas fontes:
+## Formato dos Riscos Pfeffer
 
-```
-<Framework 1> · <Autor 1> × <Framework 2> · <Autor 2>
-```
+Quando a semana tem material politico relevante, o agente retorna bloco opcional `## Riscos Pfeffer` que alimenta a **Regra 6 (Riscos & fogos)** da metodologia:
 
-Exemplos:
-- `Lean · Toyota × ToC · Goldratt`
-- `Situational Leadership · Hersey-Blanchard × GPD · Falconi`
-- `Radical Candor · Scott × Situational Leadership · Hersey`
+```markdown
+## Riscos Pfeffer
 
-## Regras do texto final
+- **<Risco 1 em italic curto>** · Cap X
+  mitigacao: <acao concreta ancorada em dia da semana>
 
-1. **Duas fontes sempre** — nunca 3+. O insight e um cruzamento binario.
-2. **150-250 caracteres** — cabe na zona de 240px do header.
-3. **Tensao explicita** — as perguntas precisam ser distintas. Se ambas podem ser respondidas "sim", o cruzamento esta fraco.
-4. **Conectar ao tensionamento da semana** — o insight nao e aleatorio; ele responde a uma tensao especifica que a Tese, os Big 3 ou os Riscos levantaram.
-5. **Escolher cruzamento que voce NAO ja usou** — evitar repetir "Shape Up × GPD" tres dias seguidos. Rotacionar entre dominios.
+- **<Risco 2>** · Cap Y
+  mitigacao: <acao concreta>
 
-## Padrao de cruzamento
-
-Estrutura gramatical consistente:
-
-```
-[Framework 1] [verbo transitivo/modal] [objeto conceitual 1].
-[Framework 2] [verbo transitivo/modal] [objeto conceitual 2].
-&mdash; sao perguntas diferentes: <em>"[pergunta1 curta]"</em> vs <em>"[pergunta2 curta]"</em>
+- **<Risco 3>** · Cap Z (opcional)
+  mitigacao: <acao concreta>
 ```
 
-Os dois `<em>` com perguntas em italico terracota sao obrigatorios — formam o "punch" visual da zona.
+Cada risco:
+- E uma frase curta (30-80 chars) em italico
+- Referencia 1 capitulo especifico
+- Tem mitigacao acionavel ancorada em dia da semana (seg/ter/qua/qui/sex)
+- Nao duplica com riscos vindos da retrospectiva ou do workspace M7 (a Regra 6 consolida todas as fontes)
+
+Quando **nao** retornar riscos Pfeffer:
+- Semana sem stakeholders externos
+- Semana sem eventos de alto risco politico
+- Quando os riscos ja capturados pela retrospectiva S-1 ou pelo Workspace M7 sao suficientes
+
+Nesse caso, retornar apenas o bloco de Insight e omitir `## Riscos Pfeffer`. Nao forcar conteudo onde nao ha.
+
+## Regras editoriais
+
+1. **Duas fontes sempre** — exatamente 2 capitulos do livro POWER.
+2. **Tensao genuina** — os dois capitulos devem tensionar entre si.
+3. **Conectar a Tese e aos Big 3** — o insight responde a uma tensao especifica da semana.
+4. **Rotacionar pares semana a semana** — evitar o mesmo cruzamento em semanas consecutivas.
+5. **Pt-BR no corpo, vocabulario Pfeffer em ingles quando natural**.
+6. **Tom descritivo, nao moralizante**.
+7. **Bloco `## Rastro` obrigatorio** na saida do agente, para auditoria.
 
 ## Anti-padroes
 
-| Ruim | Por que e ruim |
-|---|---|
-| "Deep Work defende foco. Flow state defende foco." | As duas concordam — sem tensao |
-| "Lean elimina desperdicio. Six Sigma elimina variabilidade. Agile elimina ciclos longos." | 3 frameworks — confuso, pula a regra do binario |
-| "Insight da semana: leia o livro X" | Nao e cruzamento, e recomendacao |
-| "Pense fora da caixa e seja criativo." | Banal, sem conteudo especifico, sem fontes |
-| Cruzamento que nao toca no tensionamento da semana | Viraria fortune cookie. Irrelevante para a acao |
+| Ruim | Por que e ruim | Melhor |
+|---|---|---|
+| Cruzar dois capitulos sinonimos | Sem tensao | Escolher capitulos em tensao real |
+| Insight generico sobre "semana dificil" | Nao cita Pfeffer, nao cruza | Citar dois capitulos especificos + aterrissar na Tese |
+| Riscos Pfeffer duplicando Riscos vindos da retro | Redundancia na Regra 6 | Omitir ou integrar ao risco existente |
+| Citar outro autor ou livro que nao Pfeffer | Viola fonte unica do sistema | Sempre POWER + dois capitulos |
+| Insight tratando semana como serie de dias | Nao e horizonte semanal, e concatenacao | Ler o **arco** da semana, nao cada dia |
+| Retornar `## Riscos Pfeffer` em semana sem risco politico | Forca material onde nao ha | Omitir o bloco |
 
-## Exemplos comentados
+## Exemplos validados
 
-### Exemplo A · Desafio: selecionar indicadores
+### Exemplo A · Semana politica (retro com oposicao + 3 reviews agendados)
 
-**Contexto:** Big 3 da semana e "Definir KPIs/PPIs do Ritual N2 Investimentos". Pergunta subjacente: *como escolher poucos indicadores que importam?*
+**Insight:**
 
-**Cruzamento:**
-> *"Balanced Scorecard soma 4 perspectivas para cobertura. Hoshin Kanri derruba a um unico X Matrix para foco. — sao perguntas diferentes: 'o que estamos deixando de medir?' vs 'o que e indiscutivelmente mais importante?'"*
->
-> Balanced Scorecard · Kaplan-Norton × Hoshin Kanri · Toyota
+> Cap 9 diz que a opcao mais barata com Pedro e coopting antes da retro oficial.
+> Cap 7 diz que em front de Sergio na review anger/confidence projection vale mais que defesa detalhada.
+> &mdash; sao leituras em tensao: <em>"onde eu abro a saida graciosa?"</em> vs <em>"onde eu projeto autoridade?"</em>
 
-**Por que funciona:** os dois frameworks sao sobre o mesmo objeto (metricas estrategicas) mas com filosofias opostas (cobertura vs foco). Voce passa o dia considerando AMBOS.
+**Cite:** `POWER &middot; Cap 9 (Opposition) &times; Cap 7 (Acting with Power)`
 
-### Exemplo B · Desafio: mentorar com devolutiva
+**Riscos Pfeffer:**
 
-**Contexto:** 3 mentorias na sexta (Igor, Katrine, PDCA de Julianne). Pergunta subjacente: *como dar feedback que move?*
+- **Pedro organizar aliados antes da review de sexta** · Cap 9 (seize the initiative)
+  mitigacao: 1:1 privado com Pedro na terca antes que ele recrute apoio
 
-**Cruzamento:**
-> *"Radical Candor pergunta se voce se importa o suficiente para desafiar. Situational Leadership pergunta qual e a prontidao do liderado. — sao perguntas diferentes: 'tenho coragem?' vs 'qual o toque certo?'"*
->
-> Radical Candor · Scott × Situational Leadership · Hersey
+- **Perder postura em front de Sergio se ele contestar o numero** · Cap 7 (anger > sadness)
+  mitigacao: ensaiar sabado; pause antes de responder; nunca ceder tom submisso
 
-**Por que funciona:** duas perguntas legitimas, nao intercambiaveis. Voce pode ter coragem (Candor) mas errar o nivel (Situational), ou vice-versa.
+- **Compensar submissao com Sergio sendo duro com o time** · Cap 11 (disinhibition)
+  mitigacao: bloquear 1:1 com Lu sexta-feira apos review para decompressao real
 
-### Exemplo C · Desafio: follow-up desconfortavel
+### Exemplo B · Semana de deep work (sem stakeholders externos)
 
-**Contexto:** cobrar Pedro nos 4 chamados TI. Pergunta subjacente: *como pressionar sem queimar?*
+**Insight:**
 
-**Cruzamento:**
-> *"Accountability Ladder (Partners in Leadership) pergunta em que degrau a pessoa esta. Nonviolent Communication (Rosenberg) pergunta qual a necessidade por tras do comportamento. — sao perguntas diferentes: 'como subo 1 degrau?' vs 'o que ele precisa?'"*
->
-> Accountability Ladder · Partners in Leadership × NVC · Rosenberg
+> Cap 2 lembra que energia e ambicao sao pre-requisitos de poder, nao decorrencias.
+> Cap 13 observa que 80% do sucesso e apenas aparecer — pequenas tarefas feitas todos os dias.
+> &mdash; sao leituras em tensao: <em>"o que recarregar?"</em> vs <em>"o que acumular em silencio?"</em>
 
-## Fallback quando 3-resources nao ajuda
+**Cite:** `POWER &middot; Cap 2 (Personal Qualities) &times; Cap 13 (It's Easier Than You Think)`
 
-Se a busca em `brain/3-resources/` retorna zero candidatos relevantes para os tensionamentos da semana:
+*(Sem bloco Riscos Pfeffer — semana sem material politico.)*
 
-**Opcao 1 · Usar pares classicos conhecidos** (sempre validos para dominios universais):
-- Lean × ToC (eliminar vs destravar)
-- Shape Up × GPD (apetite vs causa-raiz)
-- OKR × Hoshin Kanri (mensurar vs focar)
-- Deep Work × Shallow Work (profundidade vs superficie)
-- First Principles × Analogia (desmontar vs copiar)
+### Exemplo C · Semana pos-setback
 
-**Opcao 2 · Pedir ao usuario:**
+**Insight:**
 
-> Nao encontrei material em 3-resources sobre o desafio <X>. Voce quer:
-> (a) Deixar o Insight vazio hoje
-> (b) Sugerir duas leituras/frameworks que voce quer cruzar
-> (c) Usar um cruzamento classico (ex: Lean × ToC)
+> Cap 9 reforca: continue fazendo o que te trouxe ate aqui. Nao giveway preemptive.
+> Cap 11 adverte: fatigue e overcommitment apos derrota sao os gatilhos classicos de segunda queda.
+> &mdash; sao leituras em tensao: <em>"o que insistir?"</em> vs <em>"o que descartar antes do ciclo recomecar?"</em>
 
-**Nunca** gerar cruzamento ficticio citando autor ou livro inexistente. Preferir insight vazio a insight falso.
+**Cite:** `POWER &middot; Cap 9 (Overcoming Setbacks) &times; Cap 11 (How People Lose Power)`
+
+**Riscos Pfeffer:**
+
+- **Cancelar o 1:1 com Sergio por embaraco** · Cap 9 (don't give up)
+  mitigacao: manter o 1:1 de quarta, abrir com "o que eu aprendi da ultima reuniao"
+
+- **Sobrecarregar a agenda tentando compensar** · Cap 11 (fatigue)
+  mitigacao: recusar 2 convites opcionais na sex; manter quinta como maker day

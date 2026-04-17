@@ -1,6 +1,6 @@
 ---
 name: generating-weekly-planner
-description: Gera o weekly planner pessoal executivo de Bruno em HTML seguindo tres fases aplicadas ao horizonte semanal (seg-sex). Fase 1 (Extrair) le dados via Google Calendar MCP (5 dias), ClickUp MCP (tarefas da semana + workspace M7 com status=atrasada/bloqueada no workspace inteiro para alimentar Riscos), TrainingPeaks MCP (peso, TSS, sono, TSB - pos v1.5.0), metas Q2 (ClickUp goals ou filesystem brain/3-resources) e retrospectiva S-1 perguntada ao usuario. Fase 2 (Planejar) aplica 8 regras destiladas de Hyatt Weekly Preview (Tese + Big 3 + Critério), Cal Newport Time-Block (Orquestra dos 5 dias com deep work blocks), 4DX (Critério de vitória), Kahneman Pre-mortem (Riscos com mitigação pronta) e Newport Shutdown Reverso (Preflight com 4 perguntas editoriais), gerando o Insight cruzando frameworks de brain/3-resources. Fase 3 (Renderizar) aplica o design system Planner Editorial Noturno em fit-screen 1440x1000 com 4 bands (Contexto + Orquestra HERO + Compromissos + Preflight ancorado ao fundo). Use quando Bruno pedir para criar, editar ou gerar seu planner semanal, weekly preview, dashboard da semana ou HTML para sunday planning. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
+description: Gera o weekly planner pessoal executivo de Bruno em HTML seguindo tres fases aplicadas ao horizonte semanal (seg-sex). Fase 1 (Extrair) le dados via Google Calendar MCP (5 dias), ClickUp MCP (tarefas da semana + workspace M7 com status=atrasada/bloqueada no workspace inteiro para alimentar Riscos), TrainingPeaks MCP (peso, TSS, sono, TSB - pos v1.5.0), metas Q2 (ClickUp goals ou filesystem brain/3-resources) e retrospectiva S-1 perguntada ao usuario. Fase 2 (Planejar) aplica 8 regras destiladas de Hyatt Weekly Preview (Tese + Big 3 + Critério), Cal Newport Time-Block (Orquestra dos 5 dias), 4DX (Critério de vitória), Kahneman Pre-mortem (Riscos com mitigação pronta) e Newport Shutdown Reverso (Preflight com 4 perguntas editoriais), e **sempre invoca o agente pfeffer-power-analyst** (v1.11.0) para gerar Insight · cruzamento atraves do livro POWER de Jeffrey Pfeffer (unica fonte de insight do sistema) — o agente alimenta opcionalmente a Regra 6 (Riscos & fogos) com pre-mortem Pfeffer. Fase 3 (Renderizar) aplica o design system Planner Editorial Noturno em fit-screen 1440x1000 com 4 bands (Contexto + Orquestra HERO + Compromissos + Preflight ancorado ao fundo). Use quando Bruno pedir para criar, editar ou gerar seu planner semanal, weekly preview, dashboard da semana ou HTML para sunday planning. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
 license: Proprietary
 ---
 
@@ -45,7 +45,7 @@ Ler [references/extracao-dados.md](references/extracao-dados.md) e reunir dados 
 | **Corpo · semana** | **TrainingPeaks MCP** (weight/sleep/HRV/weekly_summary/fitness_metrics) | Perguntar se MCP falhar |
 | **Metas Q2** | ClickUp goals → brain/3-resources (metas-2026.md) → perguntar | Perguntar confidence (0-100%) |
 | **Retrospectiva S-1** | *Sempre perguntar ao usuario* | — |
-| Contexto insight | Filesystem `brain/3-resources/` (PARA) | — |
+| Contexto Pfeffer | Agente `pfeffer-power-analyst` (v1.11.0, fonte unica, horizonte=weekly) | — |
 
 **Regra de ouro:** nunca inventar dado. Se nao conseguir extrair nem obter do usuario, secao vira `—` ou e omitida.
 
@@ -64,9 +64,7 @@ Ler [references/metodologia-planejamento.md](references/metodologia-planejamento
 7. **Preflight** — 4 perguntas editoriais (Newport shutdown reverso): vitoria / deep work / dizer nao / maior risco
 8. **Corpo · semana** — 4 KPIs agregados na ordem fixa `peso Δ → sono medio → TSS total → TSB`, cada um com tag de classificacao de 1 palavra (v1.8.0) · ver [extracao-dados.md secao 4](references/extracao-dados.md) para matriz de faixas
 
-Em paralelo, gerar o **Insight · cruzamento** seguindo [references/insight-cruzamento.md](references/insight-cruzamento.md): derivar 2-3 tensionamentos estrategicos da semana (nao do dia) → dominios → scan de `brain/3-resources/` → cruzamento binario de frameworks.
-
-**Alternativa Pfeffer (v1.10.0):** quando a semana contiver sinais politicos dominantes (multiplas reunioes com superiores, apresentacoes estrategicas, oposicao identificada na retrospectiva S-1, gargalo pessoal persistente no workspace M7 ou decisao consequente de posicionamento), invocar o agente `pfeffer-power-analyst` com horizonte=weekly. O agente cruza dois capitulos do livro POWER e retorna Markdown estruturado que alimenta o Insight **e** a Regra 6 (Riscos & fogos) com pre-mortem tatico. Ver [agents/pfeffer-power-analyst.md](../../agents/pfeffer-power-analyst.md).
+Em paralelo, gerar o **Insight · cruzamento** invocando sempre o agente [`pfeffer-power-analyst`](../../agents/pfeffer-power-analyst.md) com horizonte=weekly (v1.11.0). O agente e a **unica fonte** de insight do weekly — cruza dois capitulos do livro POWER em tensao genuina, aplicando Cap 1/4/6/7/8/9 em semanas politicas (reunioes com superiores, oposicao, apresentacoes, posicionamento) e Cap 2/10/11/13 em semanas de recovery, deep work, ferias ou horizonte pessoal. Alem do Insight, o agente pode alimentar a Regra 6 (Riscos & fogos) com bloco opcional `## Riscos Pfeffer` (pre-mortem tatico ancorado em capitulos especificos). Nao ha mais scan de `brain/3-resources/` — o arquivo [references/insight-cruzamento.md](references/insight-cruzamento.md) agora contem apenas as regras editoriais que a saida do agente deve obedecer.
 
 Antes de avancar para Fase 3, validar o **checklist de sanidade** (final de metodologia-planejamento.md).
 
@@ -110,7 +108,7 @@ Antes de emitir o HTML final, confirmar:
 [ ] Contadores recalculados a partir das linhas extraidas (nao reusados da API)
 [ ] "atrasadas_*" usa status unico como fonte (nao soma pendente+due-vencido)
 [ ] Preflight tem 4 perguntas respondidas em italic curto
-[ ] Insight cruza DUAS perguntas de frameworks distintos
+[ ] Insight gerado pelo agente `pfeffer-power-analyst` cruza DUAS perguntas de capitulos do livro POWER em tensao
 [ ] Corpo tem 4 KPIs na ordem peso Δ → sono medio → TSS total → TSB, cada um com tag de classificacao (numero e tag compartilham a mesma classe CSS; dado ausente = &mdash; + tag omitida)
 [ ] Layout ocupa 1440x1000 sem overflow, Preflight na base
 ```
@@ -175,7 +173,7 @@ generating-weekly-planner/
 └── references/
     ├── extracao-dados.md             # Fase 1 · 6 fontes, MCPs, fallbacks, schema
     ├── metodologia-planejamento.md   # Fase 2 · 8 regras + checklist de sanidade
-    ├── insight-cruzamento.md         # Fase 2b · gerar insight criativo (horizonte semanal)
+    ├── insight-cruzamento.md         # Fase 2b · regras editoriais do output do agente Pfeffer (v1.11.0)
     ├── tokens.css                    # Fase 3 · CSS variables + classes (4 bands + fit-screen)
     ├── tokens.json                   # Fase 3 · DTCG format tokens (interop)
     ├── principios.md                 # Fase 3 · 6 principios fundadores (identicos a daily)
@@ -183,12 +181,14 @@ generating-weekly-planner/
     ├── regras-texto.md               # Fase 3 · tom editorial, labels weekly, metadata
     └── template-html.html            # Fase 3 · starter HTML completo
 
-Agente relacionado (pasta `agents/` do plugin):
-└── pfeffer-power-analyst.md          # Atalho Fase 2b e insumo para Regra 6 (Riscos).
-                                       Invocado quando semana tem sinais politicos
-                                       dominantes (oposicao na retro, multiplas reunioes
-                                       com superiores, apresentacao externa de alto risco,
-                                       decisao de posicionamento).
+Agente (pasta `agents/` do plugin):
+└── pfeffer-power-analyst.md          # Fonte UNICA de Insight · cruzamento do weekly
+                                       (v1.11.0). Sempre invocado na Fase 2b com
+                                       horizonte=weekly. Cruza 2 capitulos do livro
+                                       POWER (Pfeffer, 2010). Alem do Insight, alimenta
+                                       opcionalmente a Regra 6 (Riscos & fogos) com
+                                       bloco `## Riscos Pfeffer` quando a semana tem
+                                       material politico.
 ```
 
 ## Output esperado
@@ -205,7 +205,7 @@ Ao aplicar esta skill, o Claude Code deve produzir um artefato que:
 - Preflight ancorado ao fundo via flex:1 na Orquestra
 - Implementa os componentes weekly especificos
 - Respeita o tom editorial (ver regras-texto.md)
-- Contem um Insight cruzando dois frameworks tensionados no horizonte semanal
+- Contem um Insight cruzando dois capitulos do livro POWER (Pfeffer) no horizonte semanal, gerado pelo agente `pfeffer-power-analyst`
 
 Se o usuario pedir algo que contradiga os principios (ex: "adiciona sabado e domingo" ou "remove o Preflight"), a skill deve respeitar o style guide e sinalizar o conflito antes de implementar. Se o usuario pedir "pule o planejamento, so monta o HTML rapido", a skill deve avisar que o output sera raso e pedir confirmacao antes de pular as Fases 1 e 2.
 

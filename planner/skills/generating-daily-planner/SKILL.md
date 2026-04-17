@@ -1,6 +1,6 @@
 ---
 name: generating-daily-planner
-description: Gera o daily planner pessoal executivo de Bruno em HTML seguindo tres fases. Fase 1 (Extrair) le dados reais via MCPs (Google Calendar, ClickUp) ou pergunta ao usuario quando indisponivel; corpo/saude e sempre perguntado. Fase 2 (Planejar) aplica boas praticas — Most Important Tasks, Eat-the-frog, time blocking 60/40, pre-mortem, Eisenhower, role balance, planejamento noturno — e gera o Insight cruzando frameworks de brain/3-resources (PARA). Fase 3 (Renderizar) aplica o design system Planner Editorial Noturno (Georgia + Inter, terracota + azul petroleo, header 5-zone + body 3-col + footer 2-col, zero ornamento). Use quando Bruno pedir para criar, editar ou gerar seu planner diario, daily dashboard, pagina de planejamento ou HTML de cron pessoal. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
+description: Gera o daily planner pessoal executivo de Bruno em HTML seguindo tres fases. Fase 1 (Extrair) le dados reais via MCPs (Google Calendar, ClickUp) ou pergunta ao usuario quando indisponivel; corpo/saude e sempre perguntado. Fase 2 (Planejar) aplica boas praticas — Most Important Tasks, Eat-the-frog, time blocking 60/40, pre-mortem, Eisenhower, role balance, planejamento noturno — e **sempre invoca o agente pfeffer-power-analyst** (v1.11.0) para gerar Insight · cruzamento + Notas do dia atraves do livro POWER de Jeffrey Pfeffer (unica fonte de insight do sistema). Fase 3 (Renderizar) aplica o design system Planner Editorial Noturno (Georgia + Inter, terracota + azul petroleo, header 5-zone + body 3-col + footer 2-col, zero ornamento). Use quando Bruno pedir para criar, editar ou gerar seu planner diario, daily dashboard, pagina de planejamento ou HTML de cron pessoal. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
 license: Proprietary
 ---
 
@@ -40,7 +40,7 @@ Ler [references/extracao-dados.md](references/extracao-dados.md) e reunir dados 
 | Tarefas | ClickUp MCP (assignee=Bruno) + filtro de status (whitelist/blacklist) | Pedir lista "Hoje" |
 | Workspace M7 | ClickUp MCP (statuses=[atrasada, bloqueada], workspace inteiro) | Pedir resumo por frente |
 | Corpo | *Sem MCP* (Garmin removido em v1.3.0) | Sempre perguntar |
-| Contexto insight | Filesystem `brain/3-resources/` (PARA) | — |
+| Contexto Pfeffer | Agente `pfeffer-power-analyst` (v1.11.0, fonte unica) | — |
 
 **Regra de ouro:** nunca inventar dado. Se nao conseguir extrair nem obter do usuario, secao vira `—` ou e omitida.
 
@@ -57,9 +57,7 @@ Ler [references/metodologia-planejamento.md](references/metodologia-planejamento
 
 **Rastreabilidade obrigatoria:** cada numero que aparece no HTML deve ter entrada em `extracao.metricas` com `{metrica, query, count, fonte}`. Contadores sao recalculados a partir das linhas extraidas, nao reusados dos headers da API.
 
-Em paralelo, gerar o **Insight · cruzamento** seguindo [references/insight-cruzamento.md](references/insight-cruzamento.md): 2-3 desafios do dia → dominios → scan de `brain/3-resources/` → cruzamento binario de frameworks com tensao explicita.
-
-**Alternativa Pfeffer (v1.10.0):** quando a agenda do dia contiver sinais politicos relevantes (reuniao com superior, 1:1 com subordinado em oposicao, apresentacao para diretoria/externos, decisao de posicionamento, gargalo pessoal no workspace M7 com >=3 atrasadas proprias de Bruno), invocar o agente `pfeffer-power-analyst` como substituto do `insight-cruzamento.md` padrao. O agente cruza dois capitulos do livro POWER (Pfeffer, 2010) e retorna Markdown estruturado pronto para Insight + 1-3 Notas do dia. Se o dia e puramente operacional, seguir o fluxo padrao. Ver [agents/pfeffer-power-analyst.md](../../agents/pfeffer-power-analyst.md).
+Em paralelo, gerar o **Insight · cruzamento** e as **Notas do dia** invocando sempre o agente [`pfeffer-power-analyst`](../../agents/pfeffer-power-analyst.md) (v1.11.0). O agente e a **unica fonte** de insight e notas do planner — cruza dois capitulos do livro POWER (Pfeffer, Stanford GSB, 2010) em tensao genuina, lendo dias politicos via Cap 1/4/6/7/8/9 e dias operacionais/pessoais via Cap 2/10/11/13. Nao ha mais scan de `brain/3-resources/` — o arquivo [references/insight-cruzamento.md](references/insight-cruzamento.md) agora contem apenas as regras editoriais (formato, tom, anti-padroes) que a saida do agente deve obedecer.
 
 Antes de avancar para Fase 3, validar o **checklist de sanidade** (final de metodologia-planejamento.md).
 
@@ -95,7 +93,7 @@ Antes de emitir o HTML final, confirmar:
 [ ] Cada numero exibido tem entrada em `metricas` com query e count rastreaveis
 [ ] Contadores recalculados a partir de linhas extraidas (nao reusados da API)
 [ ] "atrasadas" usa status unico como fonte (nao soma pendente+due-vencido)
-[ ] Insight cruza DUAS (nao 3+) perguntas de frameworks distintos
+[ ] Insight gerado pelo agente `pfeffer-power-analyst` cruza DUAS (nao 3+) perguntas de capitulos do livro POWER em tensao
 [ ] Ancora de Amanha cabe em 1 frase imperativa
 [ ] Preparar hoje tem 0-2 bullets, cada <=15min hoje
 ```
@@ -149,7 +147,7 @@ generating-daily-planner/
 └── references/
     ├── extracao-dados.md          # Fase 1 · fontes, MCPs, fallbacks, schema
     ├── metodologia-planejamento.md # Fase 2 · 6 regras + checklist de sanidade
-    ├── insight-cruzamento.md      # Fase 2b · gerar insight criativo de 3-resources
+    ├── insight-cruzamento.md      # Fase 2b · regras editoriais do output do agente Pfeffer (v1.11.0)
     ├── tokens.css                 # Fase 3 · CSS variables + classes
     ├── tokens.json                # Fase 3 · DTCG format tokens (interop)
     ├── principios.md              # Fase 3 · 6 principios fundadores
@@ -157,11 +155,13 @@ generating-daily-planner/
     ├── regras-texto.md            # Fase 3 · tom editorial, labels, metadata
     └── template-html.html         # Fase 3 · starter HTML completo
 
-Agente relacionado (pasta `agents/` do plugin):
-└── pfeffer-power-analyst.md       # Atalho Fase 2b para dias com sinais politicos
-                                    (substitui insight-cruzamento.md padrao quando
-                                    agenda contem reuniao com superior, apresentacao,
-                                    oposicao declarada ou gargalo pessoal detectado)
+Agente (pasta `agents/` do plugin):
+└── pfeffer-power-analyst.md       # Fonte UNICA de Insight · cruzamento e Notas do
+                                    dia (v1.11.0). Sempre invocado na Fase 2b.
+                                    Cruza 2 capitulos do livro POWER (Pfeffer, 2010)
+                                    em tensao genuina. Cap 1/4/6/7/8/9 para dias
+                                    politicos, Cap 2/10/11/13 para dias operacionais
+                                    ou pessoais.
 ```
 
 ## Output esperado
@@ -176,6 +176,6 @@ Ao aplicar esta skill, o Claude Code deve produzir um artefato que:
 - Implementa os 12 componentes centrais + a estrutura Ancora+Preparar em Amanha (v1.4.0)
 - Implementa pre-mortem por MIT (v1.4.0)
 - Respeita o tom editorial (ver regras-texto.md)
-- Contem um Insight cruzando dois frameworks tensionados (nao generico)
+- Contem um Insight cruzando dois capitulos do livro POWER (Pfeffer), gerado pelo agente `pfeffer-power-analyst`
 
 Se o usuario pedir algo que contradiga os principios (ex: "adiciona uns icones legais" ou "faz um modo claro"), a skill deve respeitar o style guide e sinalizar o conflito antes de implementar. Se o usuario pedir "pule o planejamento, so monta o HTML rapido", a skill deve avisar que o output sera raso e pedir confirmacao antes de pular as Fases 1 e 2.

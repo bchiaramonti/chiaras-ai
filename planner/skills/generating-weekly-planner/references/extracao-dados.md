@@ -16,7 +16,7 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 - [4. Corpo · semana (TrainingPeaks MCP)](#4-corpo--semana-trainingpeaks-mcp)
 - [5. Metas Q2 (conexao trimestral)](#5-metas-q2-conexao-trimestral)
 - [6. Retrospectiva S-1 (sempre perguntar)](#6-retrospectiva-s-1-sempre-perguntar)
-- [7. Contexto para o insight](#7-contexto-para-o-insight)
+- [7. Contexto para o agente Pfeffer](#7-contexto-para-o-agente-pfeffer)
 - [Protocolo de fallback](#protocolo-de-fallback)
 - [Rastreabilidade de metricas](#rastreabilidade-de-metricas)
 - [Schema da extracao](#schema-da-extracao)
@@ -31,7 +31,7 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 | **Corpo · semana** | **TrainingPeaks MCP** (v1.5.0+) | `tp-mcp` (weight, sleep, HRV, weekly_summary, fitness_metrics) | Perguntar se MCP falhar |
 | **Metas Q2** | ClickUp goals → `brain/3-resources/` → perguntar | `mcp__claude_ai_ClickUp__clickup_get_workspace_hierarchy` + `clickup_search` | Perguntar confidence por objetivo |
 | **Retrospectiva S-1** | *Sempre perguntar ao usuario* | — | — (e a propria fonte) |
-| Contexto insight | Filesystem `brain/3-resources/` (PARA) | `Glob`, `Grep`, `Read` | Pular insight se vazio |
+| Contexto Pfeffer | Agente `pfeffer-power-analyst` (horizonte=weekly) recebe Tese + Big 3 + Retrospectiva S-1 + Riscos + Corpo | Invocacao direta do agente | Agente pede dado especifico se input incompleto |
 
 ## Janela temporal alvo
 
@@ -418,39 +418,36 @@ Nao pular essa pergunta mesmo se o usuario pedir rapidez. Sem retrospectiva, avi
 
 > Sem retrospectiva da S-1, o weekly vai ficar generico — a Tese perde ancoragem. Voce pode me passar rapido 1-2 frases de "o que destravou" e "o que travou"? Se nao tiver nada, posso seguir mas a qualidade cai.
 
-## 7. Contexto para o insight
+## 7. Contexto para o agente Pfeffer
 
-Fonte unica: **filesystem `/Users/bchiaramonti/Documents/brain/3-resources/`**.
+Desde **v1.11.0**, o Insight · cruzamento do weekly e sempre gerado pelo agente [`pfeffer-power-analyst`](../../../agents/pfeffer-power-analyst.md) com horizonte=weekly. Alem do Insight, o agente pode alimentar a Regra 6 (Riscos & fogos) com bloco opcional `## Riscos Pfeffer`. Nao ha mais scan de `brain/3-resources/`.
 
-Essa extracao e preguicosa — nao le os arquivos ainda, apenas inventaria. A leitura real acontece na geracao do insight (ver [insight-cruzamento.md](insight-cruzamento.md)).
+### Inputs que o agente espera (horizonte=weekly)
 
-### Passo 1 · Identificar tensionamentos da semana
-
-A partir da **Tese** + **Big 3** + **Riscos** (ja planejados na Fase 2), derivar 2-3 **temas** estrategicos da semana. Nao sao tarefas — sao **dilemas**.
-
-Exemplos:
-- Tese "fechar m7-controle com diretoria" → tensionamento `validacao-vs-autonomia` (aprovar para liberar vs continuar iterando)
-- Big 3 "desdobrar metas Q2" → tensionamento `rigor-metrico-vs-flexibilidade-estrategica`
-- Riscos "SQL consorcios parado no Rafa" → tensionamento `delegacao-vs-fazer-eu-mesmo`
-
-### Passo 2 · Inventariar subdiretorios relevantes em 3-resources
-
-```
-Glob: brain/3-resources/**/*.md
-```
-
-Filtrar por caminhos/nomes que contenham os tensionamentos (case-insensitive, stem matching). Limite: ate 10 candidatos.
-
-### Passo 3 · Passar o inventario para a fase de Insight
-
-Saida:
 ```yaml
-tensionamentos: [validacao-vs-autonomia, delegacao-vs-fazer-eu-mesmo]
-candidatos:
-  - brain/3-resources/lideranca/situational-leadership-hersey.md
-  - brain/3-resources/metodologias/shape-up-basecamp.md
-  - brain/3-resources/livros/radical-candor.md
+horizonte: weekly
+semana_numero: 17
+semana_range: "2026-04-20 a 2026-04-24"
+retrospectiva_s_menos_1:       # da secao 6 desta extracao
+  destravou, travou, aprendi
+tese_rascunho: "<texto>"       # rascunho da Fase 2 Regra 1
+big3:                           # da Fase 2 Regra 4
+  - titulo, confidence, criterio_pronto_quando
+orquestra:                      # da Fase 2 Regra 3
+  por_dia: { seg, ter, qua, qui, sex }
+riscos_pre_capturados:          # opcional, da Fase 2 Regra 6 parcial
+  - titulo, fonte (retro/workspace/orquestra)
+workspace_m7:                   # da secao 3 desta extracao
+  atrasadas_bruno, frentes_mais_atrasadas
+corpo_semana:                   # da secao 4 desta extracao
+  peso_delta_kg, sono_medio_h, tss_total, tsb
 ```
+
+### Regra
+
+Se qualquer input esta incompleto quando o agente e invocado, o agente pede o dado especifico antes de produzir analise. Pfeffer e empirico — sem dado, sem analise.
+
+Nao ha fallback. Ver [insight-cruzamento.md](insight-cruzamento.md) para regras de formato do output e racional de commitment editorial.
 
 ## Protocolo de fallback
 
@@ -661,10 +658,13 @@ metas_q2:
       etapa: "bloco de volume"
       status: ok
 
-contexto_insight:
-  tensionamentos: [validacao-vs-autonomia, delegacao-vs-fazer-eu-mesmo]
-  candidatos_3resources:
-    - brain/3-resources/...
+contexto_pfeffer:                        # v1.11.0 · substitui contexto_insight
+  # Nada a extrair aqui na Fase 1 — o agente recebe retrospectiva + tese + big3 +
+  # orquestra + riscos_pre_capturados + workspace_m7 + corpo_semana diretamente da
+  # Fase 2b e produz Insight + (opcional) Riscos Pfeffer. Bloco mantido apenas
+  # para documentar a ausencia de scan em brain/3-resources/.
+  fonte: agents/pfeffer-power-analyst.md
+  horizonte: weekly
 
 metricas:
   - metrica: "atrasadas_workspace_semana"

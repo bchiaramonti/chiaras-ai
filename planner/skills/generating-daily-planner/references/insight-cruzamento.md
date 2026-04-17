@@ -1,228 +1,165 @@
-# Fase 2b · Insight · cruzamento
+# Fase 2b · Insight · cruzamento · regras editoriais (v1.11.0)
 
-O bloco "Insight · cruzamento" nao e decorativo nem randomico. E uma **provocacao criativa sintetizada a partir dos desafios reais do dia**, cruzando dois frameworks/ideias distintas encontrados em `brain/3-resources/` (seu sistema PARA).
+Este arquivo **nao descreve mais um processo de geracao**. Desde v1.11.0, o Insight · cruzamento e as Notas do dia sao sempre geradas pelo agente [`pfeffer-power-analyst`](../../../agents/pfeffer-power-analyst.md), que le a agenda atraves das lentes do livro POWER (Pfeffer, 2010).
 
-**Funcao:** forcar voce a olhar o problema do dia por um angulo que nao e o default. Se o Lide diz *"o dia pede X"*, o Insight responde *"mas considere Y"*.
+Este arquivo agora contem **as regras editoriais** que a saida do agente **deve** respeitar. A skill valida a saida do agente contra este checklist antes de renderizar no HTML.
+
+## Por que Pfeffer como fonte unica
+
+Commitment editorial alinhado a identidade do planner:
+
+- O planner e committed ao design Editorial Noturno (dark mode quente, Georgia + Inter) — nao e tema configuravel. Consistencia diaria cria leitura acumulada.
+- A partir de v1.11.0, o Insight e committed a Pfeffer — nao e framework configuravel. 90 dias lendo o trabalho atraves da mesma lente ensina mais que 90 frameworks diferentes.
+- A lente Pfeffer cobre tanto dias politicos (Cap 1/4/6/7/8/9) quanto dias operacionais ou pessoais (Cap 2/10/11/13) — ver [agents/pfeffer-power-analyst.md](../../../agents/pfeffer-power-analyst.md) para o mapa completo de cruzamentos.
+- Invencao de outro framework e proibida. Se Bruno quiser insight de outra fonte em algum dia especifico, deve pedir manualmente fora da skill.
 
 ## Indice
 
-- [Quando gerar o insight](#quando-gerar-o-insight)
-- [Atalho Pfeffer (v1.10.0)](#atalho-pfeffer-v1100)
-- [Processo em 7 passos](#processo-em-7-passos)
-- [Regras do texto final](#regras-do-texto-final)
-- [Padrao de cruzamento](#padrao-de-cruzamento)
+- [Formato do Insight](#formato-do-insight)
+- [Formato das Notas do dia](#formato-das-notas-do-dia)
+- [Regras editoriais](#regras-editoriais)
 - [Anti-padroes](#anti-padroes)
-- [Exemplos comentados](#exemplos-comentados)
-- [Fallback quando 3-resources nao ajuda](#fallback-quando-3-resources-nao-ajuda)
+- [Exemplos validados](#exemplos-validados)
 
-## Atalho Pfeffer (v1.10.0)
+## Formato do Insight
 
-Quando a agenda do dia contem **sinais politicos fortes** (qualquer uma das condicoes):
+### Estrutura gramatical
 
-- Reuniao com superior direto (CEO, diretor, board) — especialmente se for review, apresentacao de resultado ou decisao
-- Apresentacao para audiencia externa relevante (diretoria XP, investidores, clientes importantes)
-- 1:1 com subordinado em fila travada, em oposicao declarada ou com performance em risco
-- Reuniao onde voce precisa defender posicionamento ou tomar decisao politica
-- Workspace M7 com gargalo pessoal detectado (>=3 tasks atrasadas de Bruno na coluna 3 do planner)
-- Retrospectiva indicando oposicao recente (se daily pos-weekly)
-
-Nesses casos, **invocar o agente especializado `pfeffer-power-analyst`** em vez de seguir o processo de 7 passos. O agente cruza dois capitulos do livro **POWER** (Pfeffer, 2010) e retorna Markdown pronto com Insight + Notas taticas + Rastro auditavel.
+O Insight gerado pelo agente Pfeffer deve respeitar o padrao visual estabelecido na zona `header__insight`:
 
 ```
-Invocar: agents/pfeffer-power-analyst.md
-Inputs: agenda do dia + MITs + workspace_m7 state + lide rascunhado
-Output: Insight · cruzamento (Pfeffer) + 1-3 Notas do dia
+[Conceito do Cap X] [verbo] [objeto conceitual].
+[Conceito do Cap Y] [verbo] [objeto conceitual].
+&mdash; sao leituras em tensao: <em>"[tensao do Cap X em 1 pergunta]"</em> vs <em>"[tensao do Cap Y em 1 pergunta]"</em>
 ```
 
-Ver [agents/pfeffer-power-analyst.md](../../../agents/pfeffer-power-analyst.md) para detalhes do agente, inventario conceitual dos 13 capitulos e mapa de cruzamentos sugeridos.
+Os dois `<em>` com perguntas em italico terracota sao **obrigatorios** — formam o "punch" visual da zona.
 
-**Quando NAO usar Pfeffer:**
-- Dia operacional puro (deep work solo, sem interacoes politicas relevantes)
-- Usuario pediu explicitamente outro framework (GPD, Shape Up, Newport, etc.)
-- Dia pessoal/familia dominante — Pfeffer e sobre poder organizacional, nao cabe em todo contexto
+### Linha de citacao (header__insight-cite)
 
-Nesses casos, seguir o processo em 7 passos abaixo.
-
-## Quando gerar o insight
-
-Apos a Fase 2 principal (6 regras de planejamento), antes da Fase 3 (renderizacao). Pre-requisitos:
-- Lide do dia ja escrito
-- Tres inadiaveis ja definidos
-- Temas de desafio derivados na Fase 1 (ver [extracao-dados.md secao 5](extracao-dados.md#5-contexto-para-o-insight))
-
-## Processo em 7 passos
-
-### Passo 1 · Extrair 2-3 desafios centrais do dia
-
-Ler os MITs + Lide e identificar os **tensionamentos reais** do dia (nao as tarefas em si, mas os dilemas por tras delas). Exemplos:
-
-| MIT / Lide | Desafio central |
-|---|---|
-| "Definir KPIs/PPIs do Ritual N2" | Como escolher poucos indicadores que importam, sem cair em metrica-por-metrica |
-| "Cobrar Pedro em 4 chamados urgentes" | Como pressionar sem desengajar — autoridade vs autonomia |
-| "Mentorar Igor e Katrine com devolutivas" | Como dar feedback que move, nao que ofende |
-
-### Passo 2 · Mapear cada desafio a um dominio de conhecimento
-
-Para cada desafio, listar 2-3 dominios de onde *poderia* vir uma resposta util. Exemplos:
-
-| Desafio | Dominios relevantes |
-|---|---|
-| Escolher poucos indicadores | Lean, ToC, OKR, GPD, Balanced Scorecard, sistemas complexos |
-| Pressionar sem desengajar | Lideranca situacional, nonviolent communication, accountability, coaching |
-| Feedback que move | Radical Candor, SBI, Crucial Conversations, Situational Leadership |
-
-### Passo 3 · Buscar materiais em `brain/3-resources/`
-
-Para cada dominio identificado, fazer uma busca ampla:
+Formato canonico:
 
 ```
-Glob: brain/3-resources/**/*.md
-Grep (paralelo por dominio): "Lean|ToC|Goldratt|Womack" em *.md
+POWER &middot; Cap X (<nome curto>) &times; Cap Y (<nome curto>)
 ```
 
-Priorizar:
-1. Arquivos cujo **nome** contenha o dominio (`lean-thinking.md`, `goldratt-toc.md`)
-2. Arquivos em **subpastas** relacionadas (`3-resources/metodologias/`, `3-resources/livros/`, `3-resources/lideranca/`)
-3. Arquivos com **tags** ou headers relacionados
+Exemplos validos:
+- `POWER &middot; Cap 1 (Managing Up) &times; Cap 7 (Acting with Power)`
+- `POWER &middot; Cap 9 (Opposition) &times; Cap 6 (Networks)`
+- `POWER &middot; Cap 2 (Personal Qualities) &times; Cap 10 (Price of Power)`
 
-Ler ate 4-5 arquivos candidatos (leitura parcial das primeiras 50-100 linhas de cada para captar a essencia).
+A linha de citacao e sempre **POWER** como livro, seguida dos dois capitulos com nome curto entre parenteses. Consistencia total — e sempre o mesmo livro.
 
-### Passo 4 · Extrair a *pergunta fundadora* de cada framework
+### Extensao
 
-Todo framework pode ser reduzido a **uma pergunta que ele faz melhor que os outros**. Exemplos ja na biblioteca:
+- **150-250 caracteres** no corpo do insight (sem contar a linha de citacao).
+- Cabe na zona de 240px do header sem overflow.
+- Acima disso quebra layout; abaixo vira telegrama.
 
-| Framework | Pergunta fundadora |
-|---|---|
-| Lean (Womack) | "O que podemos cortar? (elimina desperdicio)" |
-| ToC (Goldratt) | "O que trava o fluxo? (encontra o gargalo)" |
-| Shape Up (Basecamp) | "Quanto vale investigar?" (Appetite) |
-| GPD (Falconi) | "Por que isso acontece?" (Why-Why) |
-| Radical Candor (Scott) | "Eu me importo pessoalmente O SUFICIENTE para desafiar diretamente?" |
-| Situational Leadership (Hersey) | "Qual e o nivel de prontidao do liderado para esta tarefa?" |
-| OKR (Doerr) | "Qual e o resultado mensuravel que prova o progresso?" |
-| First Principles (Feynman/Musk) | "Desmontar ate ficar sem suposicao — o que sobrou?" |
-| Systems Thinking (Meadows) | "Onde estao os leverage points no sistema?" |
+## Formato das Notas do dia
 
-Se o arquivo em `3-resources/` nao deixa a pergunta clara, **extrair** lendo a introducao do autor ou a tese central.
+### Estrutura
 
-### Passo 5 · Escolher DUAS perguntas que tensionam
+Cada nota e uma linha compativel com o componente `.note` do HTML:
 
-O cruzamento funciona quando as duas perguntas sao **fundamentalmente diferentes — e as duas sao legitimas** para o desafio. NAO usar duas que concordam. NAO usar uma certa e uma errada.
-
-Exemplos de cruzamentos bem tensionados:
-
-| Desafio do dia | Framework 1 | Framework 2 | Tensao |
-|---|---|---|---|
-| Escolher indicadores | Lean ("o que cortar?") | ToC ("o que trava?") | Cortar vs encontrar — duas perguntas diferentes sobre o mesmo sistema |
-| Feedback a Igor/Katrine | Situational Leadership ("qual nivel?") | Radical Candor ("importo o suficiente?") | Calibracao por maturidade vs coragem de dizer |
-| Cobrar Pedro | Situational Leadership ("qual toque?") | GPD ("por que?") | Gesto de lideranca vs causa-raiz |
-
-### Passo 6 · Redigir o cruzamento (150-250 chars)
-
-Formato-canon (ja estabelecido nos planners anteriores):
-
-```
-<Framework 1> <verbo> <objeto>. <Framework 2> <verbo> <objeto>.
-— sao perguntas diferentes: <"pergunta1"> vs <"pergunta2">
+```html
+<div class="note">
+  <span class="note__bullet">&mdash;</span>
+  <div class="note__text">[texto da nota]</div>
+  <div class="note__time">[hora opcional]</div>
+</div>
 ```
 
-Exemplos reais dos planners 16 e 17:
-- *"Lean quer eliminar o desperdicio. ToC quer achar o gargalo. — sao perguntas diferentes: 'o que podemos cortar?' vs 'o que trava o fluxo?'"*
-- *"Situational Leadership muda o estilo conforme o nivel do liderado. GPD pergunta Why-Why ate a causa raiz. — sao perguntas diferentes: 'que toque dar agora?' vs 'por que isso acontece?'"*
+### Regras de conteudo
 
-### Passo 7 · Adicionar citacao de fontes
+- **1-3 notas** por dia (nunca mais, nunca zero)
+- **30-80 caracteres** cada (1 linha visual)
+- **Ancorada em capitulo** — o agente sabe de qual capitulo veio, mesmo que nao cite no texto
+- **Acionavel hoje** — nao conselho perene, nao meta-observacao
+- **Especifica a pessoas/eventos reais da agenda** — "Pedro", "WBR XP", "10h" — nunca "seu colega" ou "essa reuniao"
+- **Hora** (`note__time`) aparece quando a nota e ancorada a evento da agenda
 
-Linha final `header__insight-cite` com as duas fontes:
+### Exemplos validos
 
-```
-<Framework 1> · <Autor 1> × <Framework 2> · <Autor 2>
-```
+- `— Antes da WBR, releia o deck em voz alta 1x. Pausa antes de responder.` (Cap 7)
+- `— Com Pedro no 1:1, ouvir primeiro 10min sem interromper.` (Cap 9)
+- `— Se Rafa trouxer dado novo, segure o impulso de corrigir.` (Cap 11)
 
-Exemplos:
-- `Lean · Toyota × ToC · Goldratt`
-- `Situational Leadership · Hersey-Blanchard × GPD · Falconi`
-- `Radical Candor · Scott × Situational Leadership · Hersey`
+## Regras editoriais
 
-## Regras do texto final
-
-1. **Duas fontes sempre** — nunca 3+. O insight e um cruzamento binario.
-2. **150-250 caracteres** — cabe na zona de 240px do header.
-3. **Tensao explicita** — as perguntas precisam ser distintas. Se ambas podem ser respondidas "sim", o cruzamento esta fraco.
-4. **Conectar ao desafio do dia** — o insight nao e aleatorio; ele responde a uma tensao especifica que o Lide levantou.
-5. **Escolher cruzamento que voce NAO ja usou** — evitar repetir "Shape Up × GPD" tres dias seguidos. Rotacionar entre dominios.
-
-## Padrao de cruzamento
-
-Estrutura gramatical consistente:
-
-```
-[Framework 1] [verbo transitivo/modal] [objeto conceitual 1].
-[Framework 2] [verbo transitivo/modal] [objeto conceitual 2].
-&mdash; sao perguntas diferentes: <em>"[pergunta1 curta]"</em> vs <em>"[pergunta2 curta]"</em>
-```
-
-Os dois `<em>` com perguntas em italico terracota sao obrigatorios — formam o "punch" visual da zona.
+1. **Duas fontes sempre** — exatamente 2 capitulos do livro POWER. Nunca 1, nunca 3+.
+2. **Tensao genuina** — os dois capitulos devem tensionar entre si. Se ambos dizem a mesma coisa, escolher outro par.
+3. **Conectar a agenda concreta** — o insight nao e aleatorio; ele responde a tensao especifica do dia.
+4. **Rotacionar pares ao longo da semana** — evitar o mesmo cruzamento em dias consecutivos. O agente pode reler dias anteriores para validar rotacao.
+5. **Pt-BR no corpo, vocabulario Pfeffer em ingles quando natural** — "managing up", "weak ties", "self-promotion dilemma" sao aceitos e ate preferidos.
+6. **Tom descritivo, nao moralizante** — "o dia pede X" e melhor que "voce deveria X".
+7. **Bloco `## Rastro` obrigatorio na saida do agente** — lista sinais lidos + capitulos descartados. A skill usa para auditoria mas nao renderiza no HTML.
 
 ## Anti-padroes
 
-| Ruim | Por que e ruim |
-|---|---|
-| "Deep Work defende foco. Flow state defende foco." | As duas concordam — sem tensao |
-| "Lean elimina desperdicio. Six Sigma elimina variabilidade. Agile elimina ciclos longos." | 3 frameworks — confuso, pula a regra do binario |
-| "Insight do dia: leia o livro X" | Nao e cruzamento, e recomendacao |
-| "Pense fora da caixa e seja criativo." | Banal, sem conteudo especifico, sem fontes |
-| Cruzamento que nao toca no desafio do dia | Viraria fortune cookie. Irrelevante para a acao |
+| Ruim | Por que e ruim | Melhor |
+|---|---|---|
+| Cruzar Cap 1 + Cap 1 ou dois capitulos sinonimos | Sem tensao, viola regra do cruzamento binario | Escolher capitulos em tensao real (ex: Cap 1 vs Cap 7) |
+| Insight generico "seja confiante" | Vago, nao cita capitulo, nao cruza | Citar capitulo especifico + aterrissar em pessoa da agenda |
+| Citar livro ou autor que nao e Pfeffer | Viola fonte unica do sistema | Sempre POWER + dois capitulos |
+| Nota com 2+ linhas | Nao cabe no `.note` | Cortar ou quebrar em duas notas |
+| Nota meta ("aplicar Pfeffer hoje") | Meta, nao tatico | Acao concreta com pessoa, horario ou objeto |
+| Tom motivacional ("voce pode fazer isso!") | Nao e Pfeffer | Descritivo, tatico ("o movimento de hoje e X") |
+| Moralizar sobre jogo politico | Explicitamente anti-Pfeffer | Aceitar o jogo e ler melhor |
+| Repetir cruzamento de ontem | Falta de rotacao, vira ruido | Variar par de capitulos |
+| Gerar insight sem notas ou notas sem insight | Viola contrato de saida | Sempre ambos — insight + 1-3 notas |
 
-## Exemplos comentados
+## Exemplos validados
 
-### Exemplo A · Desafio: selecionar indicadores
+### Exemplo A · Dia politico (agenda com WBR + 1:1 em oposicao)
 
-**Contexto:** MIT de hoje e "Definir KPIs/PPIs do Ritual N2 Investimentos". Pergunta subjacente: *como escolher poucos indicadores que importam?*
+**Insight:**
 
-**Cruzamento:**
-> *"Balanced Scorecard soma 4 perspectivas para cobertura. Hoshin Kanri derruba a um unico X Matrix para foco. — sao perguntas diferentes: 'o que estamos deixando de medir?' vs 'o que e indiscutivelmente mais importante?'"*
->
-> Balanced Scorecard · Kaplan-Norton × Hoshin Kanri · Toyota
+> Cap 1 pede reverencia calibrada com Sergio. Cap 9 pede coopting com Pedro.
+> &mdash; sao leituras em tensao: <em>"como faco o chefe se sentir bem?"</em> vs <em>"como deixo uma saida graciosa para o opositor?"</em>
 
-**Por que funciona:** os dois frameworks sao sobre o mesmo objeto (metricas estrategicas) mas com filosofias opostas (cobertura vs foco). Voce passa o dia considerando AMBOS.
+**Cite:** `POWER &middot; Cap 1 (Managing Up) &times; Cap 9 (Opposition)`
 
-### Exemplo B · Desafio: mentorar com devolutiva
+**Notas:**
+- `— 08h55: abrir review perguntando "como voces leem o numero?" antes de defender.`
+- `— 11h Pedro: 10min de ouvir antes de propor. Leave him a graceful out.`
+- `— 14h XP: confidence projection quando CFO perguntar. Pause before responding.`
 
-**Contexto:** 3 mentorias na sexta (Igor, Katrine, PDCA de Julianne). Pergunta subjacente: *como dar feedback que move?*
+### Exemplo B · Dia operacional (deep work solo + treino + leitura)
 
-**Cruzamento:**
-> *"Radical Candor pergunta se voce se importa o suficiente para desafiar. Situational Leadership pergunta qual e a prontidao do liderado. — sao perguntas diferentes: 'tenho coragem?' vs 'qual o toque certo?'"*
->
-> Radical Candor · Scott × Situational Leadership · Hersey
+**Insight:**
 
-**Por que funciona:** duas perguntas legitimas, nao intercambiaveis. Voce pode ter coragem (Candor) mas errar o nivel (Situational), ou vice-versa.
+> Cap 2 trata energia como atributo primario de poder. Cap 13 lembra que 80% de sucesso e apenas aparecer de novo amanha.
+> &mdash; sao leituras em tensao: <em>"o que me da energia hoje?"</em> vs <em>"o que eu acumulo em silencio aqui?"</em>
 
-### Exemplo C · Desafio: follow-up desconfortavel
+**Cite:** `POWER &middot; Cap 2 (Personal Qualities) &times; Cap 13 (It's Easier Than You Think)`
 
-**Contexto:** cobrar Pedro nos 4 chamados TI. Pergunta subjacente: *como pressionar sem queimar?*
+**Notas:**
+- `— Treino longo sem relogio. Energia e pre-requisito, nao luxo.`
+- `— 1h de leitura apos almoco, sem email aberto. Cap 2: self-knowledge.`
 
-**Cruzamento:**
-> *"Accountability Ladder (Partners in Leadership) pergunta em que degrau a pessoa esta. Nonviolent Communication (Rosenberg) pergunta qual a necessidade por tras do comportamento. — sao perguntas diferentes: 'como subo 1 degrau?' vs 'o que ele precisa?'"*
->
-> Accountability Ladder · Partners in Leadership × NVC · Rosenberg
+### Exemplo C · Dia familia (almoco + tarde livre)
 
-## Fallback quando 3-resources nao ajuda
+**Insight:**
 
-Se a busca em `brain/3-resources/` retorna zero candidatos relevantes para os desafios do dia:
+> Cap 10 reconhece que o preco de poder e o tempo com familia. Cap 2 lembra que ambicao sem laco corroi os dois.
+> &mdash; sao leituras em tensao: <em>"o que o poder custa?"</em> vs <em>"onde ele se sustenta?"</em>
 
-**Opcao 1 · Usar pares classicos conhecidos** (sempre validos para dominios universais):
-- Lean × ToC (eliminar vs destravar)
-- Shape Up × GPD (apetite vs causa-raiz)
-- OKR × Hoshin Kanri (mensurar vs focar)
-- Deep Work × Shallow Work (profundidade vs superficie)
-- First Principles × Analogia (desmontar vs copiar)
+**Cite:** `POWER &middot; Cap 10 (Price of Power) &times; Cap 2 (Personal Qualities)`
 
-**Opcao 2 · Pedir ao usuario:**
+**Notas:**
+- `— Almoco com Bia e filhos sem celular na mesa. Two-person single career.`
+- `— Tarde sem agenda. Autonomia que dias de semana nao permitem.`
 
-> Nao encontrei material em 3-resources sobre o desafio <X>. Voce quer:
-> (a) Deixar o Insight vazio hoje
-> (b) Sugerir duas leituras/frameworks que voce quer cruzar
-> (c) Usar um cruzamento classico (ex: Lean × ToC)
+### Exemplo D · Dia pos-setback (reuniao anterior deu ruim)
 
-**Nunca** gerar cruzamento ficticio citando autor ou livro inexistente. Preferir insight vazio a insight falso.
+**Insight:**
+
+> Cap 9 diz: nao desista, continue fazendo o que te trouxe ate aqui. Cap 11 adverte: fatigue e overconfidence custam posicao.
+> &mdash; sao leituras em tensao: <em>"o que insistir?"</em> vs <em>"o que descartar hoje?"</em>
+
+**Cite:** `POWER &middot; Cap 9 (Opposition & Setbacks) &times; Cap 11 (How People Lose Power)`
+
+**Notas:**
+- `— Nao cancelar agenda do dia. Showing up pos-derrota e sinal.`
+- `— Dormir 22h30. Cap 11: fatigue e precursor de proxima derrota.`
