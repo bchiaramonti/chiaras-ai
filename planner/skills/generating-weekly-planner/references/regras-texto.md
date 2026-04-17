@@ -408,6 +408,41 @@ Formato: `<WEEKDAY-3-LETRAS> <NUMERO-DIA>`
 - Em referencias: `S16`, `S17` (sem ponto)
 - Em labels: `sem. 3/13` (com ponto, minusculo)
 
+## Tags de classificacao na Corpo · semana (v1.8.0)
+
+A partir da v1.8.0, cada KPI da zona Corpo · semana exibe uma **tag de 1 palavra** a direita do valor, classificando o status. As regras de redacao:
+
+### Vocabulario fixo (nao inventar sinonimos)
+
+As tags sao **fixas por KPI** — sao termos tecnicos de treino (bandas de Banister para TSB, por exemplo), nao adjetivos livres. Ver matriz completa em [extracao-dados.md secao 4](extracao-dados.md#4-corpo--semana-trainingpeaks-mcp).
+
+| KPI | Tags validas |
+|---|---|
+| peso Δ | `estável`, `em queda`, `subindo` |
+| sono medio | `ideal`, `ok`, `baixo` |
+| TSS total | `saudável`, `leve`, `pesado`, `crítico` |
+| TSB | `produtivo`, `neutro`, `fresco`, `overreach`, `destreino` |
+
+### Regras de redacao
+
+- **Uma palavra** (ou no maximo "em queda" = 2 palavras mas 1 conceito)
+- **Sem parenteses**
+- **Sem pontos finais**
+- **Sem acronimos nao-listados**
+- **Minusculas** exceto se for termo tecnico estrangeiro (ex: `overreach` — termo tecnico do metodo Banister, fica minusculo mesmo assim por consistencia)
+- **Italic Georgia 10px**, mesma cor do numero do KPI
+- Se o dado esta ausente (`&mdash;`), a tag e **totalmente omitida** do HTML (nao renderizar tag vazia)
+
+### Anti-padroes
+
+| Ruim | Melhor |
+|---|---|
+| `Saudavel` | `saudável` (mesma grafia da matriz) |
+| `sobrecarga funcional` | `pesado` (usar termo da matriz) |
+| `ok (quase ideal)` | `ok` (sem parentese) |
+| `neutro.` | `neutro` (sem ponto) |
+| `?` quando dado falta | Omitir tag totalmente |
+
 ## Consistencia com daily
 
 Onde a skill compartilha vocabulario com a daily, **usar identicamente**:

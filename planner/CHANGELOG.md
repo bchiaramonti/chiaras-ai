@@ -2,6 +2,30 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.8.0] - 2026-04-17
+
+### Added
+- **Extensao das tags de classificacao da zona Corpo para a skill `generating-weekly-planner`** (v1.7.0 aplicou apenas no daily; v1.8.0 completa a paridade). Cada um dos 4 KPIs agregados do weekly (peso Δ, sono medio, TSS total, TSB) agora exibe uma tag de 1 palavra a direita do numero, com cor semantica compartilhada entre valor e tag. Faixas identicas a daily: garante consistencia de leitura entre os dois planners.
+- **Classes CSS novas em `generating-weekly-planner/references/tokens.css`**: `.band-1__corpo-tag` com 3 modifiers (`--body`, `--alert`, `--warn`) + `.band-1__corpo-number--empty` para dados ausentes. Espelha o padrao introduzido no daily em v1.7.0.
+- **Matriz de faixas -> tag** em `generating-weekly-planner/references/extracao-dados.md` secao 4, adaptada para os KPIs agregados semanais: peso Δ por variacao em kg (com rule-of-thumb 1kg ≈ 1% para Bruno ~100kg), sono medio por horas da semana, TSS total por volume seg-sex, TSB por bandas de Banister. Inclui regra de ouro reforcada: dado ausente = valor `&mdash;` + tag OMITIDA.
+- **Secao nova em `regras-texto.md`** documentando o vocabulario fixo das tags por KPI e anti-padroes (sem sinonimos livres, sem parentese, sem pontos finais, italic Georgia 10px).
+
+### Changed
+- **Ordem fixa dos 4 KPIs** da zona Corpo · semana passa de `peso Δ -> TSS -> sono -> TSB` para **`peso Δ -> sono medio -> TSS total -> TSB`** — paridade com a daily (v1.7.0). Racional semantico: "peso e porta de entrada, sono e condicao, TSS e volume, TSB e sintese".
+- **Layout da row** passa de flex 2-col (label / valor) para **grid 3-col** (`48px 1fr auto`): label fixa na esquerda, valor alinhado a direita no centro, tag com largura auto no fim. `white-space: nowrap` na tag impede quebra de linha.
+- **`--zone-corpo` de 150px para 240px** em `tokens.css` e `tokens.json` (acomodar tags). Lide continua em `flex:1` absorvendo o espaco restante — o header reparticiona entre as 5 zonas, nao cresce em altura.
+- **`generating-weekly-planner/references/componentes.md` secao 5 (Corpo · semana) reescrita** com a estrutura de 3 colunas, exemplos HTML de todos os 4 KPIs com tags na nova ordem, exemplo de fallback (valor `&mdash;` com tag omitida) e mapeamento rapido das tags por KPI.
+- **`generating-weekly-planner/references/template-html.html`** atualizado no bloco da Zona 5 com os 4 KPIs na nova ordem, cada um com sua tag-exemplo.
+- **`generating-weekly-planner/SKILL.md`** atualizado: Regra 8 descreve a ordem fixa + tags, checklist pre-render valida a ordem e a regra de omissao da tag, secao "Nunca fazer" adiciona "inventar tag" e "usar sinonimos livres".
+- **`generating-weekly-planner/references/metodologia-planejamento.md` Regra 8** reescrita com a nova ordem + regra de cor compartilhada entre numero e tag + mapeamento rapido. Checklist final atualizado.
+- **Description do plugin e entry do marketplace** mencionam explicitamente que a zona Corpo (daily + weekly) usa tags de classificacao.
+
+### Notes
+- Altura do header **continua identica** — tags ocupam a mesma linha do valor via grid horizontal, nao adicionam row.
+- Tag tem **no maximo 1 palavra** (exceto `em queda` que e 1 conceito em 2 palavras). Vocabulario fixo por KPI (sem sinonimos livres): `estável`, `em queda`, `subindo`, `ideal`, `ok`, `baixo`, `saudável`, `leve`, `pesado`, `crítico`, `produtivo`, `neutro`, `fresco`, `overreach`, `destreino`.
+- Regra de ouro reforcada na v1.8.0: **dado ausente = valor `&mdash;` com classe `--empty` E tag TOTALMENTE OMITIDA** (nunca renderizar tag vazia ou `?`). Nunca inventar classificacao.
+- Versao bumpada para 1.8.0 (MINOR) seguindo o padrao do repo: cada enhancement skill-level recebe bump MINOR. 1.7.0 introduziu o conceito no daily; 1.8.0 completa a paridade no weekly.
+
 ## [1.7.0] - 2026-04-17
 
 ### Added

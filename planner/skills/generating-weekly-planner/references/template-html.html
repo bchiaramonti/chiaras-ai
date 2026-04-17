@@ -99,38 +99,47 @@
       </div>
     </div>
 
-    <!-- Zona 5 · Corpo · semana (4 KPIs) -->
+    <!-- Zona 5 · Corpo · semana · 4 KPIs com tag de classificacao (v1.8.0) -->
+    <!-- Ordem fixa: peso Δ -> sono medio -> TSS total -> TSB -->
     <div class="band-1__corpo">
       <div class="section-label section-label--body">Corpo &middot; semana.</div>
 
+      <!-- 1. Peso Delta -->
       <div class="band-1__corpo-row">
         <div class="band-1__corpo-label">peso &Delta;</div>
         <div class="band-1__corpo-value">
-          <div class="band-1__corpo-number">&minus;0.6</div>
+          <div class="band-1__corpo-number band-1__corpo-number--body">&minus;0.6</div>
           <div class="band-1__corpo-unit">kg</div>
         </div>
+        <div class="band-1__corpo-tag band-1__corpo-tag--body">em queda</div>
       </div>
 
-      <div class="band-1__corpo-row">
-        <div class="band-1__corpo-label">TSS total</div>
-        <div class="band-1__corpo-value">
-          <div class="band-1__corpo-number band-1__corpo-number--body">320</div>
-        </div>
-      </div>
-
+      <!-- 2. Sono medio -->
       <div class="band-1__corpo-row">
         <div class="band-1__corpo-label">sono medio</div>
         <div class="band-1__corpo-value">
           <div class="band-1__corpo-number band-1__corpo-number--alert">6.4</div>
           <div class="band-1__corpo-unit">h</div>
         </div>
+        <div class="band-1__corpo-tag band-1__corpo-tag--alert">baixo</div>
       </div>
 
+      <!-- 3. TSS total -->
+      <div class="band-1__corpo-row">
+        <div class="band-1__corpo-label">TSS total</div>
+        <div class="band-1__corpo-value">
+          <div class="band-1__corpo-number band-1__corpo-number--body">320</div>
+        </div>
+        <div class="band-1__corpo-tag band-1__corpo-tag--body">saudável</div>
+      </div>
+
+      <!-- 4. TSB -->
       <div class="band-1__corpo-row">
         <div class="band-1__corpo-label">TSB</div>
         <div class="band-1__corpo-value">
-          <div class="band-1__corpo-number band-1__corpo-number--alert">&minus;12</div>
+          <div class="band-1__corpo-number band-1__corpo-number--body">&minus;12</div>
         </div>
+        <div class="band-1__corpo-tag band-1__corpo-tag--body">produtivo</div>
       </div>
     </div>
 

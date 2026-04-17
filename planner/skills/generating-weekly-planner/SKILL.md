@@ -62,7 +62,7 @@ Ler [references/metodologia-planejamento.md](references/metodologia-planejamento
 5. **Prazos duros** — deadlines ancorados ao dia especifico (seg/ter/qua/qui/sex)
 6. **Riscos & fogos** — pre-mortem com mitigacao ja escrita (Kahneman)
 7. **Preflight** — 4 perguntas editoriais (Newport shutdown reverso): vitoria / deep work / dizer nao / maior risco
-8. **Corpo · semana** — 4 KPIs agregados (peso Δ, TSS total, sono medio, TSB)
+8. **Corpo · semana** — 4 KPIs agregados na ordem fixa `peso Δ → sono medio → TSS total → TSB`, cada um com tag de classificacao de 1 palavra (v1.8.0) · ver [extracao-dados.md secao 4](references/extracao-dados.md) para matriz de faixas
 
 Em paralelo, gerar o **Insight · cruzamento** seguindo [references/insight-cruzamento.md](references/insight-cruzamento.md): derivar 2-3 tensionamentos estrategicos da semana (nao do dia) → dominios → scan de `brain/3-resources/` → cruzamento binario de frameworks.
 
@@ -103,7 +103,7 @@ Antes de emitir o HTML final, confirmar:
 [ ] Cada risco tem mitigacao escrita (nao generica)
 [ ] Preflight tem 4 perguntas respondidas em italic curto
 [ ] Insight cruza DUAS perguntas de frameworks distintos
-[ ] Corpo tem 4 KPIs: peso Δ, TSS total, sono medio, TSB (com cor aplicada)
+[ ] Corpo tem 4 KPIs na ordem peso Δ → sono medio → TSS total → TSB, cada um com tag de classificacao (numero e tag compartilham a mesma classe CSS; dado ausente = &mdash; + tag omitida)
 [ ] Layout ocupa 1440x1000 sem overflow, Preflight na base
 ```
 
@@ -149,6 +149,8 @@ Sao os mesmos 6 principios da daily (identidade visual compartilhada). Ver [refe
 - **Inventar dados** quando a extracao falha (perguntar ao usuario ou omitir)
 - **Pre-mortem ficticio** ("risco: tudo pode dar errado") — escrever `risco: —` se nao ha risco real
 - **Mitigacao generica** ("mitigacao: me organizar melhor") — cada mitigacao deve ser acao concreta
+- **Inventar tag de classificacao na Corpo** — se MCP TP falha, numero vira `—` e tag e OMITIDA (nao renderizar tag vazia ou `?`)
+- **Usar sinonimos livres nas tags** — vocabulario e fixo por KPI (ver regras-texto.md): `estável/em queda/subindo`, `ideal/ok/baixo`, `saudável/leve/pesado/crítico`, `produtivo/neutro/fresco/overreach/destreino`
 - Preflight sem ancoragem ao fundo — isso quebra o contrato visual de one-pager report
 - **Weekly Big 3 desconectados de Q2** — se nao derivam das Metas Q2, nao sao Big 3, sao so tarefas grandes
 

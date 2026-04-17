@@ -1,6 +1,6 @@
 {
   "name": "planner",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Personal style-guide plugin for Bruno Chiaramonti's executive planning artifacts (daily + weekly). Provides a dark-mode, typography-first design system (Georgia + Inter, terracota + azul petroleo palette, zero ornament) applied automatically whenever personal planners, daily dashboards, weekly previews, sunday planning or cron-generated HTML are produced. Daily planner uses header 5-zone + body 3-col + footer 2-col (focus on execution). Weekly planner uses 4 bands fit-screen with Orquestra dos 5 dias as hero and Preflight ancorado ao fundo (focus on orchestration). Integrates TrainingPeaks MCP (body metrics), Google Calendar MCP, and ClickUp MCP. Scope is strictly personal artifacts — M7 corporate outputs use different design systems.",
   "author": {
     "name": "Bruno Chiaramonti"

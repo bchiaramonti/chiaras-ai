@@ -124,7 +124,7 @@
   --zone-semana: 220px;
   --zone-insight: 240px;
   --zone-ano: 160px;
-  --zone-corpo: 150px;
+  --zone-corpo: 240px;             /* v1.8.0: ampliado de 150 para 240 para acomodar tags de classificacao */
 
   /* Band 2 (orquestra) */
   --band-2-grid-gap: 20px;         /* gap entre colunas de dia */
@@ -455,9 +455,8 @@ body {
 }
 
 .band-1__corpo-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 48px 1fr auto;  /* v1.8.0: 3-col (label | valor right-aligned | tag) */
   align-items: baseline;
   gap: 8px;
 }
@@ -471,6 +470,7 @@ body {
 .band-1__corpo-value {
   display: flex;
   flex-direction: row;
+  justify-content: flex-end;             /* v1.8.0: valor alinhado a direita */
   align-items: baseline;
   gap: 2px;
 }
@@ -487,12 +487,27 @@ body {
 
 .band-1__corpo-number--body { color: var(--accent-secondary); }
 .band-1__corpo-number--alert { color: var(--alert); }
+.band-1__corpo-number--empty { color: var(--text-subtle); }     /* v1.8.0: dado ausente */
 
 .band-1__corpo-unit {
   font-family: var(--font-sans);
   font-size: 10px;
   color: var(--text-secondary);
 }
+
+/* Tag de classificacao por KPI (v1.8.0) */
+.band-1__corpo-tag {
+  font-family: var(--font-serif);
+  font-size: 10px;
+  font-style: italic;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.band-1__corpo-tag--body  { color: var(--accent-secondary); }
+.band-1__corpo-tag--alert { color: var(--alert); }
+.band-1__corpo-tag--warn  { color: var(--accent-primary); }
 
 /* =============================================================
    11. BAND 2 · ORQUESTRA (5 dias)

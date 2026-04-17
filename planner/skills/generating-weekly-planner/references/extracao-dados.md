@@ -186,13 +186,19 @@ Delegadas distantes (due em 3 semanas) ficam fora — nao sao decisao desta week
 
 **Fonte primaria: TrainingPeaks MCP** (adicionado na v1.5.0 do plugin). Restaura a automacao que havia sido removida em v1.3.0 quando o Garmin foi descontinuado.
 
+### Ordem fixa dos 4 KPIs (v1.8.0)
+
+**Renderizar sempre nesta ordem**: `peso Δ → sono medio → TSS total → TSB`
+
+Essa ordem e compartilhada com a daily (v1.7.0) — "peso e porta de entrada, sono e condicao, TSS e volume, TSB e sintese". Trocar a ordem quebra a leitura rapida.
+
 ### Tools TP mapeadas para os 4 KPIs semanais
 
 | KPI | TP tool | Calculo |
 |---|---|---|
 | **peso Δ** | `weight` | weight(sex) - weight(seg-1) = delta semanal em kg |
-| **TSS total** | `weekly_summary` | TSS acumulado seg-sex (tool ja agrega) |
 | **sono medio** | `sleep` | media de horas dormidas seg-1 a qui (noites que precedem cada weekday) |
+| **TSS total** | `weekly_summary` | TSS acumulado seg-sex (tool ja agrega) |
 | **TSB (forma)** | `fitness_metrics` | Training Stress Balance atual (CTL - ATL) |
 
 Opcionalmente tambem capturar:
@@ -217,17 +223,60 @@ sleep(date_range=seg_a_qui_semana_alvo)  # noites antes de cada weekday
 fitness_metrics(date=today)  # retorna CTL, ATL, TSB
 ```
 
-### Regras de cor do numero (ver [componentes.md](componentes.md) e tokens.css)
+### Tags de classificacao por KPI (v1.8.0)
 
-Aplicadas apos extracao, antes de renderizar:
+Cada KPI renderiza uma **tag de 1 palavra** a direita do valor, classificando o status. As faixas sao identicas a daily (v1.7.0) para garantir consistencia entre os dois planners.
 
-- **peso Δ** → default `--text-primary` (neutro) · se delta > 1kg → `--alert`
-- **TSS total** → `--body` (azul petroleo, performance)
-- **sono medio** < 7h → `--alert` (terracota escuro)
-- **sono medio** >= 7h → `--body` (azul petroleo)
-- **TSB** positivo → `--body` (em forma / recuperado)
-- **TSB** entre -10 e 0 → default (neutro — carga controlada)
-- **TSB** < -10 → `--alert` (fadiga, precisa recovery)
+**Peso Δ** — variacao semanal em kg (rule-of-thumb: 1kg ≈ 1% do peso para Bruno ~100kg):
+
+| Faixa | Tag | Classe CSS |
+|---|---|---|
+| |Δ| <=1kg (~1% em 7 dias) | `estável` | default (sem modifier) |
+| Δ < -1kg (queda >1%) | `em queda` | `--body` (azul petroleo) |
+| Δ > +1kg (alta >1%) | `subindo` | `--warn` (`--accent-primary`) |
+
+**Sono medio** — media de horas seg-1 a qui (4 noites que precedem weekdays):
+
+| Faixa | Tag | Classe CSS |
+|---|---|---|
+| >=7h | `ideal` | `--body` (azul petroleo) |
+| 6-7h | `ok` | default (neutro) |
+| <6h | `baixo` | `--alert` (terracota escuro) |
+
+**TSS total** — TSS acumulado seg-sex:
+
+| Faixa | Tag | Classe CSS |
+|---|---|---|
+| 0 nos ultimos 3+ dias consecutivos | `crítico` | `--alert` |
+| >0 e <150 na semana | `leve` | `--warn` (`--accent-primary`) |
+| 150-450 na semana | `saudável` | `--body` (azul petroleo) |
+| >450 na semana | `pesado` | `--alert` (sobrecarga, sinal de overtraining se persistir) |
+
+**TSB** — Training Stress Balance (forma) no momento da geracao do weekly, bandas de Banister:
+
+| Faixa | Tag | Classe CSS |
+|---|---|---|
+| TSB < -30 | `overreach` | `--alert` |
+| -30 <= TSB < -10 | `produtivo` | `--body` |
+| -10 <= TSB <= +5 | `neutro` | default |
+| +5 < TSB <= +25 | `fresco` | `--warn` (`--accent-primary`) |
+| TSB > +25 | `destreino` | `--alert` |
+
+### Regra de cor do numero + tag (consistencia)
+
+O numero segue a **mesma classe CSS** que a tag. Assim valor e classificacao compartilham a mesma cor semantica:
+
+- default primary (neutro) → peso estavel, sono ok, TSB neutro
+- `--body` (azul petroleo) → peso em queda, sono ideal, TSS saudavel, TSB produtivo
+- `--warn` (`--accent-primary` / terracota) → peso subindo, TSS leve, TSB fresco
+- `--alert` (terracota escuro) → sono baixo, TSS critico/pesado, TSB overreach/destreino
+
+### Regra de ouro (v1.8.0)
+
+Quando o MCP TrainingPeaks esta indisponivel ou o dado esta ausente:
+- O **valor** renderiza como `&mdash;` com classe `--empty`
+- A **tag** e **totalmente omitida** do HTML (nao renderiza tag vazia ou "?")
+- Nunca inventar classificacao
 
 ### Fallback
 
@@ -449,11 +498,24 @@ delegadas:
 
 corpo:
   fonte: trainingpeaks_mcp
+  # Ordem fixa dos 4 KPIs (v1.8.0): peso -> sono -> TSS -> TSB
   peso_delta_kg: -0.6
-  tss_total: 320
+  peso_classificacao:
+    tag: "estável"
+    modifier: null           # default (neutro)
   sono_medio_h: 6.4
-  tsb: -12                 # fadiga, ver regra de cor
-  hrv_medio: 48            # contexto interno, nao exibido
+  sono_classificacao:
+    tag: "ok"
+    modifier: null           # default (neutro) — entre 6 e 7h
+  tss_total: 320
+  tss_classificacao:
+    tag: "saudável"
+    modifier: "--body"       # 150-450 na semana
+  tsb: -12
+  tsb_classificacao:
+    tag: "produtivo"
+    modifier: "--body"       # -30 a -10
+  hrv_medio: 48              # contexto interno, nao exibido
 
 metas_q2:
   fonte: clickup_goals

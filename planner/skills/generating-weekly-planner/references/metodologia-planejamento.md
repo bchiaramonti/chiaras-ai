@@ -312,38 +312,42 @@ Exemplos:
 
 ## Regra 8 · Corpo · semana
 
-**O que e:** 4 KPIs semanais agregados — nao snapshot como no daily. Mostra a semana como bloco de treino/recovery.
+**O que e:** 4 KPIs semanais agregados — nao snapshot como no daily. Mostra a semana como bloco de treino/recovery, cada KPI com **tag de classificacao** (v1.8.0) para leitura binaria do status.
 
-### Os 4 KPIs
+### Os 4 KPIs (ordem fixa v1.8.0)
 
-1. **Peso Δ** (delta kg da semana)
-2. **TSS total** (carga de treino acumulada)
-3. **Sono medio** (horas, media seg a qui)
-4. **TSB** (Training Stress Balance — forma)
+1. **Peso Δ** (delta kg da semana) → tag: `estável` / `em queda` / `subindo`
+2. **Sono medio** (horas, media seg a qui) → tag: `ideal` / `ok` / `baixo`
+3. **TSS total** (carga de treino acumulada) → tag: `saudável` / `leve` / `pesado` / `crítico`
+4. **TSB** (Training Stress Balance) → tag: `produtivo` / `neutro` / `fresco` / `overreach` / `destreino`
 
-### Regras de cor (aplicadas apos extracao TP)
+Ordem compartilhada com a daily (paridade de leitura). A regra semantica e: **peso entra primeiro (porta de entrada), sono e condicao (habilita tudo), TSS e volume (resultado do treino), TSB e sintese (onde estou agora)**.
 
-- **Peso Δ**:
-  - Default → `--text-primary` (neutro)
-  - Delta > 1kg → `--alert` (mudanca brusca sinaliza problema)
-- **TSS total**:
-  - Sempre `--body` (dado de performance)
-- **Sono medio**:
-  - >= 7h → `--body` (OK)
-  - < 7h → `--alert`
-- **TSB**:
-  - >= 0 → `--body` (em forma / recuperado)
-  - -10 a 0 → default (neutro, carga controlada)
-  - < -10 → `--alert` (fadiga, precisa recovery)
+### Regras de cor (tag + numero compartilham classe)
+
+**Regra nova v1.8.0:** o **numero e a tag** de cada KPI usam a **mesma classe CSS** — coerencia visual entre valor e classificacao. As faixas completas estao em [extracao-dados.md secao 4](extracao-dados.md#4-corpo--semana-trainingpeaks-mcp).
+
+Quick reference:
+- default (neutro) → peso `estável`, sono `ok`, TSB `neutro`
+- `--body` (azul petroleo) → peso `em queda`, sono `ideal`, TSS `saudável`, TSB `produtivo`
+- `--warn` (`--accent-primary` / terracota) → peso `subindo`, TSS `leve`, TSB `fresco`
+- `--alert` (terracota escuro) → sono `baixo`, TSS `crítico`/`pesado`, TSB `overreach`/`destreino`
 
 ### Alvo da semana (opcional)
 
 Se o usuario tiver alvo de semana (ex: "semana base", "semana all-in", "recovery week"), anotar como contexto e comparar com TSS esperado:
-- Semana base: TSS 250-350
-- Semana all-in: TSS 400+
-- Recovery week: TSS 150-200
+- Semana base: TSS 250-350 → tag `saudável`
+- Semana all-in: TSS 400-450 → tag `saudável` no limite
+- Recovery week: TSS 150-200 → tag `saudável` baixo OU `leve`
 
 Se o TSS projetado (dos treinos da Orquestra) nao bater com o alvo, sinalizar no Risco.
+
+### Regra de ouro mantida (v1.8.0)
+
+Se o MCP TP falha ou o dado esta ausente:
+- Numero renderiza como `&mdash;` com classe `--empty`
+- **Tag e totalmente omitida** (nunca renderizar tag vazia ou "?")
+- Sem inventar classificacao
 
 ## Checklist de sanidade final
 
@@ -364,7 +368,7 @@ Antes de passar para a Fase 3 (renderizacao), validar:
 [ ] Cada risco tem mitigacao concreta e acionavel (nao generica)?
 [ ] Preflight tem as 4 perguntas respondidas em italic curto?
 [ ] Respostas do Preflight sao concretas (dia, hora, projeto)?
-[ ] Corpo · semana tem 4 KPIs com cor aplicada (peso Δ, TSS total, sono medio, TSB)?
+[ ] Corpo · semana tem 4 KPIs na ordem fixa peso Δ → sono medio → TSS total → TSB, cada um com tag de classificacao (cor aplicada tanto no numero quanto na tag)?
 [ ] Insight cruza DUAS perguntas de frameworks distintos (tensionamento semanal)?
 ```
 

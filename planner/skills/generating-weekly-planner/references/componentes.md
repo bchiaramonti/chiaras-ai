@@ -155,51 +155,79 @@ Grid de **4 linhas × 13 semanas** (cada linha = 1 trimestre). Semana atual dest
 
 ### 5. Corpo · semana
 
-**Classes:** `.band-1__corpo` + `.band-1__corpo-row` + `.band-1__corpo-label` + `.band-1__corpo-value` + `.band-1__corpo-number` + `.band-1__corpo-unit`
+**Classes:** `.band-1__corpo` + `.band-1__corpo-row` + `.band-1__corpo-label` + `.band-1__corpo-value` + `.band-1__corpo-number` + `.band-1__corpo-unit` + `.band-1__corpo-tag` (v1.8.0)
 
-Label "Corpo · semana." em azul petroleo (`.section-label--body`). 4 rows verticais de KPI agregado: label esquerda, numero direita. Numeros em Inter sans 20px tabular.
+Label "Corpo · semana." em azul petroleo (`.section-label--body`). **4 rows em grid 3-col** (`48px 1fr auto`): label esquerda, valor centro alinhado a direita, tag com classificacao no fim. Numeros em Inter sans 20px tabular. Tag em Georgia italic 10px.
+
+**Ordem fixa dos KPIs (v1.8.0):** `peso Δ → sono medio → TSS total → TSB` (identica a daily para paridade de leitura).
 
 ```html
 <div class="band-1__corpo">
   <div class="section-label section-label--body">Corpo &middot; semana.</div>
 
+  <!-- 1. Peso Delta -->
   <div class="band-1__corpo-row">
     <div class="band-1__corpo-label">peso &Delta;</div>
     <div class="band-1__corpo-value">
       <div class="band-1__corpo-number">&minus;0.6</div>
       <div class="band-1__corpo-unit">kg</div>
     </div>
+    <div class="band-1__corpo-tag band-1__corpo-tag--body">em queda</div>
   </div>
 
-  <div class="band-1__corpo-row">
-    <div class="band-1__corpo-label">TSS total</div>
-    <div class="band-1__corpo-value">
-      <div class="band-1__corpo-number band-1__corpo-number--body">320</div>
-    </div>
-  </div>
-
+  <!-- 2. Sono medio -->
   <div class="band-1__corpo-row">
     <div class="band-1__corpo-label">sono medio</div>
     <div class="band-1__corpo-value">
       <div class="band-1__corpo-number band-1__corpo-number--alert">6.4</div>
       <div class="band-1__corpo-unit">h</div>
     </div>
+    <div class="band-1__corpo-tag band-1__corpo-tag--alert">baixo</div>
   </div>
 
+  <!-- 3. TSS total -->
+  <div class="band-1__corpo-row">
+    <div class="band-1__corpo-label">TSS total</div>
+    <div class="band-1__corpo-value">
+      <div class="band-1__corpo-number band-1__corpo-number--body">320</div>
+    </div>
+    <div class="band-1__corpo-tag band-1__corpo-tag--body">saudável</div>
+  </div>
+
+  <!-- 4. TSB -->
   <div class="band-1__corpo-row">
     <div class="band-1__corpo-label">TSB</div>
     <div class="band-1__corpo-value">
-      <div class="band-1__corpo-number band-1__corpo-number--alert">&minus;12</div>
+      <div class="band-1__corpo-number band-1__corpo-number--body">&minus;12</div>
     </div>
+    <div class="band-1__corpo-tag band-1__corpo-tag--body">produtivo</div>
   </div>
 </div>
 ```
 
-**Regras de cor do numero (de extracao-dados.md):**
-- peso Δ default; > 1kg → `--alert`
-- TSS total → sempre `--body`
-- sono medio ≥ 7h → `--body`; < 7h → `--alert`
-- TSB ≥ 0 → `--body`; entre -10 e 0 → default; < -10 → `--alert`
+**Exemplo de fallback (TP MCP indisponivel ou dado ausente):**
+
+```html
+<!-- Valor como travessao + tag omitida -->
+<div class="band-1__corpo-row">
+  <div class="band-1__corpo-label">peso &Delta;</div>
+  <div class="band-1__corpo-value">
+    <div class="band-1__corpo-number band-1__corpo-number--empty">&mdash;</div>
+  </div>
+  <!-- nao renderizar tag quando nao ha dado -->
+</div>
+```
+
+**Regras (detalhadas em [extracao-dados.md](extracao-dados.md) secao 4):**
+- Valor e tag **compartilham a mesma classe CSS de cor** (coerencia visual)
+- Tag sempre em 1 palavra, italic, `white-space: nowrap`
+- Dado ausente: numero `&mdash;` com `--empty`, tag omitida (nunca inventar)
+
+**Mapeamento rapido das tags** (ver matriz completa em extracao-dados.md):
+- **peso Δ**: `estável` (<=1kg) · `em queda` (< -1kg, body) · `subindo` (> +1kg, warn)
+- **sono medio**: `ideal` (>=7h, body) · `ok` (6-7h) · `baixo` (<6h, alert)
+- **TSS total**: `saudável` (150-450, body) · `leve` (<150, warn) · `pesado` (>450, alert) · `crítico` (0 em 3+ dias, alert)
+- **TSB**: `produtivo` (-30 a -10, body) · `neutro` (-10 a +5) · `fresco` (+5 a +25, warn) · `overreach` (<-30, alert) · `destreino` (>+25, alert)
 
 ## BAND 2 · Orquestra (5 dias)
 
