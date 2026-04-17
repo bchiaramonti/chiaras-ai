@@ -2,6 +2,21 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.5.0] - 2026-04-17
+
+### Added
+- **MCP server `trainingpeaks`** via `.mcp.json`. Substitui o Garmin MCP removido em v1.3.0 (garth deprecated por Cloudflare), agora usando `JamsusMaximus/trainingpeaks-mcp` (MIT, 58 tools, v2.0.0). Autenticacao cookie-based do navegador (Production_tpAuth) troca o cookie por OAuth token de 1h, criptografa com AES-256-GCM no macOS Keychain. **Nao e afetado por Cloudflare TLS fingerprinting** porque usa sessao do browser ja validada (nao autentica via HTTP puro).
+- **Restaura automacao da zona Corpo** no planner: peso, sono, HRV, TSS semana e TSB (forma) agora saem do TP em vez de serem perguntados ao usuario. Pergunta ao usuario volta a ser apenas fallback quando o MCP falha ou a auth expira.
+- **README: secao MCP TrainingPeaks** documentando pre-reqs (`uv tool install --reinstall '...[browser]'`, autenticacao via `tp-mcp auth` ou bypass via `pbpaste | python` quando o getpass trava em IDE), renovacao de cookie e update do binario. Documenta tambem o "bypass getpass" para terminais integrados (VS Code, Cursor, Claude Code) que nao dao TTY completo ao Python.
+
+### Changed
+- **`extracao-dados.md` secao 4 · Corpo** reescrita: fonte primaria passa a ser TrainingPeaks MCP, com mapeamento das 5 tools relevantes (weight, sleep, HRV, weekly_summary, fitness_metrics). Adiciona regras de cor para TSB (positivo > body; muito negativo > alert).
+- **`extracao-dados.md` matriz de fontes (tabela no topo):** a linha Corpo passa de "*Sem MCP atualmente* — sempre perguntar" para "TrainingPeaks (cookie-based auth)".
+
+### Notes
+- Pre-requisito de instalacao inclui o extra `[browser]` para permitir extracao direta do cookie do Chrome. Em maquinas com Arc/Brave/Edge como default, o fluxo manual via DevTools + `pbpaste | python` e documentado no README.
+- Token OAuth derivado do cookie expira em 1h e e refresh automatico. O cookie raiz tem vida ~30 dias (tipico para sessao TP).
+
 ## [1.4.0] - 2026-04-17
 
 ### Changed

@@ -21,9 +21,57 @@ Quando o Bruno pede um planner diario, daily dashboard, pagina de planejamento d
 | Item | Conteudo |
 |---|---|
 | Skill | `generating-daily-planner` (auto-invocada por trigger de contexto pessoal) |
-| References | `tokens.css`, `tokens.json`, `principios.md`, `componentes.md`, `regras-texto.md`, `template-html.html` |
+| References (style guide) | `tokens.css`, `tokens.json`, `principios.md`, `componentes.md`, `regras-texto.md`, `template-html.html` |
+| References (metodologia) | `extracao-dados.md`, `metodologia-planejamento.md`, `insight-cruzamento.md` |
+| MCP Servers | `trainingpeaks` (stdio) — zona Corpo (peso, sono, TSS, HRV, fitness) |
 | Agents | — |
 | Commands | — |
+
+## MCP: TrainingPeaks
+
+O plugin declara um server MCP stdio (`trainingpeaks`) via `.mcp.json` apontando para `tp-mcp` no PATH. Expoe ~58 tools (workouts, calendar, fitness metrics CTL/ATL/TSB, power/running PRs, weekly summaries, health metrics como peso/sono/HRV). Usado pela Fase 1 de extracao para popular a zona Corpo do planner com dados reais.
+
+**Fonte:** https://github.com/JamsusMaximus/trainingpeaks-mcp (MIT license, clonado em `3-resources/ai-mcp/trainingpeaks-mcp/`).
+
+### Pre-requisitos (uma vez por maquina)
+
+```bash
+# 1. Instalar o binario tp-mcp no PATH (com extra 'browser' para extracao de cookie)
+uv tool install --reinstall '/Users/bchiaramonti/Documents/brain/3-resources/ai-mcp/trainingpeaks-mcp[browser]'
+
+# 2. Autenticar. O TrainingPeaks nao tem API publica aprovada para uso pessoal, entao
+#    a autenticacao e feita via cookie do navegador (Production_tpAuth).
+#    Rota A · getpass nativo (funciona em Terminal.app, pode falhar em IDEs integradas):
+tp-mcp auth
+#    Rota B · se o prompt getpass travar (comum em terminal integrado de IDE),
+#    usar bypass via stdin:
+pbpaste | ~/.local/share/uv/tools/tp-mcp/bin/python -c "
+import sys
+cookie = sys.stdin.read().strip()
+from tp_mcp.auth import store_credential, validate_auth_sync
+v = validate_auth_sync(cookie)
+if not v.is_valid: sys.exit(f'invalid: {v.message}')
+r = store_credential(cookie)
+print(f'OK · {r.message}')
+"
+#    (requer o cookie Production_tpAuth no clipboard: DevTools > Application > Cookies)
+
+# 3. Verificar
+tp-mcp auth-status
+```
+
+O cookie e criptografado (AES-256-GCM + PBKDF2 600k iteracoes) e salvo no macOS Keychain quando disponivel, com fallback para arquivo encriptado. Token OAuth de 1h e derivado sob demanda — Claude nunca ve o cookie, so bearer token de curta duracao.
+
+**Renovar cookie** quando expirar (tipicamente 30 dias ou apos logout):
+```bash
+tp-mcp auth-clear
+# depois repetir o passo 2 com cookie fresh
+```
+
+**Atualizar o binario** quando o repo mudar:
+```bash
+uv tool install --reinstall '/Users/bchiaramonti/Documents/brain/3-resources/ai-mcp/trainingpeaks-mcp[browser]'
+```
 
 ## Instalacao
 

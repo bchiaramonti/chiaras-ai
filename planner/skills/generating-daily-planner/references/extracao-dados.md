@@ -23,7 +23,7 @@ A primeira passada da skill e **levantamento**. Antes de planejar o dia, o Claud
 | Tres inadiaveis | ClickUp (tags `mit`, `hoje`, `inadiavel`) ou usuario | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir ao usuario os 3 diretamente |
 | Tarefas ClickUp | ClickUp (due = hoje/amanha/atrasadas, assignee = Bruno) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir print da lista "Hoje" |
 | Delegadas | ClickUp (assignee != Bruno, criadas por Bruno, status aberto) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo verbal |
-| Corpo (peso, TSS, sono) | *Sem MCP atualmente* (Garmin foi removido em v1.3.0) | — | Sempre perguntar ao usuario |
+| Corpo (peso, TSS, sono, HRV, forma) | TrainingPeaks (cookie-based auth) | `mcp__trainingpeaks__*` | Perguntar ao usuario se o MCP falhar |
 | Contexto insight | Filesystem `brain/3-resources/` (PARA) | `Glob`, `Grep`, `Read` | Nao ha fallback — se vazio, pular insight |
 
 ## 1. Agenda
@@ -119,26 +119,45 @@ Agrupar por **projeto/lista** e ordenar cada grupo por atraso (atrasadas no topo
 
 ## 4. Corpo / saude
 
-**Nao ha MCP de saude disponivel** (Garmin MCP removido em v1.3.0 devido a bloqueio da Garmin por Cloudflare TLS fingerprinting).
+**Fonte:** TrainingPeaks MCP (`mcp__trainingpeaks__*`) via autenticacao cookie-based — bypassa aprovacao de API e nao e afetado por Cloudflare TLS fingerprinting (diferente do Garmin, removido em v1.3.0).
 
-### Protocolo atual
+### Rota primaria · TrainingPeaks MCP
 
-Sempre perguntar ao usuario no inicio da extracao:
+Cinco chamadas independentes (paralelizar quando possivel):
 
-> Para preencher a zona Corpo, me passa os 3 numeros (se tiver — se faltar, deixo em `—`):
-> - peso (kg)
-> - TSS da semana ate hoje
-> - sono da ultima noite (horas)
+| KPI do planner | Tool MCP | Observacao |
+|---|---|---|
+| **peso (kg)** | `mcp__trainingpeaks__log_weight` (get last) ou tool de metricas de saude | Ultimo valor registrado |
+| **sono (h)** | tool de health metrics (sleep) | Noite mais recente. Se vazio, pedir ao usuario |
+| **HRV (opcional)** | tool de health metrics (HRV) | Pode entrar como KPI extra de corpo |
+| **TSS semana** | `mcp__trainingpeaks__weekly_summary` | Total de TSS da semana ate hoje (seg-hoje) |
+| **Forma (TSB)** | `mcp__trainingpeaks__fitness_metrics` | TSB atual — signal de overreach/recovery. Opcional como 4o KPI |
 
-Aceitar respostas parciais. Campos nao fornecidos viram `<div class="header__corpo-number header__corpo-number--empty">&mdash;</div>`.
+Consultar a lista completa de 58 tools do TrainingPeaks MCP via `claude mcp list-tools trainingpeaks` ou pela documentacao do repo em `3-resources/ai-mcp/trainingpeaks-mcp/README.md`.
 
 ### Regras de cor do numero
 
 Aplicadas apos extracao, antes de renderizar (ver [componentes.md secao 5](componentes.md)):
 - peso → default (neutro)
-- TSS → `--body` (azul petroleo, dado de performance)
+- TSS semana → `--body` (azul petroleo, dado de performance)
 - sono < 7h → `--alert` (terracota escuro)
 - sono >= 7h → `--body` (azul petroleo)
+- TSB positivo (>5) → `--body` (recuperado)
+- TSB muito negativo (<-30) → `--alert` (overreach)
+
+### Fallback
+
+Se o TrainingPeaks MCP falhar (cookie expirado, API fora do ar, tool nao disponivel):
+
+> TrainingPeaks MCP nao respondeu. Voce quer:
+> (a) Deixar a zona Corpo com `—` nos campos que faltam
+> (b) Me passar manualmente: peso, TSS semana, sono ultima noite
+
+Se a autenticacao expirou, sugerir ao usuario:
+```bash
+tp-mcp auth-status  # confirma se o problema e auth
+```
+E se necessario, renovar o cookie com o metodo documentado no README do plugin.
 
 ## 5. Contexto para o insight
 
