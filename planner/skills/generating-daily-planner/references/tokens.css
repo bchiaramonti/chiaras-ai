@@ -530,6 +530,17 @@ body {
 .inadiaveis__item--delayed .inadiaveis__task { color: var(--alert); }
 .inadiaveis__item--delayed .inadiaveis__meta { color: var(--alert); }
 
+/* Pre-mortem · risco esperado de 1 linha (v1.4.0) */
+.inadiaveis__risco {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-subtle);
+}
+
+.inadiaveis__item--delayed .inadiaveis__risco { color: var(--alert); opacity: 0.75; }
+
 /* =============================================================
    TAREFAS CLICKUP · lista densa apos inadiaveis
    ============================================================= */
@@ -656,6 +667,55 @@ body {
   font-family: var(--font-sans);
   font-style: italic;
   color: var(--accent-primary);
+}
+
+/* Amanha · Ancora + Preparar hoje (estrutura introduzida em v1.4.0) */
+.footer__amanha-ancora {
+  font-size: var(--fs-body-sm);
+  line-height: 21px;
+  color: var(--text-primary);
+}
+
+.footer__amanha-ancora em.ancora {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.footer__amanha-ancora em.time {
+  font-family: var(--font-sans);
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.footer__amanha-preparar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: var(--divider-thin);
+  margin-top: 4px;
+}
+
+.footer__amanha-preparar-label {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.footer__amanha-preparar-item {
+  display: grid;
+  grid-template-columns: 10px 1fr;
+  gap: var(--space-3);
+  align-items: baseline;
+  font-size: var(--fs-body-sm);
+  line-height: 19px;
+  color: var(--text-primary);
+}
+
+.footer__amanha-preparar-item::before {
+  content: "—";
+  color: var(--accent-primary);
+  font-family: var(--font-serif);
 }
 
 /* =============================================================

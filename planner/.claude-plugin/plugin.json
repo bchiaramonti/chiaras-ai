@@ -1,6 +1,6 @@
 {
   "name": "planner",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Personal style-guide plugin for Bruno Chiaramonti's executive planning artifacts. Provides a dark-mode, typography-first design system (Georgia + Inter, terracota + azul petroleo palette, 3-column grid, zero ornament) applied automatically whenever personal planners, daily dashboards, journaling pages, or cron-generated HTML are produced. Scope is strictly personal artifacts — M7 corporate outputs use different design systems.",
   "author": {
     "name": "Bruno Chiaramonti"

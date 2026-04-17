@@ -261,9 +261,11 @@ Lista vertical com **todas** as horas relevantes do dia (normalmente 07:00 a 19:
 
 ### 8. Tres inadiaveis
 
-**Classes:** `.inadiaveis__item` + `.inadiaveis__roman` + `.inadiaveis__task` + `.inadiaveis__meta`. Modificador `--delayed` para atraso.
+**Classes:** `.inadiaveis__item` + `.inadiaveis__roman` + `.inadiaveis__task` + `.inadiaveis__meta` + `.inadiaveis__risco` (v1.4.0). Modificador `--delayed` para atraso.
 
 **Sempre exatamente 3 itens** — forca priorizacao real. Romanos i./ii./iii. em 28px italic terracota opacity 0.5 como ancora visual (token `--fs-roman`). A coluna dos romanos tem 28px fixos, suficiente para ancorar sem esmagar o task ao lado.
+
+**Pre-mortem obrigatorio (v1.4.0):** cada inadiavel deve ter um `.inadiaveis__risco` de 1 linha respondendo *"o que vai me impedir de terminar isso hoje?"*. Renderiza em bloco abaixo do meta, em italic muted subtil (`--text-subtle`). A metodologia de como compor o pre-mortem esta em [metodologia-planejamento.md Regra 2](metodologia-planejamento.md#regra-2--tres-inadiaveis).
 
 ```html
 <div class="section-header">
@@ -276,6 +278,7 @@ Lista vertical com **todas** as horas relevantes do dia (normalmente 07:00 a 19:
   <div class="inadiaveis__task">
     Concluir revisao do <em>WBR de Investimentos</em>
     <span class="inadiaveis__meta">· ate 14h</span>
+    <span class="inadiaveis__risco">risco: Pedro sem dados do pipeline ate 13h → uso o snapshot de ontem</span>
   </div>
 </div>
 
@@ -284,14 +287,24 @@ Lista vertical com **todas** as horas relevantes do dia (normalmente 07:00 a 19:
   <div class="inadiaveis__task">
     Publicar skill do daily planner
     <span class="inadiaveis__meta">· +1d atraso</span>
+    <span class="inadiaveis__risco">risco: validacao apontar fail P5/P7 → aplico fix rapido e bumpar patch</span>
   </div>
 </div>
 
 <div class="inadiaveis__item">
   <div class="inadiaveis__roman">iii.</div>
-  <div class="inadiaveis__task">Slides da diretoria</div>
+  <div class="inadiaveis__task">
+    Slides da diretoria
+    <span class="inadiaveis__risco">risco: dados do card nao fecharem ate 17h → envio versao parcial com caveat</span>
+  </div>
 </div>
 ```
+
+**Regras do texto de risco:**
+- 1 linha, <=120 caracteres
+- Formato: `risco: <o que pode travar> → <como mitigar>` (causa → plano B)
+- Tom pragmatico, sem drama
+- NUNCA inventar risco ficticio. Se nao ha risco real, escrever `risco: —` (ficara em text-subtle, quase invisivel, forcando a pergunta honesta)
 
 ### 9. Tarefas ClickUp
 
@@ -409,25 +422,62 @@ Ideias capturadas ao longo do dia. Travessao (—) em terracota + texto + hora e
 
 ### 12. Amanha
 
-**Classes:** `.footer__amanha` + `.footer__amanha-body`. Spans internos: `em.ancora` (foco) e `em.time` (horarios).
+**Classes:** `.footer__amanha` + `.footer__amanha-ancora` + `.footer__amanha-preparar` + `.footer__amanha-preparar-label` + `.footer__amanha-preparar-item` (todas v1.4.0). Spans internos: `em.ancora` (foco) e `em.time` (horarios).
 
-Preview do dia seguinte em prosa. Comeca com "Ancora:" (compromisso mais importante amanha) seguido dos horarios chave inline. Horarios em Inter sans italic terracota via `<em class="time">`.
+Plano do proximo dia feito ainda hoje (disciplina Cal Newport / Atomic Habits). **Duas partes estruturadas** (nao e mais prosa livre):
+
+**Parte A · Ancora** (`footer__amanha-ancora`): **1 frase imperativa** que define amanha. Formato:
+
+> Ancora: [verbo imperativo] [objeto] [qualificador de tempo].
+
+**Parte B · Preparar hoje** (`footer__amanha-preparar`, opcional): 0-2 bullets do que voce precisa fazer HOJE para amanha funcionar. Cada item cabe em <=15min hoje. Se tiver mais, vira MIT de hoje, nao preparacao.
+
+A logica de como definir a Ancora e o que entra em Preparar esta em [metodologia-planejamento.md Regra 6](metodologia-planejamento.md#regra-6--amanha).
 
 ```html
 <section class="footer__amanha">
   <div class="section-header">
     <div class="section-label">Amanha.</div>
-    <div class="section-header__meta">sex, 17 abril · 5 eventos</div>
+    <div class="section-header__meta">sex, 17 abril</div>
   </div>
 
-  <p class="footer__amanha-body">
-    <em class="ancora">Ancora:</em> apresentacao para diretoria as
-    <em class="time">10:00</em>, chegar as 09:30 para setup.
-    <em class="time">07:00</em> corrida longa 10k.
-    <em class="time">14:30</em> review de codigos m7-controle.
+  <p class="footer__amanha-ancora">
+    <em class="ancora">Ancora:</em> apresentar o <em>WBR de Investimentos</em>
+    para a diretoria as <em class="time">10h</em>.
+  </p>
+
+  <div class="footer__amanha-preparar">
+    <div class="footer__amanha-preparar-label">Preparar hoje.</div>
+    <div class="footer__amanha-preparar-item">Enviar template YAML para Pedro ate 16h.</div>
+    <div class="footer__amanha-preparar-item">Bloquear 09h-10h30 de amanha no calendario.</div>
+  </div>
+</section>
+```
+
+**Variantes validas:**
+
+Ancora sem Preparar (nao ha acao necessaria hoje para amanha):
+```html
+<section class="footer__amanha">
+  <div class="section-header">...</div>
+  <p class="footer__amanha-ancora">
+    <em class="ancora">Ancora:</em> treinar longao 15km e dormir 8h.
   </p>
 </section>
 ```
+
+Ancora com 1 item de Preparar:
+```html
+<p class="footer__amanha-ancora">
+  <em class="ancora">Ancora:</em> fechar o ciclo G2.2 da semana.
+</p>
+<div class="footer__amanha-preparar">
+  <div class="footer__amanha-preparar-label">Preparar hoje.</div>
+  <div class="footer__amanha-preparar-item">Rodar <em>m7-controle:run-weekly</em> antes de dormir para E6 amanha.</div>
+</div>
+```
+
+**Fallback legacy:** a classe `.footer__amanha-body` (prosa unica) continua no tokens.css para retro-compatibilidade de planners antigos, mas **nao usar em novos planners**. Sempre usar a estrutura Ancora + Preparar.
 
 ## Utilitarios transversais
 
