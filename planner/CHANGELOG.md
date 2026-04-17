@@ -2,6 +2,32 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [1.6.0] - 2026-04-17
+
+### Added
+- **New skill `generating-weekly-planner`**. Complementar ao `generating-daily-planner`: daily sobre execucao dentro do dia, weekly sobre orquestracao dos 5 dias uteis (seg-sex, sem fim de semana). Mesmo design system Planner Editorial Noturno (Georgia + Inter, terracota + azul petroleo, dark mode quente) mas estrutura radicalmente diferente: 4 bands em fit-screen 1440x1000 (Contexto + Orquestra HERO + Compromissos + Preflight ancorado ao fundo via `flex:1` na Band 2).
+- **Metodologias aplicadas** (pesquisadas e validadas):
+  - **Hyatt Weekly Preview** → Tese da semana + Weekly Big 3 derivados de Metas Q2 + Criterio de vitoria (4 outcomes binarios)
+  - **Cal Newport Time-Block** → Orquestra dos 5 dias com deep work blocks protegidos (pelo menos 1 maker day por semana, MIT #1 com >=4h contiguas)
+  - **4DX (McChesney)** → Criterio de vitoria com checks verificaveis
+  - **Kahneman/Klein Pre-mortem** → Riscos & fogos com mitigacao concreta ja escrita
+  - **Newport Shutdown Ritual (invertido)** → Preflight com 4 perguntas editoriais antes da semana comecar
+- **Retrospectiva S-1 obrigatoria**: skill sempre pergunta ao usuario o que destravou/travou/aprendi na semana passada antes de gerar a Tese. Sem isso, a Tese vira generica.
+- **Corpo · semana com 4 KPIs agregados** via TrainingPeaks MCP (reusa as tools introduzidas em v1.5.0): peso Δ (weight tool), TSS total (weekly_summary), sono medio (sleep), TSB (fitness_metrics). TSB e o novo KPI exclusivo do weekly — conceito inerentemente semanal que nao cabe num daily.
+- **Conexao com Metas Q2**: Weekly Big 3 devem derivar de objetivos trimestrais (ClickUp goals → brain/3-resources → perguntar). Sem essa conexao, Big 3 sao apenas tarefas grandes.
+- **8 regras de planejamento semanal** em `generating-weekly-planner/references/metodologia-planejamento.md` (vs 6 regras da daily), cada uma com filtro + teste de sanidade + anti-padroes + exemplos.
+- **Layout fit-screen** com Preflight **sempre ancorado ao fundo**: Band 2 (Orquestra) usa `flex:1` para crescer e empurrar Preflight ao limite inferior. Garantia de one-pager report em qualquer densidade de conteudo.
+
+### Changed
+- **Marketplace entry** atualizada para refletir os dois planners (daily + weekly) com descricao contextualizando escopos de cada. Keywords expandidas: `weekly-planner`, `weekly-preview`, `sunday-planning`, `trainingpeaks`, `time-blocking`.
+- **Plugin description** idem — agora explica que o plugin cobre daily (execucao) e weekly (orquestracao) como artefatos complementares.
+
+### Notes
+- Nenhuma mudanca no `generating-daily-planner` existente — daily continua funcionando identicamente.
+- O weekly **nao replica** a estrutura do daily x5. Tem hero visual proprio (Orquestra dos 5 dias lado a lado) e camada estrategica adicional (Tese + Criterio + Big 3 com pronto-quando + Riscos com mitigacao + Preflight).
+- Tokens de cor e tipografia sao compartilhados entre daily e weekly — a unica excecao e que o weekly acrescenta tokens de layout especificos para o fit-screen (page-height 1000, band-gap 22, band-1-min-height 180, zone-ano 160).
+- Design system iterado e validado visualmente no Paper (arquivo `weekly-planner`, artboard v2 "Weekly Planner v2 · Orquestra") antes da implementacao HTML.
+
 ## [1.5.1] - 2026-04-17
 
 ### Fixed

@@ -1,0 +1,1030 @@
+/* =============================================================
+   Weekly Planner Editorial Noturno · Design Tokens
+   Layout: 4 bands fit-screen 1440x1000
+     Band 1 · Header (contexto 5-zone)
+     Band 2 · Orquestra (5 dias, flex:1 hero)
+     Band 3 · Compromissos (3 cols)
+     Band 4 · Preflight (4 perguntas, ancorado ao fundo)
+
+   Indice de secoes (ordem no arquivo):
+     1. CORES (identicas ao daily)
+     2. TIPOGRAFIA (identica ao daily)
+     3. ESPACAMENTO (base 4px)
+     4. LAYOUT (fit-screen 4 bands)
+     5. BORDER RADIUS
+     6. DIVISORES
+     7. OPACIDADE
+     8. RESET E BASE DA PAGINA (fit-screen fixo)
+     9. LABELS DE SECAO
+    10. BAND 1 · HEADER (5 zonas)
+        10.1. Semana hero
+        10.2. Lide da semana
+        10.3. Insight · cruzamento
+        10.4. Ano · 52 semanas
+        10.5. Corpo · semana (4 KPIs)
+    11. BAND 2 · ORQUESTRA (5 dias)
+        11.1. Grid container
+        11.2. Coluna de dia
+        11.3. Modifier day--today
+        11.4. Modifier day--protected
+    12. BAND 3 · COMPROMISSOS
+        12.1. Tres grandes
+        12.2. Criterio de vitoria
+        12.3. Prazos duros
+        12.4. Riscos & fogos
+        12.5. Metas Q2
+    13. BAND 4 · PREFLIGHT (ancorado ao fundo)
+    14. UTILITARIOS TRANSVERSAIS
+   ============================================================= */
+
+:root {
+  /* ---------------------------------------------------------
+     1. CORES (identicas ao daily)
+     --------------------------------------------------------- */
+  --bg: #1A1715;
+  --bg-elevated: #2A2320;
+  --text-primary: #F5F0E6;
+  --text-secondary: #8A8178;
+  --text-subtle: #5A5048;
+  --divider: #2E2823;
+
+  --accent-primary: #D97757;       /* terracota · trabalho, foco */
+  --accent-secondary: #6B9EB0;     /* azul petroleo · corpo, treino */
+  --alert: #B8593C;                /* terracota escuro · atraso, risco */
+
+  /* ---------------------------------------------------------
+     2. TIPOGRAFIA
+     --------------------------------------------------------- */
+  --font-serif: 'Georgia', 'Source Serif Pro', serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  /* Escala (weekly-especifica em alguns pontos) */
+  --fs-hero-week: 72px;            /* numero da semana (hero band 1) */
+  --fs-hero-word: 22px;            /* palavra "semana" (label silencioso) */
+  --fs-day-number: 32px;           /* numero do dia na orquestra */
+  --fs-roman: 28px;                /* romanos i. ii. iii. (Big 3) */
+  --fs-h2: 20px;                   /* numeros corpo KPI */
+  --fs-lide: 17px;                 /* prosa da Tese/Lide (levemente maior que daily) */
+  --fs-body-lg: 16px;
+  --fs-body: 14px;
+  --fs-body-sm: 13px;
+  --fs-caption: 12px;
+  --fs-label: 13px;
+  --fs-micro: 11px;                /* metadata, status */
+  --fs-mono: 11px;                 /* horas, numeros tabulares */
+  --fs-micro-upper: 9px;           /* sub-labels UPPERCASE (MANHA·DEEP, etc.) */
+  --fs-year-cell: 7px;             /* celulas do year grid */
+
+  /* Pesos */
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* Line heights */
+  --lh-tight: 0.9;
+  --lh-compact: 1.45;
+  --lh-normal: 1.6;
+  --lh-loose: 1.9;
+
+  /* Letter spacing */
+  --ls-tight: -0.04em;
+  --ls-tight-nav: -0.03em;
+  --ls-normal: 0;
+  --ls-wide: 0.1em;
+  --ls-wider: 0.12em;              /* sub-labels UPPERCASE */
+  --ls-widest: 0.15em;             /* weekday UPPERCASE na orquestra */
+
+  /* ---------------------------------------------------------
+     3. ESPACAMENTO (base 4px)
+     --------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 14px;                 /* gap interno das colunas */
+  --space-5: 18px;
+  --space-6: 22px;                 /* gap entre bands */
+  --space-7: 24px;                 /* gap dentro do band-1 header */
+  --space-8: 32px;
+  --space-9: 36px;                 /* gap entre colunas de band-3 */
+
+  /* ---------------------------------------------------------
+     4. LAYOUT · fit-screen 1440x1000
+     --------------------------------------------------------- */
+  --page-width: 1440px;
+  --page-height: 1000px;
+  --page-padding: 28px 32px;
+
+  /* Band gaps */
+  --band-gap: 22px;                /* gap entre bands */
+
+  /* Band 1 (header) */
+  --band-1-min-height: 180px;
+  --band-1-gap: 24px;
+  --zone-semana: 220px;
+  --zone-insight: 240px;
+  --zone-ano: 160px;
+  --zone-corpo: 150px;
+
+  /* Band 2 (orquestra) */
+  --band-2-grid-gap: 20px;         /* gap entre colunas de dia */
+
+  /* Band 3 (compromissos) */
+  --band-3-gap: 36px;              /* gap entre cols compromissos */
+
+  /* ---------------------------------------------------------
+     5. BORDER RADIUS
+     --------------------------------------------------------- */
+  --radius-sm: 3px;                /* celula do year grid */
+  --radius-md: 6px;
+
+  /* ---------------------------------------------------------
+     6. DIVISORES
+     --------------------------------------------------------- */
+  --divider-thin: 0.5px solid var(--divider);
+  --divider-today: 1px solid var(--accent-primary);
+
+  /* ---------------------------------------------------------
+     7. OPACIDADE
+     --------------------------------------------------------- */
+  --opacity-roman: 0.5;            /* numeros romanos (i. ii. iii.) */
+}
+
+/* =============================================================
+   8. RESET E BASE DA PAGINA (fit-screen fixo)
+   ============================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+
+  /* Fit-screen adaptativo: ocupa 100% da tela, Preflight ancorado ao fundo via flex:1 na Band 2 */
+  min-height: 100vh;
+  padding: var(--page-padding);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--band-gap);
+}
+
+/* =============================================================
+   9. LABELS DE SECAO
+   ============================================================= */
+
+.section-label {
+  font-family: var(--font-serif);
+  font-size: var(--fs-label);
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.section-label--body {
+  color: var(--accent-secondary);
+}
+
+.section-label--muted {
+  color: var(--text-secondary);
+}
+
+.section-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.section-header__meta {
+  font-family: var(--font-sans);
+  font-size: var(--fs-mono);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.section-header__meta .alert {
+  color: var(--alert);
+  font-style: italic;
+}
+
+/* Sub-labels UPPERCASE dentro da Orquestra */
+.sub-label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro-upper);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wider);
+  color: var(--text-subtle);
+  text-transform: uppercase;
+}
+
+/* =============================================================
+   10. BAND 1 · HEADER (5 zonas)
+   ============================================================= */
+
+.band-1 {
+  display: flex;
+  flex-direction: row;
+  gap: var(--band-1-gap);
+  align-items: flex-start;
+  padding-bottom: 18px;
+  border-bottom: var(--divider-thin);
+  flex-shrink: 0;
+  flex-grow: 0;
+  min-height: var(--band-1-min-height);
+}
+
+/* ---------- 10.1 Semana hero ---------- */
+
+.band-1__semana {
+  width: var(--zone-semana);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.band-1__semana-weekday {
+  font-size: var(--fs-caption);
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.band-1__semana-hero {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.band-1__semana-word {
+  font-size: var(--fs-hero-word);
+  font-weight: var(--fw-light);
+  font-style: italic;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.band-1__semana-number {
+  font-size: var(--fs-hero-week);
+  font-weight: var(--fw-light);
+  line-height: 70px;
+  letter-spacing: var(--ls-tight);
+  color: var(--text-primary);
+}
+
+.band-1__semana-range {
+  font-size: var(--fs-body-sm);
+  color: var(--text-primary);
+  padding-top: 4px;
+}
+
+.band-1__semana-range .dash { color: var(--text-secondary); }
+.band-1__semana-range em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.band-1__semana-meta {
+  font-size: var(--fs-micro);
+  font-style: italic;
+  color: var(--text-secondary);
+  padding-top: 4px;
+}
+
+/* ---------- 10.2 Lide da semana ---------- */
+
+.band-1__lide {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.band-1__lide-body {
+  font-size: var(--fs-body-sm);
+  line-height: 20px;
+  color: var(--text-primary);
+}
+
+.band-1__lide-body em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+/* ---------- 10.3 Insight · cruzamento ---------- */
+
+.band-1__insight {
+  width: var(--zone-insight);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.band-1__insight-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.band-1__insight-shuffle {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.band-1__insight-body {
+  font-size: var(--fs-caption);
+  line-height: 18px;
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+.band-1__insight-body em {
+  color: var(--accent-primary);
+  font-style: italic;
+}
+
+.band-1__insight-cite {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--text-subtle);
+}
+
+/* ---------- 10.4 Ano · 52 semanas ---------- */
+
+.band-1__ano {
+  width: var(--zone-ano);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.band-1__ano-title {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.band-1__ano-title-meta {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.band-1__ano-quarters {
+  display: flex;
+  flex-direction: row;
+  gap: 1px;
+}
+
+.band-1__ano-quarters > div {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 8px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  color: var(--text-subtle);
+  text-transform: uppercase;
+}
+
+.band-1__ano-quarters > .is-current-q {
+  color: var(--accent-primary);
+}
+
+.band-1__ano-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.band-1__ano-grid-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1px;
+}
+
+.band-1__ano-grid-row > div {
+  width: 11px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: var(--fs-year-cell);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.band-1__ano-grid-row > .is-past-q { color: var(--text-subtle); }
+.band-1__ano-grid-row > .is-past-week { color: var(--text-secondary); }
+.band-1__ano-grid-row > .is-future { color: var(--text-primary); }
+.band-1__ano-grid-row > .is-current-week {
+  color: var(--accent-primary);
+  font-weight: var(--fw-medium);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  font-size: 8px;
+}
+
+/* ---------- 10.5 Corpo · semana ---------- */
+
+.band-1__corpo {
+  width: var(--zone-corpo);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.band-1__corpo-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.band-1__corpo-label {
+  font-size: var(--fs-micro);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.band-1__corpo-value {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.band-1__corpo-number {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-regular);
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.band-1__corpo-number--body { color: var(--accent-secondary); }
+.band-1__corpo-number--alert { color: var(--alert); }
+
+.band-1__corpo-unit {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* =============================================================
+   11. BAND 2 · ORQUESTRA (5 dias)
+   ============================================================= */
+
+.band-2 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;                           /* CRESCE para empurrar preflight ao fundo */
+  min-height: 0;
+}
+
+.band-2__grid {
+  display: flex;
+  flex-direction: row;
+  gap: var(--band-2-grid-gap);
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- 11.2 Coluna de dia ---------- */
+
+.day {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 14px 0 0 0;
+  border-top: 1px solid var(--divider);
+}
+
+.day__head {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.day__head-title {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.day__weekday {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-widest);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.day__number {
+  font-family: var(--font-serif);
+  font-size: var(--fs-day-number);
+  font-weight: var(--fw-light);
+  line-height: 32px;
+  letter-spacing: var(--ls-tight-nav);
+  color: var(--text-primary);
+}
+
+.day__energia {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.day__tema {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body-sm);
+  font-style: italic;
+  line-height: 18px;
+  color: var(--accent-primary);
+}
+
+.day__block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.day__block-label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro-upper);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wider);
+  color: var(--text-subtle);
+  text-transform: uppercase;
+}
+
+.day__block-body {
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  line-height: 17px;
+  color: var(--text-primary);
+}
+
+.day__block-body em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.day__meetings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day__meeting {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.day__meeting-hour {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.day__meeting-title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  line-height: 16px;
+  color: var(--text-primary);
+}
+
+.day__meeting-title em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.day__meeting--body .day__meeting-title {
+  color: var(--accent-secondary);
+}
+
+.day__meetings--protected .day__meetings-empty {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: baseline;
+  padding-top: 2px;
+}
+
+.day__meetings--protected .day__meetings-empty span:first-child {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.day__meetings--protected .day__meetings-empty span:last-child {
+  font-family: var(--font-serif);
+  font-size: var(--fs-micro);
+  font-style: italic;
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+.day__entrega {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 10px;
+  margin-top: auto;                  /* ancora entrega ao fundo da coluna */
+  border-top: var(--divider-thin);
+}
+
+.day__entrega-body {
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  font-style: italic;
+  line-height: 17px;
+  color: var(--accent-primary);
+}
+
+/* ---------- 11.3 Modifier day--today ---------- */
+
+.day--today {
+  border-top: var(--divider-today);
+}
+
+.day--today .day__weekday,
+.day--today .day__number {
+  color: var(--accent-primary);
+}
+
+.day--today .day__number { font-weight: var(--fw-medium); }
+.day--today .day__energia { color: var(--accent-primary); }
+
+/* ---------- 11.4 Modifier day--protected (maker day) ---------- */
+
+/* usa classes day__meetings--protected aplicadas no bloco de meetings */
+
+/* =============================================================
+   12. BAND 3 · COMPROMISSOS (3 cols)
+   ============================================================= */
+
+.band-3 {
+  display: flex;
+  flex-direction: row;
+  gap: var(--band-3-gap);
+  align-items: flex-start;
+  padding-top: 18px;
+  border-top: var(--divider-thin);
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.band-3__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ---------- 12.1 Tres grandes ---------- */
+
+.grande__item {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.grande__roman {
+  width: 36px;
+  flex-shrink: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-roman);
+  font-weight: var(--fw-light);
+  font-style: italic;
+  color: var(--accent-primary);
+  opacity: var(--opacity-roman);
+  line-height: 1;
+}
+
+.grande__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.grande__task {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body-sm);
+  line-height: 18px;
+  color: var(--text-primary);
+}
+
+.grande__task em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.grande__task em.metric--body { color: var(--accent-secondary); }
+
+.grande__criterio {
+  font-family: var(--font-serif);
+  font-size: var(--fs-micro);
+  font-style: italic;
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+/* ---------- 12.2 Criterio de vitoria ---------- */
+
+.criterio__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+}
+
+.criterio__item {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.criterio__box {
+  color: var(--accent-primary);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.criterio__item--body .criterio__box {
+  color: var(--accent-secondary);
+}
+
+.criterio__text {
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  line-height: 17px;
+  color: var(--text-primary);
+}
+
+.criterio__text em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.criterio__text em.metric--body { color: var(--accent-secondary); }
+
+/* ---------- 12.3 Prazos duros ---------- */
+
+.prazo__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prazo__item {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: baseline;
+}
+
+.prazo__dia {
+  width: 52px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.prazo__dia-weekday {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wider);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.prazo__dia-number {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body-sm);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.prazo__titulo {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: var(--fs-body-sm);
+  line-height: 18px;
+  color: var(--text-primary);
+}
+
+.prazo__titulo em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.prazo__status {
+  font-family: var(--font-serif);
+  font-size: var(--fs-micro);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* atrasado */
+.prazo__item--atrasado .prazo__dia-weekday,
+.prazo__item--atrasado .prazo__dia-number,
+.prazo__item--atrasado .prazo__titulo,
+.prazo__item--atrasado .prazo__status { color: var(--alert); }
+
+/* hoje/alvo */
+.prazo__item--hoje .prazo__dia-weekday,
+.prazo__item--hoje .prazo__dia-number { color: var(--accent-primary); }
+.prazo__item--hoje .prazo__dia-number { font-weight: var(--fw-medium); }
+
+/* ---------- 12.4 Riscos & fogos ---------- */
+
+.risco__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.risco__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 8px;
+  border-bottom: var(--divider-thin);
+}
+
+.risco__item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.risco__titulo {
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  font-style: italic;
+  line-height: 16px;
+  color: var(--text-primary);
+}
+
+.risco__titulo em { font-style: italic; }
+.risco__titulo em.alert { color: var(--alert); }
+
+.risco__mitigacao {
+  font-family: var(--font-serif);
+  font-size: var(--fs-micro);
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+/* ---------- 12.5 Metas Q2 ---------- */
+
+.meta__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta__row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.meta__title {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  line-height: 17px;
+  color: var(--text-primary);
+}
+
+.meta__title em {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.meta__title em.metric--body { color: var(--accent-secondary); }
+
+.meta__pct {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-style: italic;
+  color: var(--text-primary);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.meta__pct.alert { color: var(--alert); }
+
+.meta__status { color: var(--text-secondary); }
+.meta__status.alert { color: var(--alert); }
+
+/* =============================================================
+   13. BAND 4 · PREFLIGHT (ancorado ao fundo)
+   ============================================================= */
+
+.band-4 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: var(--divider-thin);
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.band-4__grid {
+  display: flex;
+  flex-direction: row;
+  gap: var(--band-3-gap);
+  align-items: flex-start;
+}
+
+.preflight__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preflight__pergunta {
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  line-height: 17px;
+  color: var(--text-secondary);
+}
+
+.preflight__resposta {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body-sm);
+  line-height: 18px;
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+/* =============================================================
+   14. UTILITARIOS TRANSVERSAIS
+   ============================================================= */
+
+/* Metrica inline (dentro de prosa) */
+.metric {
+  font-style: italic;
+  color: var(--accent-primary);
+}
+
+.metric--body { color: var(--accent-secondary); }
+.metric--alert { color: var(--alert); }
+
+/* Alert span */
+.alert {
+  color: var(--alert);
+}

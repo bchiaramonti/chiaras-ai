@@ -112,8 +112,8 @@
     },
     {
       "name": "planner",
-      "description": "Gera planners pessoais executivos em HTML aplicando o sistema de design Editorial Noturno (dark mode quente, Georgia serif + Inter sans, terracota + azul petroleo). Header 5-zone (Dia, Lide, Insight, Mes, Corpo) + body 3-col (Agenda, Tres inadiaveis + Tarefas ClickUp, Delegadas) + footer 2-col (Notas, Amanha). Zero ornamento, hierarquia tipografica. Escopo estrito: uso pessoal, nao corporativo.",
-      "version": "1.5.1",
+      "description": "Gera planners pessoais executivos em HTML (daily + weekly) aplicando o sistema de design Editorial Noturno (dark mode quente, Georgia serif + Inter sans, terracota + azul petroleo). Daily: header 5-zone + body 3-col + footer 2-col, foco em execucao. Weekly: 4 bands fit-screen (Contexto + Orquestra dos 5 dias + Compromissos + Preflight ancorado ao fundo), foco em orquestracao, derivado de Hyatt Weekly Preview + Newport Time-Block + 4DX + Kahneman Pre-mortem. Integra MCPs TrainingPeaks (corpo agregado), Google Calendar e ClickUp. Zero ornamento, hierarquia tipografica. Escopo estrito: uso pessoal, nao corporativo.",
+      "version": "1.6.0",
       "author": {
         "name": "Bruno Chiaramonti"
       },
@@ -123,12 +123,17 @@
       "keywords": [
         "personal",
         "planner",
-        "daily",
+        "daily-planner",
+        "weekly-planner",
+        "weekly-preview",
+        "sunday-planning",
         "dashboard",
         "dark-mode",
         "editorial",
         "typography",
-        "design-system"
+        "design-system",
+        "trainingpeaks",
+        "time-blocking"
       ]
     }
   ]

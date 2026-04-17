@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Planner · Semana 16</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+
+  <!-- =====================================================
+       BAND 1 · HEADER · 5 zonas
+       Semana hero | Lide da semana | Insight | Ano | Corpo · semana
+       ===================================================== -->
+  <header class="band-1">
+
+    <!-- Zona 1 · Semana hero -->
+    <div class="band-1__semana">
+      <div class="band-1__semana-weekday">Sexta-feira &middot; 17 abril</div>
+      <div class="band-1__semana-hero">
+        <span class="band-1__semana-word">semana</span>
+        <span class="band-1__semana-number">16</span>
+      </div>
+      <div class="band-1__semana-range">13 <span class="dash">&mdash;</span> 17 <em>abril</em></div>
+      <div class="band-1__semana-meta">Q2 &middot; sem. 3/13 &middot; 36 restantes</div>
+    </div>
+
+    <!-- Zona 2 · Lide da semana -->
+    <div class="band-1__lide">
+      <div class="section-label">Lide da semana.</div>
+      <p class="band-1__lide-body">
+        Bruno encerra o mes de testes do <em>m7-controle</em> com a apresentacao para a diretoria na
+        <em>sexta as 10h</em>, destravando a publicacao dos Cards de Performance em producao. No corpo,
+        fecha a semana com tres treinos longos e <em>TSS 320</em>, mantendo a cadencia do ciclo de
+        <em>maratona de junho</em>.
+      </p>
+    </div>
+
+    <!-- Zona 3 · Insight · cruzamento -->
+    <div class="band-1__insight">
+      <div class="band-1__insight-top">
+        <div class="section-label">Insight &middot; cruzamento.</div>
+        <div class="band-1__insight-shuffle">&#8635;</div>
+      </div>
+      <p class="band-1__insight-body">
+        OKR tem cadencia trimestral, Scrum tem cadencia quinzenal &mdash; a semana nao e ancora natural
+        de nenhum dos dois. <em>"O que move o Q2?"</em> vs <em>"o que entrega na sprint?"</em>
+      </p>
+      <div class="band-1__insight-cite">OKR &middot; Doerr &times; Scrum &middot; Sutherland</div>
+    </div>
+
+    <!-- Zona 4 · Ano · 52 semanas (4 linhas = Q1..Q4) -->
+    <div class="band-1__ano">
+      <div class="band-1__ano-title">
+        <div class="section-label">2026</div>
+        <div class="band-1__ano-title-meta">(Q2 &middot; abr&ndash;jun)</div>
+      </div>
+      <div class="band-1__ano-quarters">
+        <div>Q1</div>
+        <div class="is-current-q">Q2</div>
+        <div>Q3</div>
+        <div>Q4</div>
+      </div>
+      <div class="band-1__ano-grid">
+        <!-- Q1: weeks 1-13 (todas passadas) -->
+        <div class="band-1__ano-grid-row">
+          <div class="is-past-q">1</div><div class="is-past-q">2</div><div class="is-past-q">3</div>
+          <div class="is-past-q">4</div><div class="is-past-q">5</div><div class="is-past-q">6</div>
+          <div class="is-past-q">7</div><div class="is-past-q">8</div><div class="is-past-q">9</div>
+          <div class="is-past-q">10</div><div class="is-past-q">11</div><div class="is-past-q">12</div>
+          <div class="is-past-q">13</div>
+        </div>
+        <!-- Q2: weeks 14-26 (14-15 passadas, 16 atual, 17-26 futuras) -->
+        <div class="band-1__ano-grid-row">
+          <div class="is-past-week">14</div><div class="is-past-week">15</div>
+          <div class="is-current-week">16</div>
+          <div class="is-future">17</div><div class="is-future">18</div><div class="is-future">19</div>
+          <div class="is-future">20</div><div class="is-future">21</div><div class="is-future">22</div>
+          <div class="is-future">23</div><div class="is-future">24</div><div class="is-future">25</div>
+          <div class="is-future">26</div>
+        </div>
+        <!-- Q3: weeks 27-39 (todas futuras) -->
+        <div class="band-1__ano-grid-row">
+          <div class="is-future">27</div><div class="is-future">28</div><div class="is-future">29</div>
+          <div class="is-future">30</div><div class="is-future">31</div><div class="is-future">32</div>
+          <div class="is-future">33</div><div class="is-future">34</div><div class="is-future">35</div>
+          <div class="is-future">36</div><div class="is-future">37</div><div class="is-future">38</div>
+          <div class="is-future">39</div>
+        </div>
+        <!-- Q4: weeks 40-52 (todas futuras) -->
+        <div class="band-1__ano-grid-row">
+          <div class="is-future">40</div><div class="is-future">41</div><div class="is-future">42</div>
+          <div class="is-future">43</div><div class="is-future">44</div><div class="is-future">45</div>
+          <div class="is-future">46</div><div class="is-future">47</div><div class="is-future">48</div>
+          <div class="is-future">49</div><div class="is-future">50</div><div class="is-future">51</div>
+          <div class="is-future">52</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zona 5 · Corpo · semana (4 KPIs) -->
+    <div class="band-1__corpo">
+      <div class="section-label section-label--body">Corpo &middot; semana.</div>
+
+      <div class="band-1__corpo-row">
+        <div class="band-1__corpo-label">peso &Delta;</div>
+        <div class="band-1__corpo-value">
+          <div class="band-1__corpo-number">&minus;0.6</div>
+          <div class="band-1__corpo-unit">kg</div>
+        </div>
+      </div>
+
+      <div class="band-1__corpo-row">
+        <div class="band-1__corpo-label">TSS total</div>
+        <div class="band-1__corpo-value">
+          <div class="band-1__corpo-number band-1__corpo-number--body">320</div>
+        </div>
+      </div>
+
+      <div class="band-1__corpo-row">
+        <div class="band-1__corpo-label">sono medio</div>
+        <div class="band-1__corpo-value">
+          <div class="band-1__corpo-number band-1__corpo-number--alert">6.4</div>
+          <div class="band-1__corpo-unit">h</div>
+        </div>
+      </div>
+
+      <div class="band-1__corpo-row">
+        <div class="band-1__corpo-label">TSB</div>
+        <div class="band-1__corpo-value">
+          <div class="band-1__corpo-number band-1__corpo-number--alert">&minus;12</div>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- =====================================================
+       BAND 2 · ORQUESTRA · 5 dias (HERO, flex:1)
+       seg | ter | qua | qui | sex
+       ===================================================== -->
+  <section class="band-2">
+
+    <div class="section-header">
+      <div class="section-label">Orquestra da semana.</div>
+      <div class="section-header__meta">5 dias &middot; 12 meetings &middot; <em>18h deep work</em> &middot; 14h shallow</div>
+    </div>
+
+    <div class="band-2__grid">
+
+      <!-- SEG 13 -->
+      <div class="day">
+        <div class="day__head">
+          <div class="day__head-title">
+            <span class="day__weekday">seg</span>
+            <span class="day__number">13</span>
+          </div>
+          <div class="day__energia">alta</div>
+        </div>
+
+        <div class="day__tema">weekly review &amp; kickoff</div>
+
+        <div class="day__block">
+          <div class="day__block-label">manha &middot; deep</div>
+          <div class="day__block-body">Revisar <em>metas Q2</em> e fechar plano da semana 16.</div>
+        </div>
+
+        <div class="day__block">
+          <div class="day__block-label">tarde &middot; meetings</div>
+          <div class="day__meetings">
+            <div class="day__meeting">
+              <span class="day__meeting-hour">14h</span>
+              <span class="day__meeting-title">Kickoff WBR Invest</span>
+            </div>
+            <div class="day__meeting">
+              <span class="day__meeting-hour">16h</span>
+              <span class="day__meeting-title">1:1 Fernando</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="day__entrega">
+          <div class="day__block-label">entrega</div>
+          <div class="day__entrega-body">Plano semanal fechado no planner</div>
+        </div>
+      </div>
+
+      <!-- TER 14 -->
+      <div class="day">
+        <div class="day__head">
+          <div class="day__head-title">
+            <span class="day__weekday">ter</span>
+            <span class="day__number">14</span>
+          </div>
+          <div class="day__energia">media</div>
+        </div>
+
+        <div class="day__tema">alinhamento tecnico</div>
+
+        <div class="day__block">
+          <div class="day__block-label">manha &middot; deep</div>
+          <div class="day__block-body">Review do <em>pipeline GPD</em> e ajustes na fase E6.</div>
+        </div>
+
+        <div class="day__block">
+          <div class="day__block-label">tarde &middot; meetings</div>
+          <div class="day__meetings">
+            <div class="day__meeting">
+              <span class="day__meeting-hour">10h</span>
+              <span class="day__meeting-title">1:1 Pedro &middot; pipeline</span>
+            </div>
+            <div class="day__meeting day__meeting--body">
+              <span class="day__meeting-hour">18h</span>
+              <span class="day__meeting-title">Treino longo 80min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="day__entrega">
+          <div class="day__block-label">entrega</div>
+          <div class="day__entrega-body">Pipeline GPD revisado + plano E6</div>
+        </div>
+      </div>
+
+      <!-- QUA 15 · maker day -->
+      <div class="day">
+        <div class="day__head">
+          <div class="day__head-title">
+            <span class="day__weekday">qua</span>
+            <span class="day__number">15</span>
+          </div>
+          <div class="day__energia">alta &middot; deep</div>
+        </div>
+
+        <div class="day__tema">maker day &middot; codar</div>
+
+        <div class="day__block">
+          <div class="day__block-label">manha &middot; deep (4h)</div>
+          <div class="day__block-body">Codar <em>weekly-planner skill</em>: template + prompt + cron.</div>
+        </div>
+
+        <div class="day__block">
+          <div class="day__block-label">tarde &middot; deep (3h)</div>
+          <div class="day__block-body">Consolidar <em>WBR Invest</em> &middot; rodar pipeline E6 end-to-end.</div>
+          <div class="day__meetings day__meetings--protected">
+            <div class="day__meetings-empty">
+              <span>&mdash;</span>
+              <span><em>sem meetings &middot; dia protegido</em></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="day__entrega">
+          <div class="day__block-label">entrega</div>
+          <div class="day__entrega-body">Skill pronta + WBR consolidado</div>
+        </div>
+      </div>
+
+      <!-- QUI 16 -->
+      <div class="day">
+        <div class="day__head">
+          <div class="day__head-title">
+            <span class="day__weekday">qui</span>
+            <span class="day__number">16</span>
+          </div>
+          <div class="day__energia">media</div>
+        </div>
+
+        <div class="day__tema">ritual &amp; presenca</div>
+
+        <div class="day__block">
+          <div class="day__block-label">manha &middot; prep</div>
+          <div class="day__block-body">Briefing para a diretoria e ensaio da apresentacao.</div>
+        </div>
+
+        <div class="day__block">
+          <div class="day__block-label">tarde &middot; meetings</div>
+          <div class="day__meetings">
+            <div class="day__meeting">
+              <span class="day__meeting-hour">13h</span>
+              <span class="day__meeting-title">Almoco Bia</span>
+            </div>
+            <div class="day__meeting">
+              <span class="day__meeting-hour">15h</span>
+              <span class="day__meeting-title">Ritual G2.3 &middot; Invest</span>
+            </div>
+            <div class="day__meeting">
+              <span class="day__meeting-hour">17h</span>
+              <span class="day__meeting-title">Ensaio diretoria</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="day__entrega">
+          <div class="day__block-label">entrega</div>
+          <div class="day__entrega-body">Slides v-final + decisoes registradas</div>
+        </div>
+      </div>
+
+      <!-- SEX 17 · hoje -->
+      <div class="day day--today">
+        <div class="day__head">
+          <div class="day__head-title">
+            <span class="day__weekday">sex &middot; hoje</span>
+            <span class="day__number">17</span>
+          </div>
+          <div class="day__energia">alta</div>
+        </div>
+
+        <div class="day__tema">dia D &middot; diretoria</div>
+
+        <div class="day__block">
+          <div class="day__block-label">manha &middot; prep</div>
+          <div class="day__block-body">Ensaio final, chegar 9h30 para setup tecnico.</div>
+        </div>
+
+        <div class="day__block">
+          <div class="day__block-label">tarde &middot; meetings</div>
+          <div class="day__meetings">
+            <div class="day__meeting">
+              <span class="day__meeting-hour">10h</span>
+              <span class="day__meeting-title"><em>Diretoria M7 &middot; m7-controle</em></span>
+            </div>
+            <div class="day__meeting">
+              <span class="day__meeting-hour">14h</span>
+              <span class="day__meeting-title">Review semana &middot; solo</span>
+            </div>
+            <div class="day__meeting day__meeting--body">
+              <span class="day__meeting-hour">17h</span>
+              <span class="day__meeting-title">Tiro curto 6&times;1k</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="day__entrega">
+          <div class="day__block-label">entrega</div>
+          <div class="day__entrega-body">Cards aprovados + semana fechada</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =====================================================
+       BAND 3 · COMPROMISSOS · 3 cols
+       Tres grandes | Prazos duros | Riscos & fogos
+       ===================================================== -->
+  <section class="band-3">
+
+    <!-- Col A · Tres grandes da semana -->
+    <div class="band-3__col">
+      <div class="section-header">
+        <div class="section-label">Tres grandes da semana.</div>
+        <div class="section-header__meta">big 3 &middot; derivados de Q2</div>
+      </div>
+
+      <div class="grande__item">
+        <div class="grande__roman">i.</div>
+        <div class="grande__body">
+          <div class="grande__task">Fechar <em>WBR de Investimentos</em> com Cards em producao</div>
+          <div class="grande__criterio">pronto quando: diretoria aprova sex &middot; cards publicados</div>
+        </div>
+      </div>
+
+      <div class="grande__item">
+        <div class="grande__roman">ii.</div>
+        <div class="grande__body">
+          <div class="grande__task">Publicar <em>weekly-planner skill</em> com template + cron</div>
+          <div class="grande__criterio">pronto quando: gera planner auto na seg matinal</div>
+        </div>
+      </div>
+
+      <div class="grande__item">
+        <div class="grande__roman">iii.</div>
+        <div class="grande__body">
+          <div class="grande__task">Bloco <em class="metric--body">3 treinos</em> + sono medio &geq; 7h</div>
+          <div class="grande__criterio">pronto quando: TSS 320+ &middot; sono dom validado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Col B · Prazos duros -->
+    <div class="band-3__col">
+      <div class="section-header">
+        <div class="section-label">Prazos duros.</div>
+        <div class="section-header__meta">4 deadlines &middot; <span class="alert">1 atrasado</span></div>
+      </div>
+
+      <div class="prazo__list">
+        <div class="prazo__item prazo__item--atrasado">
+          <div class="prazo__dia">
+            <span class="prazo__dia-weekday">seg</span>
+            <span class="prazo__dia-number">13</span>
+          </div>
+          <div class="prazo__titulo">Consolidar receitas <em>comissionamento 04/26</em> <span class="prazo__status">&middot; +3d atraso</span></div>
+        </div>
+
+        <div class="prazo__item">
+          <div class="prazo__dia">
+            <span class="prazo__dia-weekday">qua</span>
+            <span class="prazo__dia-number">15</span>
+          </div>
+          <div class="prazo__titulo">Enviar briefing da diretoria para Ana</div>
+        </div>
+
+        <div class="prazo__item prazo__item--hoje">
+          <div class="prazo__dia">
+            <span class="prazo__dia-weekday">sex</span>
+            <span class="prazo__dia-number">17</span>
+          </div>
+          <div class="prazo__titulo"><em>Apresentacao diretoria</em> 10h &middot; m7-controle aprovado</div>
+        </div>
+
+        <div class="prazo__item">
+          <div class="prazo__dia">
+            <span class="prazo__dia-weekday">sex</span>
+            <span class="prazo__dia-number">17</span>
+          </div>
+          <div class="prazo__titulo">Publicar skill no marketplace AI Plugins</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Col C · Riscos & fogos -->
+    <div class="band-3__col">
+      <div class="section-header">
+        <div class="section-label">Riscos &amp; fogos.</div>
+        <div class="section-header__meta">pre-mortem</div>
+      </div>
+
+      <div class="risco__list">
+        <div class="risco__item">
+          <div class="risco__titulo"><em class="alert">SQL consorcios parado no Rafa ha 5d</em></div>
+          <div class="risco__mitigacao">mitigacao: escalar com Fernando na ter; bloquear 1h qua para alternativa manual</div>
+        </div>
+
+        <div class="risco__item">
+          <div class="risco__titulo"><em>Sono medio em queda &middot; pode comprometer sex</em></div>
+          <div class="risco__mitigacao">mitigacao: dormir 22h30 na qui; sem telas depois das 21h</div>
+        </div>
+
+        <div class="risco__item">
+          <div class="risco__titulo"><em>Qua 15 protegida pode ser invadida</em></div>
+          <div class="risco__mitigacao">mitigacao: bloquear agenda seg; avisar time que qua = maker day</div>
+        </div>
+
+        <div class="risco__item">
+          <div class="risco__titulo"><em>Drift do deep work para shallow na tarde</em></div>
+          <div class="risco__mitigacao">mitigacao: timer 90min; revisao no inicio da tarde</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- =====================================================
+       BAND 4 · PREFLIGHT · 4 perguntas (ancorado ao fundo)
+       ===================================================== -->
+  <section class="band-4">
+    <div class="section-header">
+      <div class="section-label">Preflight &middot; antes de comecar.</div>
+      <div class="section-header__meta">shutdown ritual reverso &middot; 4 perguntas</div>
+    </div>
+
+    <div class="band-4__grid">
+      <div class="preflight__item">
+        <div class="preflight__pergunta">O que define vitoria nesta semana?</div>
+        <div class="preflight__resposta">Cards aprovados pela diretoria e publicados em producao na sex &mdash; o resto e consequencia.</div>
+      </div>
+
+      <div class="preflight__item">
+        <div class="preflight__pergunta">Onde esta o deep work?</div>
+        <div class="preflight__resposta">Qua 15 blindada (7h total) &middot; manhas de seg e ter (2h cada) &middot; nao dilua.</div>
+      </div>
+
+      <div class="preflight__item">
+        <div class="preflight__pergunta">Onde vou dizer nao?</div>
+        <div class="preflight__resposta">Qualquer convite para qua 15 &middot; 1:1s novos com assessores (remarcar p/ S17).</div>
+      </div>
+
+      <div class="preflight__item">
+        <div class="preflight__pergunta">Qual e o maior risco?</div>
+        <div class="preflight__resposta">Chegar na sex sem ensaiar a apresentacao &mdash; forcar ensaio na qui 17h, sem excecao.</div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
