@@ -18,10 +18,9 @@ Depois instale os plugins que quiser:
 
 | Plugin | Descricao | Versao |
 |---|---|---|
-| [claude-code-toolkit](./claude-code-toolkit) | Meta-plugin para criar e validar skills, agents, commands, hooks, plugins e marketplaces do Claude Code | 2.2.1 |
+| [claude-code-toolkit](./claude-code-toolkit) | Meta-plugin para criar e validar skills, agents, commands, hooks, plugins e marketplaces do Claude Code | 2.3.1 |
 | [forge](./forge) | Pipeline de engenharia de software em 8 fases — da ideia a producao | 1.0.2 |
-| [gestao-de-projetos](./gestao-de-projetos) | Planeja e rastreia projetos em sprints + gera PPTX executivos + integracao ClickUp | 1.6.2 |
-| [planner](./planner) | Gera daily planner pessoal em HTML dark editorial (Georgia + Inter, terracota + azul petroleo) | 1.0.0 |
+| [planner](./planner) | Gera daily planner pessoal em HTML dark editorial (Georgia + Inter, terracota + azul petroleo) | 1.11.0 |
 | [service-desk-m7](./service-desk-m7) | Cria tickets estruturados de TI (problemas, base de dados, novas funcionalidades) | 1.0.0 |
 | [superavit](./superavit) | Controle financeiro pessoal conversacional — importa extratos, categoriza, gera relatorios mensais | 1.0.1 |
 
@@ -30,10 +29,9 @@ Depois instale os plugins que quiser:
 ```
 chiaras-ai/
 ├── .claude-plugin/
-│   └── marketplace.json       # registro central dos 6 plugins
+│   └── marketplace.json       # registro central dos 5 plugins
 ├── claude-code-toolkit/
 ├── forge/
-├── gestao-de-projetos/
 ├── planner/
 ├── service-desk-m7/
 └── superavit/
@@ -47,9 +45,10 @@ Alguns plugins precisam de MCPs ou pacotes externos:
 
 | Plugin | Requisito |
 |---|---|
-| `gestao-de-projetos` | ClickUp MCP, `python-pptx`, `puppeteer@^22` |
 | `superavit` | Supabase MCP, Python 3.11+ |
-| `m7-apresentacoes` (nao incluso aqui) | `python-pptx`, `puppeteer@^22` |
+| `planner` | TrainingPeaks MCP, Google Calendar MCP, ClickUp MCP |
+
+> **Nota:** O plugin `gestao-de-projetos` foi deprecado em 2026-04-17 e substituído pelo `m7-projects` no marketplace `m7-operations` (arquitetura WBS-first, ClickUp como SSOT, sync 3-camadas).
 
 Consulte o README.md de cada plugin pra detalhes.
 

@@ -52,26 +52,6 @@
       ]
     },
     {
-      "name": "gestao-de-projetos",
-      "description": "Plan and track projects end-to-end. Break strategic goals into 2-week sprints with concrete deliverables, then generate executive PPTX status reports with timeline visualizations, milestone grids, and D3 charts. Integrates with ClickUp for task management and time tracking. Outputs ROADMAP.md, SPRINT-NN.md files, and presentation-ready slide decks following the M7 brand system.",
-      "version": "1.6.2",
-      "author": {
-        "name": "Bruno Chiaramonti"
-      },
-      "source": "./gestao-de-projetos",
-      "category": "productivity",
-      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
-      "keywords": [
-        "project-management",
-        "sprints",
-        "roadmap",
-        "status-report",
-        "pptx",
-        "presentations",
-        "m7"
-      ]
-    },
-    {
       "name": "service-desk-m7",
       "description": "Create well-structured IT support tickets for M7 systems. Guides users through conversational information gathering and generates formatted markdown tickets for three categories: problem reports, database requests, and new functionality requests.",
       "version": "1.0.0",
