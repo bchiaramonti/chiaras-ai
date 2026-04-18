@@ -18,7 +18,7 @@ All fields are optional. Only `description` is recommended.
 | `hooks`                    | No          | Hooks scoped to this command's lifecycle.                                                    |
 | `paths`                    | No          | Glob patterns limiting auto-activation. Comma-separated string or YAML list.                 |
 | `effort`                   | No          | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `xhigh`, `max`. Available levels depend on the model. |
-| `shell`                    | No          | Shell for `` !`command` `` blocks: `bash` (default) or `powershell`.                         |
+| `shell`                    | No          | Shell for `!<cmd>` (backtick-wrapped) blocks: `bash` (default) or `powershell`.              |
 
 ## String Substitutions
 
@@ -32,7 +32,7 @@ All fields are optional. Only `description` is recommended.
 
 ## Dynamic Context Injection
 
-Use `` !`command` `` to run shell commands before content is sent to Claude:
+Use `!<cmd>` (shell command wrapped in backticks, prefixed with `!`) to run shell commands before content is sent to Claude:
 
 ```yaml
 ---

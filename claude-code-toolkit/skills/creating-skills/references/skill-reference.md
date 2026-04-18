@@ -19,7 +19,7 @@ All fields are optional. Only `description` is recommended.
 | `hooks`                    | No          | Lifecycle hooks scoped to this skill. See hooks docs for config format.                          |
 | `paths`                    | No          | Glob patterns limiting auto-activation. Comma-separated string or YAML list. Same format as path-specific rules. |
 | `effort`                   | No          | Effort level when active. Overrides session level. Options: `low`, `medium`, `high`, `xhigh`, `max`. Available levels depend on the model. |
-| `shell`                    | No          | Shell for `` !`command` `` and ` ```! ` blocks: `bash` (default) or `powershell`. `powershell` requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`. |
+| `shell`                    | No          | Shell for `!<cmd>` (backtick-wrapped) and ` ```! ` blocks: `bash` (default) or `powershell`. `powershell` requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`. |
 
 ## String Substitutions
 
@@ -33,16 +33,18 @@ All fields are optional. Only `description` is recommended.
 
 ## Dynamic Context Injection
 
-`` !`shell-command` `` executes before sending to Claude. Output replaces the placeholder.
+The syntax `!` followed by a backtick-wrapped shell command (shown here literally as `!<BT>cmd<BT>`, where `<BT>` is a backtick) executes before sending to Claude. Output replaces the placeholder.
 
-```yaml
+Example skill body (the `!<BT>...<BT>` tokens would be real backticks in your actual file):
+
+```
 ---
 name: pr-review
 context: fork
 agent: Explore
 ---
-PR diff: !`gh pr diff`
-Files changed: !`gh pr diff --name-only`
+PR diff: !<BT>gh pr diff<BT>
+Files changed: !<BT>gh pr diff --name-only<BT>
 
 Review this pull request.
 ```
@@ -58,7 +60,7 @@ git status --short
 ```
 ````
 
-**Disable shell execution:** Set `"disableSkillShellExecution": true` in settings to neuter `!` blocks — each command is replaced with `[shell command execution disabled by policy]`. Useful in managed settings. Bundled/managed skills are exempt.
+**Disable shell execution:** Set `"disableSkillShellExecution": true` in settings to neuter `!` blocks — each invocation is replaced with `[shell command execution disabled by policy]`. Useful in managed settings. Bundled/managed skills are exempt.
 
 ## Invocation Control
 

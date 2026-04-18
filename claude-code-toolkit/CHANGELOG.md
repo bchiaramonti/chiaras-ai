@@ -5,6 +5,11 @@ All notable changes to the claude-code-toolkit plugin are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2026-04-18
+
+### Fixed
+- **skill-reference.md** and **command-reference.md**: Inline documentation of the `!<cmd>` (backtick-wrapped shell) dynamic context injection syntax was being parsed literally by Claude Code at skill-load time, triggering a permission check against the `command` bash builtin ("'command' evaluates arguments as shell code"). Replaced inline literal occurrences with synthetic placeholders (`!<cmd>`, `!<BT>cmd<BT>`) so the parser no longer self-triggers when loading the reference files.
+
 ## [2.3.0] - 2026-04-17
 
 ### Added
