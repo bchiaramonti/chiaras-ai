@@ -278,4 +278,20 @@ Antes de passar para a Fase 3 (renderizacao), validar:
 [ ] Preparar hoje tem 0-2 bullets (cada um <=15min)?
 ```
 
-Se algum item falhar, **voltar e ajustar antes de renderizar**. Plano errado bonito > plano errado feio, mas plano certo feio >> plano errado bonito.
+Se algum item falhar, **voltar e ajustar antes de emitir o .md**. Plano errado bonito > plano errado feio, mas plano certo feio >> plano errado bonito.
+
+## Output final da Fase 2 (v2)
+
+Ao final do planejamento, gerar um dict `plano` com shape compativel com os campos do frontmatter + body do schema de [schema-md.md](schema-md.md):
+
+| `plano.*` | Destino |
+|---|---|
+| `plano.lide` | body `# Lide do dia` (string markdown com inlines `*em*` / `**strong**`) |
+| `plano.mits[]` | frontmatter `mits` (array de 3 itens com `roman`, `text`, `meta`, `risco`, `delayed`) |
+| `plano.pfeffer.chapters` | frontmatter `pfeffer.chapters` — `[int, int]` dos capitulos cruzados |
+| `plano.insight` | body `# Insight · cruzamento` — `{ cite: "Cap X ↔ Cap Y — POWER (Pfeffer)", body: string }` |
+| `plano.notas[]` | body `# Notas do dia` (array de bullets; omitir H1 se vazio) |
+| `plano.amanha.ancora` | frontmatter `amanha.ancora` |
+| `plano.amanha.preparar[]` | frontmatter `amanha.preparar` (omitir campo se vazio) |
+
+Os dicts `extracao` (Fase 1) + `plano` (Fase 2) sao mesclados pela Fase 3 para produzir o .md canonico. Qualquer valor exibido no HTML final **precisa** estar em um desses dois dicts — nunca inventar na hora da renderizaçao.

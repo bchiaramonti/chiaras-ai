@@ -2,6 +2,65 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [2.0.0] - 2026-04-22
+
+### Changed · Daily planner: `.md` canonico + live artifact (arquitetura dupla)
+
+**BREAKING.** A skill `generating-daily-planner` deixa de emitir `.html` direto na pasta e passa a produzir dois artefatos sincronizados:
+
+1. **Arquivo `.md` canonico** (fonte unica de verdade) em `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md` — frontmatter YAML com dados estruturados + body Markdown com narrativa (Lide, Insight, Notas). Editavel durante o dia pelo Bruno.
+2. **HTML publicado no live artifact `daily-planner-live`** via `mcp__cowork__update_artifact`, derivado do `.md`. Estatico por natureza — nao chama MCPs em runtime (`mcp_tools: []`).
+
+O workflow passa de **3 fases** (extrair → planejar → renderizar) para **4 fases** (extrair → planejar → emitir `.md` → renderizar+publicar). A mutabilidade do planner agora e **explicita** (editar .md + `/planner sync`), nao automatica.
+
+**Racional:** planejamento do dia e artefato estatico — nao deveria se reescrever sozinho quando o sidebar abre. Separar canonico (editavel) de render (derivado) torna o `.md` pesquisavel, versionavel e editavel em qualquer editor Markdown, mantendo a consistencia visual do live artifact.
+
+**Migraçao (nao automatica):** `.html` antigos em `daily/YYYY/MM/` ficam como historico visual. Proximos dias sao gerados apenas como `.md` + artifact.
+
+### Added · Referencias novas na skill daily
+
+- [references/schema-md.md](skills/generating-daily-planner/references/schema-md.md) — spec completo do `.md` canonico: path, campos obrigatorios (`schema: daily-planner@1`, `mits[]` de 3 itens, `amanha.ancora`, `pfeffer.chapters`), opcionais (`metrics`, `corpo`, `agenda`, `tasks`, `workspace`, `amanha.preparar`), convençao de enfase inline (`*em*` / `**strong**`), algoritmo de validaçao (§8), e o novo campo `edits[]` append-only para historico de ediçoes.
+- [references/render-from-md.md](skills/generating-daily-planner/references/render-from-md.md) — pipeline parse → mapeamento YAML→componentes → resolucao de inlines Markdown → publicaçao via `update_artifact`. Documenta erros comuns e o `update_summary` convencionado.
+
+### Added · Campo `edits[]` no frontmatter
+
+Historico append-only de ediçoes manuais registradas pelo `/planner sync`. Cada entrada: `{at: ISO-8601, summary: string}`. Util para retrospectiva semanal (ver quais MITs foram concluidas ao longo do dia vs empurradas). Skill base nao toca esse campo — so o `/sync` anexa.
+
+### Added · Comando `/planner sync`
+
+Novo em [commands/sync.md](commands/sync.md). Re-renderiza o `daily-planner-live` a partir do `.md` editado manualmente, sem re-extrair dados nem re-invocar o agente Pfeffer. Roda em <5s. Detecta diff em relaçao ao snapshot anterior e faz append em `edits[]`. Aborta se o `.md` do dia nao existe (orienta rodar a skill completa) ou se o artifact nao existe (nao cria — so publica).
+
+### Added · Comando `/planner show`
+
+Novo em [commands/show.md](commands/show.md). Imprime o `.md` canonico do dia no chat em code fence + resumo rapido (contagens, ultima ediçao, campos ausentes). Read-only, sem efeitos colaterais. Util para debug e inspeçao.
+
+### Changed · SKILL.md e referencias auxiliares
+
+- [SKILL.md](skills/generating-daily-planner/SKILL.md) — renomeada seçao "Workflow em tres passadas" → "Workflow em quatro fases". Nova Fase 3 (emitir `.md`) e Fase 4 (renderizar+publicar) substituem a antiga Fase 3 (renderizar HTML direto). Checklist "pre-render" virou "pre-publish" com 5 items novos (path do .md, validaçao de schema, blocos obrigatorios do body, update_artifact com `mcp_tools: []`, nenhum .html novo). "Nunca fazer" ganhou 5 regras sobre a nova arquitetura.
+- [references/extracao-dados.md](skills/generating-daily-planner/references/extracao-dados.md) — adicionada seçao "Output final da Fase 1 (v2)" mapeando `extracao.*` → campos YAML.
+- [references/metodologia-planejamento.md](skills/generating-daily-planner/references/metodologia-planejamento.md) — adicionada seçao "Output final da Fase 2 (v2)" mapeando `plano.*` → frontmatter + body.
+- [references/regras-texto.md](skills/generating-daily-planner/references/regras-texto.md) — adicionada seçao "Convençao de enfase no .md canonico" com tabela `*em*` / `**strong**`, exemplos e anti-patterns.
+
+### Changed · Weekly planner nao migrou ainda
+
+O weekly planner (`generating-weekly-planner`) mantem a arquitetura v1.x de emitir HTML direto. Migraçao analoga planejada para v2.1+.
+
+### Removed
+
+- Nenhum arquivo deletado. `.html` antigos em `~/Documents/brain/0-inbox/plan-review/daily/2026/04/` (16, 17, 20) permanecem como historico visual.
+
+### Validation
+
+- Exemplo de validaçao em `~/Documents/brain/0-inbox/plan-review/daily/2026/04/daily-2026-04-22.md` criado antes da skill (fonte: brief do usuario) — passa nas regras de [schema-md.md §8](skills/generating-daily-planner/references/schema-md.md).
+- Artifact `daily-planner-live` ja publicado no Cowork com HTML simplificado (sem `callMcpTool`, sem loaders) na sessao de 2026-04-22 que originou este brief.
+
+### Open questions (deferidas para v2.1+)
+
+- Imagens/screenshots em `# Notas do dia` via `![alt](path)` (fora do escopo v2).
+- Script de validaçao standalone para conferir schema de qualquer `.md` historico.
+- Migraçao do weekly planner para o mesmo modelo `.md` + artifact.
+- Exportaçao para PDF via pandoc ou vault Obsidian com backlinks.
+
 ## [1.11.0] - 2026-04-17
 
 ### Changed · Pfeffer como **fonte unica** de Insight e Notas (simplificacao editorial)

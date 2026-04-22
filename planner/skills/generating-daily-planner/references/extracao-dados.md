@@ -490,4 +490,18 @@ contexto_pfeffer:                        # v1.11.0 · substitui contexto_insight
   fonte: agents/pfeffer-power-analyst.md
 ```
 
-Essa estrutura e consumida pela Fase 2 (planejamento) e pela Fase 3 (renderizacao). Nao e exposta ao usuario — e artefato interno da skill.
+Essa estrutura e consumida pela Fase 2 (planejamento) e pela Fase 3 (emissao do .md canonico). Nao e exposta ao usuario — e artefato interno da skill.
+
+## Output final da Fase 1 (v2)
+
+Ao final da extraçao, todos os dados devem estar em memoria em um dict `extracao` com shape compativel com o frontmatter YAML de [schema-md.md](schema-md.md). Mapeamento:
+
+| `extracao.*` | Campo YAML |
+|---|---|
+| `extracao.agenda` | `agenda[]` |
+| `extracao.tarefas_clickup` | `tasks[]` |
+| `extracao.workspace_m7` | `workspace[]` |
+| `extracao.corpo` | `corpo` |
+| `extracao.metricas` | `metrics` (apos agregaçao em chaves canonicas `tasks_total`, `tasks_delayed`, `workspace_atrasadas`, `workspace_bloqueadas`, `workspace_mine`, `agenda_events`, `agenda_hours_blocked`) |
+
+Esse dict e consumido pela Fase 3 (emissao do .md), **nao mais pela fase de render HTML diretamente** — o render agora le o .md, nao o dict.

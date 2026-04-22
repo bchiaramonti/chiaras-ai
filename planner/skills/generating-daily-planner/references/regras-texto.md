@@ -219,3 +219,51 @@ O sistema nao usa badges, pills ou marcadores visuais para prioridade. Em vez di
 | Normal | Nenhum tratamento especial |
 
 Se algo precisa de "mais atencao" alem disso, o sistema te diz que voce esta tentando gritar visualmente onde a hierarquia ja deveria ter feito o trabalho.
+
+## Convencao de enfase no .md canonico (v2)
+
+Desde a v2, o tom editorial vive no `.md` canonico — nao no HTML. Isso exige uma convençao inline que o render converte para os componentes existentes.
+
+| Sintaxe no .md | Render HTML | Uso |
+|---|---|---|
+| `*italico*` | `<em>` (accent-primary, italic) | Enfase narrativa suave: verbos, qualificadores, perifraseis |
+| `**negrito**` | `<em class="strong">` (accent-primary, italic, semibold) | Entidades nomeadas: projetos, pessoas, deals, frentes, metricas |
+
+### Exemplos canonicos
+
+**Lide do dia:**
+
+```markdown
+Bruno transforma a propria *skill de daily planner* em live artifact do Cowork, enfrentando a decisao polttica adiada do backlog de **s3-universo** que carrega 19 atrasadas.
+```
+
+- `*skill de daily planner*` → enfase narrativa (italic). Nao e uma entidade unica, e uma perifraseis descritiva.
+- `**s3-universo**` → entidade nomeada (italic + semibold). E um projeto/frente com nome proprio.
+
+**MIT:**
+
+```yaml
+mits:
+  - roman: ii
+    text: "Decidir backlog **s3-universo**: executar ou cancelar"
+```
+
+- `**s3-universo**` como entidade nomeada dentro do texto da MIT.
+
+**Nota do dia:**
+
+```markdown
+- **Pre-decisao:** listar os 5 deals mais antigos de *s3-universo* antes das 12h.
+```
+
+- `**Pre-decisao:**` como rotulo da nota (entidade semantica, negrito).
+- `*s3-universo*` aqui em italic simples porque o negrito ja foi usado no rotulo da mesma linha — evitar competir por peso visual dentro do bullet.
+
+### O que nao usar
+
+- `__negrito__` ou `_italico_` com underscore — render nao reconhece na v2
+- HTML inline (`<em>`, `<strong>`) direto no .md — ficara escapado no render
+- `` `code` `` — planner nao e documentacao tecnica, quebra o tom editorial
+- Mais de 3 aplicaçoes de `**negrito**` na mesma frase — satura e anula o destaque
+
+Essa convencao **substitui** a abordagem v1.x de escrever `<em>` direto no plano renderizado. Tudo o que precisa de enfase vai no .md em Markdown; o render resolve.

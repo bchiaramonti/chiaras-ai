@@ -1,14 +1,16 @@
 ---
 name: generating-daily-planner
-description: Gera o daily planner pessoal executivo de Bruno em HTML seguindo tres fases. Fase 1 (Extrair) le dados reais via MCPs (Google Calendar, ClickUp) ou pergunta ao usuario quando indisponivel; corpo/saude e sempre perguntado. Fase 2 (Planejar) aplica boas praticas — Most Important Tasks, Eat-the-frog, time blocking 60/40, pre-mortem, Eisenhower, role balance, planejamento noturno — e **sempre invoca o agente pfeffer-power-analyst** (v1.11.0) para gerar Insight · cruzamento + Notas do dia atraves do livro POWER de Jeffrey Pfeffer (unica fonte de insight do sistema). Fase 3 (Renderizar) aplica o design system Planner Editorial Noturno (Georgia + Inter, terracota + azul petroleo, header 5-zone + body 3-col + footer 2-col, zero ornamento). Use quando Bruno pedir para criar, editar ou gerar seu planner diario, daily dashboard, pagina de planejamento ou HTML de cron pessoal. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
+description: Gera o daily planner pessoal executivo de Bruno seguindo quatro fases. Fase 1 (Extrair) le dados reais via MCPs (Google Calendar, ClickUp) ou pergunta ao usuario; corpo/saude sempre perguntado. Fase 2 (Planejar) aplica boas praticas — Most Important Tasks, Eat-the-frog, time blocking 60/40, pre-mortem, Eisenhower, role balance — e **sempre invoca o agente pfeffer-power-analyst** (v1.11.0) para gerar Insight · cruzamento + Notas do dia atraves do livro POWER de Jeffrey Pfeffer (unica fonte de insight do sistema). Fase 3 (Emitir canonico) serializa o plano em .md canonico (frontmatter YAML + body Markdown) em `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md` — fonte de verdade editavel durante o dia. Fase 4 (Renderizar+publicar) le o .md, aplica o design system Planner Editorial Noturno e publica o HTML via `mcp__cowork__update_artifact` no live artifact `daily-planner-live`. Use quando Bruno pedir para criar, editar ou gerar seu planner diario. Nao usar em apresentacoes M7, comunicados corporativos ou outputs para terceiros.
 license: Proprietary
 ---
 
 # Generating Daily Planner
 
-Gera o daily planner pessoal executivo em HTML aplicando **tres fases**: extrair dados reais, planejar usando metodologia, renderizar no design system Planner Editorial Noturno.
+Gera o daily planner pessoal executivo aplicando **quatro fases**: extrair dados reais, planejar usando metodologia, emitir .md canonico, renderizar e publicar no live artifact.
 
 **Principio central:** o planner so serve se o plano for executavel. Design impecavel com conteudo fraco produz artefato bonito e inutil. Metodologia primeiro, estilo depois.
+
+**Principio de arquitetura (v2):** o .md canonico e a **fonte unica de verdade**. O HTML do live artifact e derivado — regenerado pela skill (ou por `/planner sync` apos ediçao manual do .md). Planejamento do dia e estatico por natureza; mutabilidade e explicita, nunca automatica.
 
 ## Quando usar esta skill
 
@@ -28,7 +30,7 @@ Invocada quando Bruno pede para gerar ou atualizar o planner do dia — nao para
 - Outputs que terceiros vao consumir
 - Interfaces de produtos SaaS
 
-## Workflow em tres passadas
+## Workflow em quatro fases
 
 ### Fase 1 · Extrair (dados reais antes de pensar)
 
@@ -61,17 +63,42 @@ Em paralelo, gerar o **Insight · cruzamento** e as **Notas do dia** invocando s
 
 Antes de avancar para Fase 3, validar o **checklist de sanidade** (final de metodologia-planejamento.md).
 
-### Fase 3 · Renderizar (design system aplicado)
+### Fase 3 · Emitir canonico (.md)
 
-Com o plano validado:
+Com o plano validado pelo checklist de sanidade, serializar `extracao` + `plano` em um arquivo .md canonico:
 
-1. Ler [references/tokens.css](references/tokens.css) e colar no `<style>` do output
-2. Ler [references/principios.md](references/principios.md) antes de decisoes visuais
-3. Ler [references/componentes.md](references/componentes.md) para replicar cada componente
-4. Ler [references/regras-texto.md](references/regras-texto.md) para manter o tom
-5. Usar [references/template-html.html](references/template-html.html) como starter e preencher com o plano
+1. Ler [references/schema-md.md](references/schema-md.md) para a especificaçao completa
+2. Montar frontmatter YAML com os campos obrigatorios (schema, generated_at, date, weekday, mits, amanha.ancora, pfeffer.chapters) e opcionais (metrics, corpo, agenda, tasks, workspace, amanha.preparar)
+3. Escrever body Markdown com os 2 H1 obrigatorios (`# Lide do dia`, `# Insight · cruzamento` com citaçao `> Cap X ↔ Cap Y — POWER (Pfeffer)`) e opcional `# Notas do dia`
+4. Aplicar convençao de enfase inline (`*italico*` para enfase narrativa, `**negrito**` para entidades nomeadas) — ver [regras-texto.md](regras-texto.md)
+5. Resolver path: `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md`
+6. Criar diretorios `YYYY/MM/` se nao existirem
+7. Escrever o arquivo (sobrescrever se ja existe do dia)
+8. Validar o .md recem-emitido contra [schema-md.md §8](references/schema-md.md) antes de avançar
 
-## Checklist pre-render
+### Fase 4 · Renderizar e publicar
+
+1. Ler o .md recem-criado
+2. Parsear frontmatter YAML + body Markdown conforme [references/render-from-md.md](references/render-from-md.md)
+3. Ler [references/tokens.css](references/tokens.css) e colar no `<style>` do output
+4. Ler [references/principios.md](references/principios.md) antes de decisoes visuais
+5. Ler [references/componentes.md](references/componentes.md) para replicar cada componente
+6. Usar [references/template-html.html](references/template-html.html) como starter
+7. Resolver inlines Markdown (`**strong**` → `<em class="strong">`, `*em*` → `<em>`) conforme [render-from-md.md §3](references/render-from-md.md)
+8. Chamar `mcp__cowork__update_artifact({id: 'daily-planner-live', html, mcp_tools: [], update_summary: 'Daily YYYY-MM-DD · N MITs · insight Cap X↔Y'})`
+9. Se retornar erro "artifact nao encontrado", chamar `mcp__cowork__create_artifact` com o mesmo id (ver [render-from-md.md §4.2](references/render-from-md.md))
+10. **NAO** escrever arquivos .html em `daily/YYYY/MM/` (deprecated em v2)
+
+## Quick reference
+
+| Aspecto | Decisao |
+|---|---|
+| Canonico | `.md` em `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md` |
+| Render | HTML no live artifact `daily-planner-live` via `mcp__cowork__update_artifact` |
+| Editabilidade | Bruno edita `.md` durante o dia; `/planner sync` re-renderiza |
+| Debug | `/planner show` imprime o `.md` do dia no chat |
+
+## Checklist pre-publish
 
 Antes de emitir o HTML final, confirmar:
 
@@ -96,9 +123,15 @@ Antes de emitir o HTML final, confirmar:
 [ ] Insight gerado pelo agente `pfeffer-power-analyst` cruza DUAS (nao 3+) perguntas de capitulos do livro POWER em tensao
 [ ] Ancora de Amanha cabe em 1 frase imperativa
 [ ] Preparar hoje tem 0-2 bullets, cada <=15min hoje
+[ ] .md gerado em ~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md
+[ ] Frontmatter YAML passou validaçao de schema (ver schema-md.md §8)
+[ ] Body com H1 "Lide do dia" e H1 "Insight · cruzamento" presentes; citaçao Pfeffer no formato `> Cap X ↔ Cap Y — POWER (Pfeffer)`
+[ ] `update_artifact` chamado com `id: daily-planner-live` e `mcp_tools: []`
+[ ] HTML publicado reflete fielmente o .md (inlines `*em*` e `**strong**` resolvidos)
+[ ] Nenhum arquivo .html novo escrito em daily/YYYY/MM/
 ```
 
-## Quick reference
+## Design system snapshot
 
 | Aspecto | Decisao |
 |---|---|
@@ -137,23 +170,30 @@ Antes de emitir o HTML final, confirmar:
 - **Tratar coluna 3 como "o que eu deleguei"** — o escopo e workspace inteiro; Bruno responde pela saude das frentes, nao so pelo que assinou
 - **Usar numero sem rastreabilidade** — todo contador precisa de entrada em `extracao.metricas`. Se nao tem, recalcular ou nao exibir
 - **Somar `status=pendente+due-vencido` com `status=atrasada`** — duplica. Usar uma fonte unica (preferencia: status customizado `atrasada`)
+- **Emitir .html direto na pasta `daily/YYYY/MM/`** — deprecated em v2. Os `.html` antigos (abril/2026) ficam como historico visual; a v2 nao gera novos
+- **Pular a Fase 3 (emissao do .md) e ir direto para o HTML do artifact** — o .md e fonte de verdade, o HTML e derivado. Publicar sem .md viola a arquitetura
+- **Chamar `update_artifact` com HTML que nao foi gerado a partir do .md que acabou de ser emitido** — garante fidelidade canonico ↔ render
+- **Popular `mcp_tools` no `update_artifact`** — na v2 o artifact e estatico, nao chama MCPs em runtime. `mcp_tools: []` sempre
+- **Escrever no campo `edits[]` do frontmatter na Fase 3** — `edits[]` e append-only e emitido apenas por `/planner sync`. A skill base gera `edits: []` ou omite o campo
 
 ## Arquivos da skill
 
 ```
 generating-daily-planner/
-├── SKILL.md                       # este arquivo (orquestracao 3 fases)
+├── SKILL.md                       # este arquivo (orquestracao 4 fases)
 ├── README.md                      # instrucoes de instalacao e uso
 └── references/
     ├── extracao-dados.md          # Fase 1 · fontes, MCPs, fallbacks, schema
     ├── metodologia-planejamento.md # Fase 2 · 6 regras + checklist de sanidade
     ├── insight-cruzamento.md      # Fase 2b · regras editoriais do output do agente Pfeffer (v1.11.0)
-    ├── tokens.css                 # Fase 3 · CSS variables + classes
-    ├── tokens.json                # Fase 3 · DTCG format tokens (interop)
-    ├── principios.md              # Fase 3 · 6 principios fundadores
-    ├── componentes.md             # Fase 3 · 12 componentes especificados
-    ├── regras-texto.md            # Fase 3 · tom editorial, labels, metadata
-    └── template-html.html         # Fase 3 · starter HTML completo
+    ├── schema-md.md               # Fase 3 · spec do .md canonico (frontmatter + body)
+    ├── render-from-md.md          # Fase 4 · pipeline parse → render → publish no live artifact
+    ├── tokens.css                 # Fase 4 · CSS variables + classes
+    ├── tokens.json                # Fase 4 · DTCG format tokens (interop)
+    ├── principios.md              # Fase 4 · 6 principios fundadores
+    ├── componentes.md             # Fase 4 · 12 componentes especificados
+    ├── regras-texto.md            # Fase 4 · tom editorial, labels, convencao de enfase inline
+    └── template-html.html         # Fase 4 · starter HTML completo
 
 Agente (pasta `agents/` do plugin):
 └── pfeffer-power-analyst.md       # Fonte UNICA de Insight · cruzamento e Notas do
@@ -162,20 +202,33 @@ Agente (pasta `agents/` do plugin):
                                     em tensao genuina. Cap 1/4/6/7/8/9 para dias
                                     politicos, Cap 2/10/11/13 para dias operacionais
                                     ou pessoais.
+
+Comandos (pasta `commands/` do plugin):
+├── sync.md                        # /planner sync — re-renderiza o artifact a partir
+│                                    do .md editado manualmente; append em edits[]
+└── show.md                        # /planner show — imprime o .md do dia no chat (debug)
 ```
 
 ## Output esperado
 
-Ao aplicar esta skill, o Claude Code deve produzir um artefato que:
+Ao aplicar esta skill, o Claude Code deve produzir **dois artefatos sincronizados**:
 
+**1. `.md` canonico** em `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md` que:
+
+- Passa na validaçao do schema `daily-planner@1` (ver [schema-md.md §8](references/schema-md.md))
 - Foi **planejado** usando as 6 regras de metodologia-planejamento.md (nao so preenchido)
-- Foi **extraido** de fontes reais (ou perguntas explicitas ao usuario), sem ficcao
+- Foi **extraido** de fontes reais (ou perguntas explicitas ao usuario), sem ficçao
+- Serializa `mits[]`, `amanha`, `pfeffer.chapters` como campos obrigatorios no frontmatter
+- Inclui body com H1 `# Lide do dia` e H1 `# Insight · cruzamento` (citaçao `> Cap X ↔ Cap Y — POWER (Pfeffer)`)
+- Respeita o tom editorial e a convençao inline (`*italico*` para enfase narrativa, `**negrito**` para entidades)
+
+**2. HTML publicado** no live artifact `daily-planner-live` via `mcp__cowork__update_artifact` que:
+
 - Usa apenas as cores definidas em tokens.css
 - Usa apenas Georgia (serif) e Inter (sans)
 - Segue a estrutura header 5-zone + body 3-col + footer 2-col
-- Implementa os 12 componentes centrais + a estrutura Ancora+Preparar em Amanha (v1.4.0)
-- Implementa pre-mortem por MIT (v1.4.0)
-- Respeita o tom editorial (ver regras-texto.md)
-- Contem um Insight cruzando dois capitulos do livro POWER (Pfeffer), gerado pelo agente `pfeffer-power-analyst`
+- Implementa os 12 componentes + Ancora+Preparar em Amanha + pre-mortem por MIT
+- E **fielmente derivado** do .md recem-emitido (inlines Markdown resolvidos, nenhum dado extra)
+- Tem `mcp_tools: []` (artifact nao chama MCPs em runtime na v2)
 
-Se o usuario pedir algo que contradiga os principios (ex: "adiciona uns icones legais" ou "faz um modo claro"), a skill deve respeitar o style guide e sinalizar o conflito antes de implementar. Se o usuario pedir "pule o planejamento, so monta o HTML rapido", a skill deve avisar que o output sera raso e pedir confirmacao antes de pular as Fases 1 e 2.
+Se o usuario pedir algo que contradiga os principios (ex: "adiciona uns icones legais" ou "faz um modo claro"), a skill deve respeitar o style guide e sinalizar o conflito antes de implementar. Se o usuario pedir "pule o planejamento, so monta o HTML rapido", a skill deve avisar que o output sera raso e pedir confirmaçao antes de pular as Fases 1 e 2. Se o usuario pedir "so regenera o HTML sem mexer em nada", orientar o uso de `/planner sync` (mais rapido, nao re-extrai, nao re-invoca Pfeffer).

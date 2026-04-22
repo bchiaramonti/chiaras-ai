@@ -1,6 +1,8 @@
 # generating-daily-planner · Skill Claude Code
 
-Gera o daily planner pessoal executivo em HTML aplicando o sistema de design **Planner Editorial Noturno**. Invocada automaticamente pelo Claude Code quando o Bruno pede seu planner do dia.
+Gera o daily planner pessoal executivo em **dois artefatos sincronizados**: (1) um `.md` canonico editavel em `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md` e (2) um HTML estatico publicado no live artifact `daily-planner-live` do Cowork via `mcp__cowork__update_artifact`. Aplica o design system **Planner Editorial Noturno**. Invocada automaticamente pelo Claude Code quando o Bruno pede seu planner do dia.
+
+**Arquitetura v2:** o `.md` e fonte de verdade; o HTML e derivado. Ediçao manual do `.md` durante o dia + comando `/planner sync` propaga as mudanças para o artifact sem re-extrair dados nem re-invocar o agente Pfeffer.
 
 ## Instalacao
 
@@ -49,14 +51,22 @@ Apos instalar, basta pedir em linguagem natural:
 "monta uma visao executiva do meu dia"
 ```
 
-O Claude Code vai:
+O Claude Code vai (v2, 4 fases):
 
 1. Reconhecer o trigger (planner pessoal, nao corporativo)
-2. Ler `SKILL.md` para entender o contexto
-3. Consultar `references/tokens.css` para cores e tipografia
-4. Consultar `references/componentes.md` para classes CSS disponiveis
-5. Consultar `references/regras-texto.md` para o tom editorial
-6. Gerar o HTML usando `references/template-html.html` como starter
+2. Ler `SKILL.md` para entender o contexto e as 4 fases
+3. **Fase 1** — Extrair dados reais (ClickUp + Calendar + perguntar corpo)
+4. **Fase 2** — Planejar (6 regras de metodologia-planejamento.md) e invocar o agente `pfeffer-power-analyst` para Insight + Notas
+5. **Fase 3** — Emitir `.md` canonico em `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md` conforme `references/schema-md.md`
+6. **Fase 4** — Renderizar HTML a partir do .md e publicar via `mcp__cowork__update_artifact({id: 'daily-planner-live', ...})` conforme `references/render-from-md.md`
+
+### Re-render sem re-extrair (`/planner sync`)
+
+Apos editar manualmente o .md durante o dia (concluir uma MIT, adicionar uma nota, reescrever a lide), rodar `/planner sync`. O comando le o .md, re-renderiza o HTML, publica no artifact e faz append em `edits[]` no frontmatter registrando o diff. Nao chama Pfeffer, nao chama MCPs de extraçao, roda em segundos.
+
+### Debug (`/planner show`)
+
+Imprime o .md integral do dia no chat para inspeçao rapida (estado atual, historico de `edits[]`, campos ausentes).
 
 ### Via cron matinal (automacao)
 
@@ -80,19 +90,32 @@ Adicionar no crontab:
 0 6 * * * /home/bruno/scripts/planner-matinal.sh
 ```
 
-## Estrutura da skill
+## Estrutura da skill (v2)
 
 ```
 generating-daily-planner/
-├── SKILL.md                       # ponto de entrada, invocado pelo Claude Code
+├── SKILL.md                       # ponto de entrada, 4 fases
 ├── README.md                      # este arquivo
 └── references/
-    ├── tokens.css                 # CSS variables prontas para colar
-    ├── tokens.json                # design tokens em formato DTCG
-    ├── principios.md              # 6 principios fundadores
-    ├── componentes.md             # spec de cada componente central
-    ├── regras-texto.md            # tom, labels, metadata de tempo
-    └── template-html.html         # starter HTML completo e funcional
+    ├── extracao-dados.md          # Fase 1 · fontes, MCPs, fallbacks
+    ├── metodologia-planejamento.md # Fase 2 · 6 regras + checklist
+    ├── insight-cruzamento.md      # Fase 2b · regras do output do agente Pfeffer
+    ├── schema-md.md               # Fase 3 · spec do .md canonico
+    ├── render-from-md.md          # Fase 4 · pipeline parse → render → publish
+    ├── tokens.css                 # Fase 4 · CSS variables prontas para colar
+    ├── tokens.json                # Fase 4 · design tokens DTCG
+    ├── principios.md              # Fase 4 · 6 principios fundadores
+    ├── componentes.md             # Fase 4 · spec de cada componente
+    ├── regras-texto.md            # Fase 4 · tom, labels, inlines MD
+    └── template-html.html         # Fase 4 · starter HTML completo
+```
+
+Comandos (na raiz do plugin `planner/commands/`):
+
+```
+commands/
+├── sync.md                        # /planner sync — re-render sem re-extrair
+└── show.md                        # /planner show — imprime o .md no chat (debug)
 ```
 
 ## Interop com outras ferramentas
