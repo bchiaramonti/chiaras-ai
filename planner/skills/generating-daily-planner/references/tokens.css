@@ -53,18 +53,20 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
   /* ---------------------------------------------------------
-     TIPOGRAFIA · ESCALA
+     TIPOGRAFIA · ESCALA (v2.1.0 · fluida via clamp)
+     Escala fluida: min <= vw <= max. Sem media queries.
      --------------------------------------------------------- */
-  --fs-display: 56px;               /* data do dia (16 abril) */
-  --fs-h1: 40px;                    /* reservado para hero futuro */
-  --fs-roman: 28px;                 /* romanos i. ii. iii. (Tres inadiaveis) */
-  --fs-h2: 20px;                    /* numeros corpo KPI */
-  --fs-body-lg: 16px;               /* lide jornalistico */
-  --fs-body: 14px;                  /* texto principal */
-  --fs-body-sm: 13px;               /* tarefas, notas, listas */
-  --fs-caption: 12px;               /* metadata, italic body insight */
-  --fs-label: 13px;                 /* labels de secao em italico */
-  --fs-mono: 11px;                  /* horas, numeros tabulares */
+  --fs-display: clamp(36px, 4.2vw, 52px);   /* data do dia (16 abril) */
+  --fs-h1: 40px;                             /* reservado para hero futuro */
+  --fs-roman: clamp(20px, 2.1vw, 26px);     /* romanos i. ii. iii. (Tres inadiaveis) */
+  --fs-h2: clamp(14px, 1.3vw, 18px);        /* numeros corpo KPI */
+  --fs-body-lg: 16px;                        /* lide jornalistico (estavel) */
+  --fs-body: clamp(12px, 1.05vw, 15px);     /* texto principal */
+  --fs-body-sm: clamp(11px, 0.92vw, 13px);  /* tarefas, notas, listas */
+  --fs-caption: 12px;                        /* metadata, italic body insight */
+  --fs-label: 13px;                          /* labels de secao em italico */
+  --fs-mono: 11px;                           /* horas, numeros tabulares */
+  --fs-tiny: clamp(9px, 0.7vw, 10px);       /* meta-footer, refs super-discretas (v2.1.0) */
 
   /* ---------------------------------------------------------
      TIPOGRAFIA · PESOS
@@ -110,12 +112,12 @@
   --page-padding: 28px 32px;
   --page-gap: 20px;                 /* gap vertical entre header/body/footer */
 
-  /* zonas do header (5-zone) */
-  --zone-dia: 220px;
-  --zone-insight: 240px;
-  --zone-mes: 150px;
-  --zone-corpo: 240px;
-  --zone-amanha: 500px;
+  /* zonas do header (5-zone) · fluidas via clamp (v2.1.0) */
+  --zone-dia:     clamp(140px, 13vw, 200px);
+  --zone-insight: clamp(180px, 18vw, 240px);
+  --zone-mes:     clamp(110px, 11vw, 150px);
+  --zone-corpo:   clamp(180px, 18vw, 240px);
+  --zone-amanha:  clamp(320px, 34vw, 500px);
 
   /* ---------------------------------------------------------
      BORDER RADIUS
@@ -136,12 +138,22 @@
 
 /* =============================================================
    RESET E BASE DA PAGINA
+   v2.1.0 · viewport-adaptive (fit 100% vertical + horizontal)
    ============================================================= */
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  min-width: 0;    /* libera flex children para encolher abaixo do conteudo */
+  min-height: 0;
+}
+
+html, body {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
 }
 
 body {
@@ -390,8 +402,10 @@ body {
 .header__corpo-row {
   display: grid;
   grid-template-columns: 48px 1fr auto;
+  grid-template-rows: auto auto;
   align-items: baseline;
-  gap: 8px;
+  column-gap: 8px;
+  row-gap: 2px;
 }
 
 .header__corpo-label {
@@ -441,6 +455,18 @@ body {
 .header__corpo-tag--alert { color: var(--alert); }
 .header__corpo-tag--warn  { color: var(--accent-primary); }
 
+/* Data de referencia do KPI (v2.1.0) · linha 2 do grid, alinhada a direita */
+.header__corpo-ref {
+  grid-column: 2 / -1;
+  justify-self: end;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  line-height: 1;
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
 /* =============================================================
    BODY · 3 colunas
    Agenda | Tres inadiaveis + Tarefas ClickUp | Workspace M7
@@ -451,11 +477,16 @@ body {
   flex-direction: row;
   gap: var(--body-gap);
   align-items: flex-start;
+  flex: 1 1 auto;        /* absorve espaco vertical entre header e footer (v2.1.0) */
+  min-height: 0;
+  overflow: hidden;
 }
 
 .body__col {
   flex: 1;
   min-width: 0;
+  height: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -468,7 +499,7 @@ body {
 .agenda-enum {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(3px, 0.45vh, 6px);   /* gap vertical fluido (v2.1.0) */
 }
 
 .agenda-enum__row {
@@ -659,9 +690,10 @@ body {
   display: flex;
   flex-direction: row;
   gap: var(--footer-gap);
-  padding-top: 18px;
+  padding-top: clamp(8px, 1vh, 14px);   /* espacamento vertical fluido (v2.1.0) */
   border-top: var(--divider-thin);
   align-items: flex-start;
+  flex-shrink: 0;
 }
 
 .footer__notas {
@@ -790,3 +822,27 @@ body {
 
 .metric--body { color: var(--accent-secondary); }
 .metric--alert { color: var(--alert); }
+
+/* =============================================================
+   META-FOOTER · rastreabilidade discreta (v2.1.0)
+   5 metadados: schema / fonte / gerado / skill / insight
+   ============================================================= */
+
+.meta-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: clamp(5px, 0.6vh, 8px);
+  border-top: var(--divider-thin);
+  font-family: var(--font-sans);
+  font-size: var(--fs-tiny);
+  color: var(--text-subtle);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.meta-footer > span {
+  white-space: nowrap;
+}

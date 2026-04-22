@@ -20,6 +20,8 @@ Especificacao de cada componente do sistema. Use estas classes CSS (definidas em
 - [FOOTER · 2 colunas](#footer--2-colunas)
   - [11. Notas do dia](#11-notas-do-dia)
   - [12. Amanha](#12-amanha)
+- [META-FOOTER · rastreabilidade (v2.1.0)](#meta-footer--rastreabilidade-v210)
+  - [13. Meta-footer](#13-meta-footer)
 - [Utilitarios transversais](#utilitarios-transversais)
 
 ## Layout geral
@@ -153,9 +155,9 @@ Grid de 7x5 mostrando o mes inteiro. Dia atual destacado com `.is-today` (accent
 
 ### 5. Corpo · stack vertical
 
-**Classes:** `.header__corpo` + `.header__corpo-row` + `.header__corpo-label` + `.header__corpo-value` + `.header__corpo-number` + `.header__corpo-unit` + `.header__corpo-tag` (v1.7.0)
+**Classes:** `.header__corpo` + `.header__corpo-row` + `.header__corpo-label` + `.header__corpo-value` + `.header__corpo-number` + `.header__corpo-unit` + `.header__corpo-tag` + `.header__corpo-ref` (v2.1.0)
 
-Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em ordem fixa — `peso → sono → TSS sem → TSB` (v1.7.0). Cada row e um **grid de 3 colunas** (`48px 1fr auto`): label esquerda, valor no meio alinhado a direita, tag classificatoria no fim. Numeros em Inter sans 20px tabular. Sem grafico, sem barra — so numero + tag textual.
+Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em ordem fixa — `peso → sono → TSS sem → TSB` (v1.7.0). Cada row e um **grid de 3 colunas × 2 linhas** (`48px 1fr auto` / `auto auto`): linha 1 traz label esquerda, valor no meio alinhado a direita, tag classificatoria no fim; linha 2 traz a **data de referencia** (`.header__corpo-ref`) em Inter sans 9px `text-subtle`, spanando da coluna 2 ao fim e alinhada a direita sob o valor. Numeros em Inter sans 20px tabular. Sem grafico, sem barra — so numero + tag textual + ref.
 
 **Zona Corpo tem 240px** (`--zone-corpo`) em v1.7.0 (era 130px) — necessario para acomodar as tags sem quebrar linha. Lide (flex:1) continua absorvendo o espaco restante.
 
@@ -170,6 +172,7 @@ Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em 
       <div class="header__corpo-unit">kg</div>
     </div>
     <div class="header__corpo-tag">estável</div>
+    <div class="header__corpo-ref">20 abr</div>
   </div>
 
   <div class="header__corpo-row">
@@ -179,6 +182,7 @@ Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em 
       <div class="header__corpo-unit">h</div>
     </div>
     <div class="header__corpo-tag header__corpo-tag--alert">baixo</div>
+    <div class="header__corpo-ref">ontem</div>
   </div>
 
   <div class="header__corpo-row">
@@ -187,6 +191,7 @@ Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em 
       <div class="header__corpo-number header__corpo-number--body">387</div>
     </div>
     <div class="header__corpo-tag header__corpo-tag--body">saudável</div>
+    <div class="header__corpo-ref">seg→hoje</div>
   </div>
 
   <div class="header__corpo-row">
@@ -195,11 +200,12 @@ Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em 
       <div class="header__corpo-number header__corpo-number--body">-18</div>
     </div>
     <div class="header__corpo-tag header__corpo-tag--body">produtivo</div>
+    <div class="header__corpo-ref">hoje</div>
   </div>
 </div>
 ```
 
-**Regra de ouro:** quando o MCP TrainingPeaks esta indisponivel ou o dado esta ausente, o valor fica em `&mdash;` (classe `header__corpo-number--empty`) **e a tag e omitida** — nunca invente classificacao. Exemplo:
+**Regra de ouro:** quando o MCP TrainingPeaks esta indisponivel ou o dado esta ausente, o valor fica em `&mdash;` (classe `header__corpo-number--empty`) **e tanto a tag quanto a ref sao omitidas** — nunca invente classificacao nem data. Exemplo:
 
 ```html
 <div class="header__corpo-row">
@@ -209,8 +215,19 @@ Label "Corpo." em azul petroleo (`.section-label--body`). Abaixo, **4 rows** em 
     <div class="header__corpo-unit">h</div>
   </div>
   <!-- sem <div class="header__corpo-tag"> -->
+  <!-- sem <div class="header__corpo-ref"> -->
 </div>
 ```
+
+**Regras do `.header__corpo-ref` (v2.1.0):**
+
+- Formato curto, sempre lowercase, sem pontuacao final.
+- Cadencia por KPI:
+  - **peso** e **sono** → relativo curto quando <=7d (`"hoje"`, `"ontem"`, `"há 3d"`); absoluto `"DD mes"` quando >=8d (ex: `"14 abr"`).
+  - **TSS sem** → sempre `"seg→hoje"` (janela semanal, nao instante).
+  - **TSB** → sempre `"hoje"` (metrica derivada que so faz sentido para agora).
+- Se o KPI tem valor mas a data de referencia nao pode ser determinada (edge case de MCP), renderizar `—` no lugar de omitir — diferente do valor ausente, porque o dado existe.
+- Ref NAO e tag: nao assume cor semantica nem modifier. Sempre `--text-subtle` 9px.
 
 **Regras de cor** (numero + tag seguem a mesma cor semantica por faixa):
 - Default (`--text-primary` numero, `--text-secondary` tag) → neutro
@@ -252,26 +269,18 @@ Quando houver alerta dentro da meta, envelope no `<span class="alert">`:
 
 **Classes:** `.agenda-enum` + `.agenda-enum__row` + `.agenda-enum__hour` + `.agenda-enum__event`
 
-Lista vertical com **todas** as horas relevantes do dia (normalmente 07:00 a 19:00 de hora em hora, mais meias-horas se houver eventos iniciando em :30). Horas sem evento mostram "—". Hora atual destacada com `--now`. Gap grande antes de uma hora longe da sequencia (ex: 19:00 depois de 14:30).
+Lista vertical com **apenas as horas que tem eventos reais** do .md canonico (v2.1.0 · antes renderizava faixa completa 07:00-19:00 com `—` para vazios; agora as vazias somem). Ordem cronologica crescente. Hora atual destacada com `--now`. `--gap` no row quando ha pulo >=2h entre eventos consecutivos (ex: 19:00 depois de 14:30), para reforcar visualmente a distancia.
+
+**Por que remover linhas vazias (v2.1.0):** o planner agora e viewport-locked (`html, body { height: 100vh; overflow: hidden }`). A agenda e a primeira secao a estourar quando ha muitos placeholders — cortava ~8 linhas uteis no rodape. Renderizar so eventos reais libera ~40% do espaco vertical da coluna.
+
+**Classes `--empty` deprecadas:** `.agenda-enum__hour--empty` e `.agenda-enum__event--empty` permanecem no CSS como retrocompatibilidade visual, mas **nao devem mais ser emitidas pelo render da v2.1.0 em diante**.
 
 ```html
 <div class="agenda-enum">
-  <!-- Hora vazia -->
-  <div class="agenda-enum__row">
-    <div class="agenda-enum__hour agenda-enum__hour--empty">07:00</div>
-    <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
-  </div>
-
-  <!-- Hora com evento -->
+  <!-- Primeira hora real do dia -->
   <div class="agenda-enum__row">
     <div class="agenda-enum__hour">07:30</div>
     <div class="agenda-enum__event">Corrida no parque</div>
-  </div>
-
-  <!-- Hora atual (now) -->
-  <div class="agenda-enum__row">
-    <div class="agenda-enum__hour agenda-enum__hour--now">11:00</div>
-    <div class="agenda-enum__event agenda-enum__event--now">1:1 com Pedro · agora</div>
   </div>
 
   <!-- Entidade destacada dentro do evento -->
@@ -280,7 +289,23 @@ Lista vertical com **todas** as horas relevantes do dia (normalmente 07:00 a 19:
     <div class="agenda-enum__event">Revisao <em>WBR Investimentos</em></div>
   </div>
 
-  <!-- Gap visual antes do proximo (evento distante) -->
+  <!-- Hora atual (now) -->
+  <div class="agenda-enum__row">
+    <div class="agenda-enum__hour agenda-enum__hour--now">11:00</div>
+    <div class="agenda-enum__event agenda-enum__event--now">1:1 com Pedro · agora</div>
+  </div>
+
+  <div class="agenda-enum__row">
+    <div class="agenda-enum__hour">13:30</div>
+    <div class="agenda-enum__event">Almoco com Bia</div>
+  </div>
+
+  <div class="agenda-enum__row">
+    <div class="agenda-enum__hour">14:30</div>
+    <div class="agenda-enum__event">Reuniao <em>Diretoria M7</em></div>
+  </div>
+
+  <!-- Gap visual antes do proximo (evento distante >=2h) -->
   <div class="agenda-enum__row agenda-enum__row--gap">
     <div class="agenda-enum__hour">19:00</div>
     <div class="agenda-enum__event">Jantar em familia</div>
@@ -519,6 +544,41 @@ Ancora com 1 item de Preparar:
 ```
 
 **Fallback legacy:** a classe `.footer__amanha-body` (prosa unica) continua no tokens.css para retro-compatibilidade de planners antigos, mas **nao usar em novos planners**. Sempre usar a estrutura Ancora + Preparar.
+
+## META-FOOTER · rastreabilidade (v2.1.0)
+
+### 13. Meta-footer
+
+**Classe:** `.meta-footer`
+
+Linha unica discreta ao final da pagina (apos o `</footer>`), com 5 metadados de rastreabilidade em Inter sans 9-10px `text-subtle`. Propositalmente nao ornamental: so texto, separado por border-top fino. Permite que o leitor do HTML publicado saiba **de onde veio** o planner sem abrir o .md canonico.
+
+**Os 5 metadados (ordem fixa, sempre renderizar os 5):**
+
+| # | Label | Valor (fonte no frontmatter) |
+|---|---|---|
+| 1 | `schema` | Literal `daily-planner@1` (campo `schema` do frontmatter) |
+| 2 | `fonte` | Path relativo do .md a partir de `~/Documents/brain/` (ex: `0-inbox/plan-review/daily/2026/04/daily-2026-04-22.md`) |
+| 3 | `gerado` | `generated_at` ISO-8601 completo (nao formatar) |
+| 4 | `skill` | `generated_by` (ex: `planner:generating-daily-planner v2.1.0`) |
+| 5 | `insight` | `Pfeffer Cap AxB` onde A,B vem de `pfeffer.chapters` (ex: `Pfeffer Cap 11x13`) |
+
+```html
+<div class="meta-footer">
+  <span>schema: daily-planner@1</span>
+  <span>fonte: 0-inbox/plan-review/daily/2026/04/daily-2026-04-22.md</span>
+  <span>gerado: 2026-04-22T08:15:00-03:00</span>
+  <span>skill: planner:generating-daily-planner v2.1.0</span>
+  <span>insight: Pfeffer Cap 11x13</span>
+</div>
+```
+
+**Regras:**
+
+- Sempre 5 `<span>`. Se algum metadado esta ausente, usar literal `—` no valor (ex: `<span>insight: —</span>`) em vez de omitir o span — mantem o espacamento `justify-content: space-between` coerente.
+- Usar `x` literal no insight (nao `×` e nao `↔`) para consistencia com o padrao ASCII dos metadados.
+- Sem cor semantica — sempre `text-subtle`. Se um metadado indica erro (ex: skill outdated), resolver no .md, nao destacar aqui.
+- `flex-wrap: wrap` garante que em viewport estreita o rodape quebre em 2 linhas sem estourar (ver [tokens.css](tokens.css)).
 
 ## Utilitarios transversais
 

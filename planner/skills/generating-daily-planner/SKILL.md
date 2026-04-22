@@ -129,6 +129,12 @@ Antes de emitir o HTML final, confirmar:
 [ ] `update_artifact` chamado com `id: daily-planner-live` e `mcp_tools: []`
 [ ] HTML publicado reflete fielmente o .md (inlines `*em*` e `**strong**` resolvidos)
 [ ] Nenhum arquivo .html novo escrito em daily/YYYY/MM/
+[ ] Cada KPI do Corpo com valor presente tem `.header__corpo-ref` renderizado (peso/sono: relativo ou "DD mes"; TSS: "seg→hoje"; TSB: "hoje")
+[ ] KPI do Corpo com valor null **nao** renderiza `.header__corpo-ref` (simetrico com a tag)
+[ ] HTML publicado e viewport-adaptive: `html, body { height: 100vh; overflow: hidden }` presentes no CSS inline
+[ ] Agenda renderiza **apenas eventos reais** (nenhum row com `--empty` ou placeholder `—`)
+[ ] Meta-footer renderizado ao final do `<body>` com 5 `<span>`: schema, fonte, gerado, skill, insight (campo ausente vira `—`, nunca omitir span)
+[ ] `fonte` no meta-footer e path relativo a `~/Documents/brain/` (sem abs path)
 ```
 
 ## Design system snapshot
@@ -175,6 +181,9 @@ Antes de emitir o HTML final, confirmar:
 - **Chamar `update_artifact` com HTML que nao foi gerado a partir do .md que acabou de ser emitido** — garante fidelidade canonico ↔ render
 - **Popular `mcp_tools` no `update_artifact`** — na v2 o artifact e estatico, nao chama MCPs em runtime. `mcp_tools: []` sempre
 - **Escrever no campo `edits[]` do frontmatter na Fase 3** — `edits[]` e append-only e emitido apenas por `/planner sync`. A skill base gera `edits: []` ou omite o campo
+- **Usar media queries no CSS inline** — a partir da v2.1.0 o template e viewport-adaptive via `clamp()` e unidades `vh`/`vw`. Nenhuma `@media` no `<style>`. Se precisar ajustar para uma resolucao especifica, refinar os ranges do `clamp()` em tokens.css
+- **Renderizar horas vazias na agenda** — v2.1.0 emite so eventos reais. Classes `.agenda-enum__hour--empty` e `.agenda-enum__event--empty` estao deprecadas
+- **Omitir spans do meta-footer** — sempre 5 spans fixos. Campo ausente vira `—`, nunca `<span>` a menos. A ordem e fixa: schema → fonte → gerado → skill → insight
 
 ## Arquivos da skill
 

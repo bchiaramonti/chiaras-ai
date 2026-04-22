@@ -106,9 +106,13 @@ metrics:
 
 corpo:
   peso: null          # kg ou null → "—"
+  peso_ref: null      # ISO date (YYYY-MM-DD) da ultima pesagem, ou null se peso null
   sono: null          # horas ou null → "—"
+  sono_ref: null      # ISO date da noite referente (D-1 tipico), ou null se sono null
   tss_semana: null    # int ou null → "—"
+  tss_ref: null       # literal "seg->hoje" (sempre, janela semanal); ou null se tss_semana null
   tsb: null           # float ou null → "—"
+  tsb_ref: null       # literal "hoje" (sempre, metrica de agora); ou null se tsb null
   note: "sem TP"      # tag mostrada quando algum campo e null
 
 pfeffer:
@@ -151,7 +155,8 @@ amanha:
 | Campo ausente | Render |
 |---|---|
 | `metrics.*` | Omite o numero ou usa `—` |
-| `corpo.peso\|sono\|tss_semana\|tsb` null | Mostra `—` + tag `corpo.note` (`"sem TP"` tipico) |
+| `corpo.peso\|sono\|tss_semana\|tsb` null | Mostra `—` + tag `corpo.note` (`"sem TP"` tipico). Ref correspondente tambem omitida do HTML |
+| `corpo.*_ref` null mas valor presente | Renderiza `—` na `.header__corpo-ref` (o dado existe mas a data nao foi determinada) |
 | `agenda` vazio | "agenda vazia hoje" |
 | `tasks` vazio | "nenhuma task aberta no radar" |
 | `workspace` vazio | "nenhuma atrasada ou bloqueada" |
@@ -159,6 +164,9 @@ amanha:
 
 **Regras de valor:**
 
+- `corpo.peso_ref` e `corpo.sono_ref`: ISO date `YYYY-MM-DD` (nao string formatada). A conversao para rotulo exibido (`"ontem"`, `"há 3d"`, `"14 abr"`) acontece no render — ver [render-from-md.md §3.1](render-from-md.md).
+- `corpo.tss_ref`: literal `"seg->hoje"` (ASCII `->`, convertido para `→` no render). Outro valor → abort na validacao.
+- `corpo.tsb_ref`: literal `"hoje"`. Outro valor → abort.
 - `agenda[].start/end`: `HH:MM` em 24h.
 - `agenda[].is_now`: bool, `true` se o evento inclui `generated_at.time`.
 - `tasks[].status`: `aberta` | `atrasada` | `bloqueada` | `em-andamento`. Valores fora disso devem ter passado pela whitelist via `AskUserQuestion` (ver regra 4 de metodologia-planejamento.md).

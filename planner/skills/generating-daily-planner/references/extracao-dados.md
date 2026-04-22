@@ -220,12 +220,12 @@ A ordem e parte do design — peso abre (dado estavel, diario), sono vem logo em
 
 Quatro chamadas independentes (paralelizar quando possivel):
 
-| # | KPI do planner | Tool MCP | Observacao |
-|---|---|---|---|
-| 1 | **peso (kg)** | health-metrics (weight, last + -7d) | Ultimo valor + comparar com ha 7 dias para calcular variacao e tag |
-| 2 | **sono (h)** | health-metrics (sleep, last night) | Noite mais recente. Se vazio, valor vira `&mdash;` e tag e omitida |
-| 3 | **TSS sem** | `mcp__trainingpeaks__weekly_summary` | Total de TSS seg-hoje. Tambem retornar contagem de dias sem treino para aplicar tag "critico" |
-| 4 | **TSB** | `mcp__trainingpeaks__fitness_metrics` | TSB atual (signed integer, pode ser negativo) |
+| # | KPI do planner | Tool MCP | Observacao | Data de referencia (campo `*_ref`) |
+|---|---|---|---|---|
+| 1 | **peso (kg)** | health-metrics (weight, last + -7d) | Ultimo valor + comparar com ha 7 dias para calcular variacao e tag | Extrair data da ultima pesagem (metrica `weight.timestamp` ou equivalente) → serializar em `corpo.peso_ref` como ISO `YYYY-MM-DD` |
+| 2 | **sono (h)** | health-metrics (sleep, last night) | Noite mais recente. Se vazio, valor vira `&mdash;` e tag e omitida | Data da noite referente (tipicamente D-1) → `corpo.sono_ref` ISO `YYYY-MM-DD` |
+| 3 | **TSS sem** | `mcp__trainingpeaks__weekly_summary` | Total de TSS seg-hoje. Tambem retornar contagem de dias sem treino para aplicar tag "critico" | Sempre literal `"seg->hoje"` em `corpo.tss_ref` (janela fixa, nao instante) |
+| 4 | **TSB** | `mcp__trainingpeaks__fitness_metrics` | TSB atual (signed integer, pode ser negativo) | Sempre literal `"hoje"` em `corpo.tsb_ref` (metrica derivada de agora) |
 
 Consultar a lista completa de 58 tools do TrainingPeaks MCP via `claude mcp list-tools trainingpeaks` ou pela documentacao do repo em `3-resources/ai-mcp/trainingpeaks-mcp/README.md`.
 
@@ -284,6 +284,7 @@ Se o TrainingPeaks MCP falhar parcial ou totalmente (cookie expirado, API fora d
 
 - Os campos que nao chegarem ficam com `&mdash;` (classe `header__corpo-number--empty`)
 - A tag daqueles campos e **omitida** do HTML (nao renderiza `<div class="header__corpo-tag">`)
+- A ref daqueles campos e **omitida** tambem (nao renderiza `<div class="header__corpo-ref">`) — regra simetrica: valor ausente ⇒ tag e ref ausentes
 - Perguntar ao usuario:
 
 > TrainingPeaks MCP nao respondeu para [lista dos KPIs faltantes]. Voce quer:
@@ -480,8 +481,13 @@ metricas:
 
 corpo:
   peso: null
+  peso_ref: null              # ISO YYYY-MM-DD da ultima pesagem
   tss_semana: null
+  tss_ref: "seg->hoje"        # literal, janela semanal
   sono_horas: null
+  sono_ref: null              # ISO YYYY-MM-DD da noite referente (D-1 tipico)
+  tsb: null
+  tsb_ref: "hoje"             # literal, metrica de agora
 
 contexto_pfeffer:                        # v1.11.0 · substitui contexto_insight
   # Nada a extrair aqui na Fase 1 — o agente recebe agenda + mits + workspace_m7 + lide

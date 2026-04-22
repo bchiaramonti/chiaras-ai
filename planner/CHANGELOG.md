@@ -2,6 +2,71 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [2.1.0] - 2026-04-22
+
+### Added · Data de referencia por KPI no Corpo
+
+Cada um dos 4 KPIs do Corpo (peso, sono, TSS sem, TSB) agora exibe a data a que o dado se refere — antes ficava implicito ("peso 103 kg" podia ser de ontem ou de 5 dias atras). Novo elemento `.header__corpo-ref` em Inter sans 9px `text-subtle`, alinhado a direita abaixo do valor:
+
+- **peso** e **sono** → ISO serializado no `.md` como `corpo.peso_ref` / `corpo.sono_ref`, formatado no render como `hoje`, `ontem`, `há Nd` (<=7d) ou `DD mes` (>=8d, ex: `14 abr`).
+- **TSS sem** → literal `"seg->hoje"` (janela semanal), renderizado como `seg→hoje`.
+- **TSB** → literal `"hoje"` (metrica derivada de agora).
+
+Simetria com a tag: se o valor do KPI e null, a ref tambem e omitida — regra "nunca inventar dado".
+
+Novo formatter `format_rel_or_abs(date_iso, today_iso)` documentado em [render-from-md.md §2.1](skills/generating-daily-planner/references/render-from-md.md).
+
+### Changed · HTML viewport-adaptive (fit 100% sem media queries)
+
+O template e o `tokens.css` foram refatorados para caber em qualquer viewport (vertical + horizontal) sem `@media` queries, usando `clamp()` em tipografia/zonas e unidades `vh` em gaps/paddings:
+
+- **Reset viewport-lock:** `html, body { height: 100vh; width: 100vw; overflow: hidden }` + `* { min-width: 0; min-height: 0 }` (libera flex children).
+- **Tipografia fluida:** `--fs-display`, `--fs-roman`, `--fs-h2`, `--fs-body`, `--fs-body-sm` passam a usar `clamp(min, vw, max)`. Novo token `--fs-tiny: clamp(9px, 0.7vw, 10px)` para metadata.
+- **Zonas do header fluidas:** `--zone-dia`, `--zone-insight`, `--zone-mes`, `--zone-corpo`, `--zone-amanha` com `clamp()`.
+- **Body absorvente:** `.body { flex: 1 1 auto; min-height: 0; overflow: hidden }` garante que a area central ocupe exatamente o espaco entre header e footer. Colunas com `height: 100%; overflow: hidden`.
+- **Espacamentos verticais em vh:** `.agenda-enum { gap: clamp(3px, 0.45vh, 6px) }`, `.footer { padding-top: clamp(8px, 1vh, 14px); flex-shrink: 0 }`.
+
+### Changed · Agenda so renderiza eventos reais
+
+A partir da v2.1.0 a agenda emite **uma `.agenda-enum__row` por item real** de `agenda[]`. Linhas vazias com placeholder `—` (faixa 07:00-19:00 de hora em hora) nao sao mais geradas. Reduz ~50% da altura da coluna e viabiliza o fit 100%. Modifier `.agenda-enum__row--gap` aplicado quando ha pulo >=2h entre eventos consecutivos, para criar respiro visual sem row vazia. Classes `.agenda-enum__hour--empty` e `.agenda-enum__event--empty` ficam no CSS como retro-compatibilidade mas estao deprecadas.
+
+### Added · Meta-footer de rastreabilidade
+
+Nova linha discreta ao final do `<body>` com 5 metadados em Inter sans 9-10px `text-subtle`:
+
+```
+schema: daily-planner@1   fonte: 0-inbox/plan-review/daily/2026/04/daily-2026-04-22.md   gerado: 2026-04-22T08:15:00-03:00   skill: planner:generating-daily-planner v2.1.0   insight: Pfeffer Cap 11x13
+```
+
+Ordem fixa (`schema → fonte → gerado → skill → insight`). Sempre 5 `<span>`; campo ausente vira `—`, nunca omitir. `fonte` e path relativo a `~/Documents/brain/` (nao vaza abs path). Permite que qualquer leitor do HTML publicado saiba a origem canonica sem abrir o `.md`.
+
+### Changed · Schema `daily-planner@1` ganha campos opcionais
+
+Backward-compatible — nenhum `.md` historico precisa ser migrado:
+
+- `corpo.peso_ref`, `corpo.sono_ref` (ISO `YYYY-MM-DD`), `corpo.tss_ref` (literal `"seg->hoje"`), `corpo.tsb_ref` (literal `"hoje"`).
+
+Regras de valor e validaçao em [schema-md.md §4](skills/generating-daily-planner/references/schema-md.md).
+
+### Changed · SKILL.md checklist + nunca fazer
+
+- 6 itens novos no checklist pre-publish (ref do Corpo, viewport-lock, agenda so-eventos, meta-footer com 5 spans, path relativo).
+- 3 regras novas em "Nunca fazer" (media queries no inline CSS, renderizar horas vazias, omitir spans do meta-footer).
+
+### Files touched
+
+- [references/tokens.css](skills/generating-daily-planner/references/tokens.css) — viewport lock, tipografia/zonas fluidas, `.body`/`.body__col` absorventes, novo `.header__corpo-ref`, novo `.meta-footer`.
+- [references/template-html.html](skills/generating-daily-planner/references/template-html.html) — 4 rows vazias da agenda removidas, ref adicionada nas 4 rows do Corpo, meta-footer antes do `</body>`.
+- [references/componentes.md](skills/generating-daily-planner/references/componentes.md) — §5 Corpo atualizada com ref, §7 Agenda reescrita (so-eventos), nova §13 Meta-footer.
+- [references/schema-md.md](skills/generating-daily-planner/references/schema-md.md) — campos `corpo.*_ref` + regras de valor + fallback matrix.
+- [references/extracao-dados.md](skills/generating-daily-planner/references/extracao-dados.md) — §4 tabela de rotas TrainingPeaks ganha coluna "Data de referencia".
+- [references/render-from-md.md](skills/generating-daily-planner/references/render-from-md.md) — §2.1 formatter `format_rel_or_abs`, §2.2 agenda so-eventos (pseudocodigo), §2.3 meta-footer (pseudocodigo).
+- [SKILL.md](skills/generating-daily-planner/SKILL.md) — checklist + nunca fazer.
+
+### Migration
+
+Nao-breaking. Proximo run da skill regenera `.md` e artifact ja no novo layout. `.md` historicos sem `corpo.*_ref` continuam validos (campos opcionais). Artifact `daily-planner-live` passa a ter meta-footer a partir do proximo publish.
+
 ## [2.0.0] - 2026-04-22
 
 ### Changed · Daily planner: `.md` canonico + live artifact (arquitetura dupla)

@@ -119,6 +119,7 @@
           <div class="header__corpo-unit">kg</div>
         </div>
         <div class="header__corpo-tag">estável</div>
+        <div class="header__corpo-ref">20 abr</div>
       </div>
 
       <div class="header__corpo-row">
@@ -128,6 +129,7 @@
           <div class="header__corpo-unit">h</div>
         </div>
         <div class="header__corpo-tag header__corpo-tag--alert">baixo</div>
+        <div class="header__corpo-ref">ontem</div>
       </div>
 
       <div class="header__corpo-row">
@@ -136,6 +138,7 @@
           <div class="header__corpo-number header__corpo-number--body">387</div>
         </div>
         <div class="header__corpo-tag header__corpo-tag--body">saudável</div>
+        <div class="header__corpo-ref">seg→hoje</div>
       </div>
 
       <div class="header__corpo-row">
@@ -144,6 +147,7 @@
           <div class="header__corpo-number header__corpo-number--body">-18</div>
         </div>
         <div class="header__corpo-tag header__corpo-tag--body">produtivo</div>
+        <div class="header__corpo-ref">hoje</div>
       </div>
     </div>
 
@@ -162,34 +166,19 @@
         <div class="section-header__meta">6 eventos · 8h bloqueadas</div>
       </div>
 
+      <!-- v2.1.0: so linhas com eventos reais; sem placeholders "—" -->
       <div class="agenda-enum">
-        <div class="agenda-enum__row">
-          <div class="agenda-enum__hour agenda-enum__hour--empty">07:00</div>
-          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
-        </div>
         <div class="agenda-enum__row">
           <div class="agenda-enum__hour">07:30</div>
           <div class="agenda-enum__event">Corrida no parque</div>
-        </div>
-        <div class="agenda-enum__row">
-          <div class="agenda-enum__hour agenda-enum__hour--empty">08:00</div>
-          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
         </div>
         <div class="agenda-enum__row">
           <div class="agenda-enum__hour">09:00</div>
           <div class="agenda-enum__event">Revisao <em>WBR Investimentos</em></div>
         </div>
         <div class="agenda-enum__row">
-          <div class="agenda-enum__hour agenda-enum__hour--empty">10:00</div>
-          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
-        </div>
-        <div class="agenda-enum__row">
           <div class="agenda-enum__hour agenda-enum__hour--now">11:00</div>
           <div class="agenda-enum__event agenda-enum__event--now">1:1 com Pedro · agora</div>
-        </div>
-        <div class="agenda-enum__row">
-          <div class="agenda-enum__hour agenda-enum__hour--empty">12:00</div>
-          <div class="agenda-enum__event agenda-enum__event--empty">&mdash;</div>
         </div>
         <div class="agenda-enum__row">
           <div class="agenda-enum__hour">13:30</div>
@@ -357,6 +346,18 @@
     </section>
 
   </footer>
+
+  <!-- =====================================================
+       META-FOOTER · rastreabilidade (v2.1.0)
+       5 metadados derivados do frontmatter do .md canonico
+       ===================================================== -->
+  <div class="meta-footer">
+    <span>schema: daily-planner@1</span>
+    <span>fonte: 0-inbox/plan-review/daily/2026/04/daily-2026-04-22.md</span>
+    <span>gerado: 2026-04-22T08:15:00-03:00</span>
+    <span>skill: planner:generating-daily-planner v2.1.0</span>
+    <span>insight: Pfeffer Cap 11×13</span>
+  </div>
 
 </body>
 </html>

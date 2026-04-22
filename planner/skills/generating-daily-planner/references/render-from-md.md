@@ -37,15 +37,98 @@ Ver [componentes.md](componentes.md) para specs completos. Tabela resumo:
 | body `# Lide do dia` | Header zona 2 (Lide) | `.header__lide` |
 | body `# Insight · cruzamento` | Header zona 3 (Insight) | `.header__insight` + `.header__insight-cite` |
 | `iso_week` + mini-calendario derivado da `date` | Header zona 4 (Mes) | `.header__mes` |
-| `corpo.*` + `metrics.*` | Header zona 5 (Corpo) | `.header__corpo` |
-| `agenda[]` | Body coluna 1 | `.agenda-enum` |
+| `corpo.*` + `corpo.*_ref` + `metrics.*` | Header zona 5 (Corpo) | `.header__corpo` + `.header__corpo-ref` (ver §2.1) |
+| `agenda[]` | Body coluna 1 | `.agenda-enum` (ver §2.2 — so linhas com evento real) |
 | `mits[]` | Body coluna 2 topo | `.inadiaveis` + `.inadiaveis__risco` |
 | `tasks[]` | Body coluna 2 baixo | `.tasks` |
 | `workspace[]` | Body coluna 3 | `.workspace` + `.workspace__task--self` quando `is_mine: true` |
 | body `# Notas do dia` | Footer coluna 1 | `.footer__notas` |
 | `amanha.ancora` + `amanha.preparar[]` | Footer coluna 2 | `.footer__amanha` |
+| `schema` + `generated_at` + `generated_by` + `pfeffer.chapters` + path do .md | Meta-footer | `.meta-footer` (ver §2.3) |
 
 Campos ausentes ou com fallback null → seguir regras de §4 de [schema-md.md](schema-md.md).
+
+### 2.1 Formatter de `corpo.*_ref` (v2.1.0)
+
+Cada KPI da zona Corpo renderiza uma data de referencia discreta (`.header__corpo-ref`). A regra de conversao depende do campo:
+
+| Campo | Entrada esperada | Conversao → rotulo exibido |
+|---|---|---|
+| `corpo.peso_ref` | ISO `YYYY-MM-DD` | `format_rel_or_abs(date, today)` |
+| `corpo.sono_ref` | ISO `YYYY-MM-DD` | `format_rel_or_abs(date, today)` |
+| `corpo.tss_ref` | literal `"seg->hoje"` | `"seg→hoje"` (substitui ASCII `->` por `→`) |
+| `corpo.tsb_ref` | literal `"hoje"` | `"hoje"` (passa direto) |
+
+```python
+def format_rel_or_abs(date_iso: str, today_iso: str) -> str:
+    # Converte ISO -> rotulo curto, preferindo relativo quando <=7d
+    d = parse_iso(date_iso)
+    t = parse_iso(today_iso)
+    delta = (t - d).days
+    if delta == 0:  return "hoje"
+    if delta == 1:  return "ontem"
+    if 2 <= delta <= 7:  return f"há {delta}d"
+    # >=8d OU futuro: formato absoluto "DD mes" em portugues lowercase
+    return f"{d.day} {MES_ABREV[d.month]}"   # ex: "14 abr"
+```
+
+Onde `MES_ABREV = {1: "jan", 2: "fev", ..., 12: "dez"}`.
+
+**Casos especiais:**
+
+- Valor do KPI null (`corpo.peso` null) → **nao renderiza** `<div class="header__corpo-ref">`, independente de `*_ref` estar preenchido ou null.
+- Valor presente mas `*_ref` null (edge case) → renderizar `<div class="header__corpo-ref">—</div>`.
+- `format_rel_or_abs` com delta negativo (data no futuro) → tratar como absoluto. Em tese nunca ocorre, mas nao abortar.
+
+### 2.2 Agenda · so eventos reais (v2.1.0)
+
+A partir da v2.1.0, o template viewport-lock (100vh sem overflow) nao aceita linhas placeholder. Regra de render:
+
+1. Iterar `agenda[]` ordenando por `start` ascendente.
+2. Emitir **uma `.agenda-enum__row` por item** — nenhum item, nenhuma row.
+3. Nao sintetizar horas cheias ausentes (ex: se ha `09:00` e proximo e `11:00`, nao inserir row `10:00` com `—`).
+4. Adicionar modifier `.agenda-enum__row--gap` em um item cujo `start` esta **>=2h** apos o `end` (ou `start`) do item anterior — cria respiro visual sem inventar row vazia.
+5. O item com `is_now: true` ganha `.agenda-enum__hour--now` + `.agenda-enum__event--now`.
+6. **Classes `--empty` estao deprecadas** — nao emitir mais. Permanecem no CSS apenas para retro-compatibilidade de HTML antigo cacheado.
+
+```python
+def render_agenda(items):
+    items = sorted(items, key=lambda e: e["start"])
+    rows = []
+    prev_end = None
+    for it in items:
+        gap = prev_end and hours_between(prev_end, it["start"]) >= 2
+        row_class = "agenda-enum__row" + (" agenda-enum__row--gap" if gap else "")
+        # ... emit hour + event cells
+        prev_end = it.get("end") or it["start"]
+    return rows
+```
+
+### 2.3 Meta-footer · rastreabilidade (v2.1.0)
+
+Apos o `</footer>`, emitir `.meta-footer` com 5 `<span>`s na ordem fixa:
+
+```python
+def render_meta_footer(data, md_path_absolute):
+    rel = md_path_absolute.replace(os.path.expanduser("~/Documents/brain/"), "")
+    chapters = data["pfeffer"]["chapters"]
+    return f'''
+    <div class="meta-footer">
+      <span>schema: {data["schema"]}</span>
+      <span>fonte: {rel}</span>
+      <span>gerado: {data["generated_at"]}</span>
+      <span>skill: {data["generated_by"]}</span>
+      <span>insight: Pfeffer Cap {chapters[0]}x{chapters[1]}</span>
+    </div>
+    '''
+```
+
+**Regras:**
+
+- Sempre 5 spans. Campo ausente vira `—` (nao omitir `<span>`).
+- `fonte` sempre relativo a `~/Documents/brain/` (abs path vaza info de filesystem).
+- `insight` usa `x` ASCII (nao `×` nem `↔`). Convencao diferente do body `# Insight · cruzamento` propositalmente — aqui e metadata, la e editorial.
+- Nao HTML-escape `generated_at` (ja e ISO seguro).
 
 ## 3. Renderizaçao de inlines Markdown
 
@@ -117,6 +200,8 @@ Formato: `"Daily YYYY-MM-DD · <contagens principais>"`. Exemplos validos:
 | Insight com `<->` ao inves de `↔` | Copiou ASCII no .md | Pre-validacao em [schema-md.md §5.2](schema-md.md) deveria ter abortado; corrigir no .md |
 | HTML truncado (CSS faltando) | Esqueceu de colar `tokens.css` inline no `<style>` | Usar o starter em [template-html.html](template-html.html) |
 | `mcp_tools` nao vazio | Reaproveitou template v1.x com `callMcpTool` | Remover toda logica de fetch; dados vem do .md |
+| `.header__corpo-ref` mostra "NaN" ou data do clock | Formatter recebeu string ao inves de ISO | `corpo.peso_ref`/`sono_ref` precisa ser ISO `YYYY-MM-DD`; ver §2.1 |
+| `TSS sem` renderiza `"seg->hoje"` com `->` literal | Esqueceu de substituir ASCII arrow | Aplicar `.replace("->", "→")` no formatter (ou ler §2.1) |
 
 ## 6. Pipeline resumido
 
@@ -127,7 +212,7 @@ frontmatter, body = split_frontmatter(raw)
 data = yaml_parse(frontmatter)
 validate(data)  # ver schema-md.md §8
 blocks = parse_body_h1(body)  # { lide, insight: {cite, body}, notas: [] }
-html = render_template(data, blocks)  # aplica tokens.css + componentes.md + §3 inlines
+html = render_template(data, blocks, md_path=md_path)  # tokens.css + componentes.md + §3 inlines + §2.3 meta-footer
 cowork.update_artifact(id="daily-planner-live", html=html, mcp_tools=[], update_summary=summary)
 ```
 
