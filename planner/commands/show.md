@@ -28,6 +28,7 @@ Util para:
 6. Abaixo do code fence, imprimir um resumo curto:
    - `date`, `weekday`, `iso_week` do frontmatter
    - Contagem de: MITs (3 fixo), eventos de agenda, tasks, frentes no workspace
+   - **Corpo** (v2.1.0): para cada KPI `peso`, `sono`, `tss_semana`, `tsb`, indicar se o **valor** esta preenchido e se a **ref** correspondente (`peso_ref`, `sono_ref`, `tss_ref`, `tsb_ref`) existe. Formato sugerido: `"corpo · peso ✓ (ref: 20 abr) · sono ✓ (ref ausente!) · tss — · tsb ✓ (ref: hoje)"` — sinaliza com `!` quando valor presente mas ref ausente, e `—` quando valor null
    - Quantidade de entradas em `edits[]` (se houver) com timestamp da ultima
    - Aviso se detectar algum campo obrigatorio ausente (sem abortar — so sinalizar)
 

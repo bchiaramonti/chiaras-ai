@@ -2,6 +2,27 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [2.1.1] - 2026-04-22
+
+### Fixed · Comandos `/planner sync` e `/planner show` alinhados com skill v2.1.0
+
+Patch de documentaçao — nenhuma mudança de comportamento obrigatoria, mas os dois comandos estavam omissos em relaçao aos elementos novos introduzidos em v2.1.0 (meta-footer, agenda so-eventos, viewport-adaptive, `corpo.*_ref`).
+
+**`/planner sync`:**
+
+- `description` agora cita o layout v2.1.0 (viewport-adaptive + meta-footer + agenda so-eventos).
+- Passo 7 do fluxo explicita 4 sub-requisitos do render: agenda so-eventos, `.header__corpo-ref` por KPI, meta-footer com 5 spans, CSS sem `@media`.
+- **Regra critica:** o span `gerado:` do meta-footer usa **`generated_at` original do .md**, nao a hora do sync. `generated_at` registra quando o plano foi concebido; ediçoes vao em `edits[]`. Sem essa regra, o sync erode a semantica do metadado.
+- 4 regras novas em "Nunca fazer": nao re-carimbar `generated_at`, nao emitir HTML sem meta-footer, nao regenerar agenda com linhas vazias, nao adicionar `@media` no CSS inline.
+
+**`/planner show`:**
+
+- Resumo ampliado: alem de MITs/agenda/tasks/frentes/edits, agora reporta o status de cada KPI do Corpo (`peso`, `sono`, `tss_semana`, `tsb`) indicando se valor e ref estao preenchidos. Sinaliza com `!` quando valor existe mas ref esta ausente (bug tipico de extracao TrainingPeaks parcial) e com `—` quando valor e null.
+
+### Rationale
+
+O sync herda o pipeline de render via referencia a [render-from-md.md](skills/generating-daily-planner/references/render-from-md.md), entao ele ja seguia os padroes v2.1.0 na pratica. Mas decisoes de escopo do proprio sync (ex: "o que `gerado:` significa quando re-renderizado") moram no comando, nao na skill. Esse patch fecha o gap editorial.
+
 ## [2.1.0] - 2026-04-22
 
 ### Added · Data de referencia por KPI no Corpo
