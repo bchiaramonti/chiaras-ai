@@ -115,6 +115,26 @@
         "trainingpeaks",
         "time-blocking"
       ]
+    },
+    {
+      "name": "audio-forge",
+      "description": "Geração de áudios longos em PT-BR via Chatterbox Multilingual TTS para reforço de estudos e produção de conteúdo educacional. Estrutura material textual em roteiro segmentado e produz MP3 final consumindo o MCP server chatterbox-mcp.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./audio-forge",
+      "category": "productivity",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "tts",
+        "audio",
+        "chatterbox",
+        "portuguese",
+        "study",
+        "audiobook",
+        "mcp"
+      ]
     }
   ]
 }

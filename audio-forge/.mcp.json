@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "chatterbox": {
+      "command": "/Users/bchiaramonti/Documents/brain/3-resources/ai-mcp/chatterbox-mcp/.venv/bin/python",
+      "args": [
+        "/Users/bchiaramonti/Documents/brain/3-resources/ai-mcp/chatterbox-mcp/server.py"
+      ],
+      "env": {
+        "CHATTERBOX_DEVICE": "cpu",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}
