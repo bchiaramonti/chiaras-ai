@@ -1,0 +1,21 @@
+{
+  "name": "dev-loop",
+  "description": "Loop de desenvolvimento Spec-Driven para projetos com Claude Code, calibrado para os modelos Opus atuais (execution-literal + long-horizon agentic). Executa por tarefa o ciclo Scaffold → Spec → Research → Plan → Implement → Verify, com pesquisa em subagents paralelos persistida em CLAUDE.md, plano literal que subagents executores leem como primeira ação, e gates auditados por dois agents read-only (spec-auditor, plan-critic). Empacota o MCP oficial do Supabase para acesso direto a banco via OAuth.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Bruno Chiaramonti"
+  },
+  "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+  "repository": "https://github.com/bchiaramonti/chiaras-ai",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "opus-4-7",
+    "spec-driven",
+    "workflow",
+    "subagents",
+    "context-engineering",
+    "tdd",
+    "developer-tools"
+  ]
+}

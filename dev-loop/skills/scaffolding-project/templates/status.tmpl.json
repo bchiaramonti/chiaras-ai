@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "project_initialized": true,
+  "initialized_at": "YYYY-MM-DD",
+  "current_task": null,
+  "tasks": {}
+}

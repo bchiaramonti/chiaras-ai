@@ -135,6 +135,27 @@
         "audiobook",
         "mcp"
       ]
+    },
+    {
+      "name": "dev-loop",
+      "description": "Loop de desenvolvimento Spec-Driven para projetos com Claude Code, calibrado para os modelos Opus atuais (execution-literal + long-horizon agentic). Executa por tarefa o ciclo Scaffold → Spec → Research → Plan → Implement → Verify. A skill scaffolding-project monta a estrutura padrão Claude Code (CLAUDE.md, CHANGELOG.md, .claude/{settings.json,agents,commands,skills,hooks}, .mcp.json, .gitignore, .dev-loop/.status). Pesquisa via subagents paralelos consolida findings duráveis no CLAUDE.md (memória entre sessões); plano literal é lido como primeira ação por cada subagent executor (anti-drift); verify cruza Acceptance Criteria 1-para-1. 6 skills user-invocable + 2 agents read-only (spec-auditor sonnet, plan-critic opus) + 2 commands. Empacota o MCP oficial do Supabase (HTTP com OAuth).",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bruno Chiaramonti"
+      },
+      "source": "./dev-loop",
+      "category": "developer-tools",
+      "homepage": "https://github.com/bchiaramonti/chiaras-ai",
+      "keywords": [
+        "claude-code",
+        "opus-4-7",
+        "spec-driven",
+        "workflow",
+        "subagents",
+        "context-engineering",
+        "tdd",
+        "developer-tools"
+      ]
     }
   ]
 }
