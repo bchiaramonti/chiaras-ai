@@ -92,8 +92,8 @@
     },
     {
       "name": "planner",
-      "description": "Gera planners pessoais executivos (daily + weekly) aplicando o sistema de design Editorial Noturno (dark mode quente, Georgia serif + Inter sans, terracota + azul petroleo). Desde v2.0.0, o daily planner emite `.md` canonico em `~/Documents/brain/0-inbox/plan-review/daily/YYYY/MM/daily-YYYY-MM-DD.md` (fonte de verdade editavel) e publica o HTML derivado no live artifact `daily-planner-live` do Cowork via `mcp__cowork__update_artifact`; ediçao manual do .md + `/planner sync` propaga mudanças sem re-extrair dados nem re-invocar Pfeffer. Daily: header 5-zone + body 3-col (coluna 3 \"Workspace M7\" monitora saude de todas as frentes com status=atrasada/bloqueada no workspace inteiro) + footer 2-col. Desde v2.1.0, o HTML do daily e viewport-adaptive via `clamp()` e unidades `vh`/`vw` (fit 100% sem media queries), a agenda renderiza so eventos reais, os 4 KPIs do Corpo exibem data de referencia individual (peso/sono/TSS/TSB) e um meta-footer discreto expoe 5 metadados de rastreabilidade (schema, fonte, gerado, skill, insight). Weekly: 4 bands fit-screen (Contexto + Orquestra dos 5 dias + Compromissos + Preflight ancorado ao fundo), derivado de Hyatt Weekly Preview + Newport Time-Block + 4DX + Kahneman Pre-mortem — segue emitindo HTML direto (migraçao .md prevista em v2.2+). Desde v1.11.0, o agente pfeffer-power-analyst (baseado no livro POWER de Jeffrey Pfeffer, Stanford GSB) e a **fonte unica** de Insight · cruzamento e Notas do dia em ambos os planners. ClickUp com whitelist/blacklist de status e rastreabilidade metrica->query->count obrigatoria. Integra MCPs TrainingPeaks, Google Calendar, ClickUp e Cowork. Zero ornamento, hierarquia tipografica. Escopo estrito: uso pessoal.",
-      "version": "2.1.1",
+      "description": "Personal plugin for Bruno Chiaramonti's executive WEEKLY planning — split into PENSAR vs PERSISTIR. Two skills + one agent: `planning-the-week` (conversational companion — maps sources from Google Calendar + ClickUp, plans the week with executive methodology in dialogue, and runs the `pfeffer-power-analyst` agent for the Insight · cruzamento, emitting a canonical week object) and `writing-week-to-supabase` (deterministic, idempotent upsert of the week's plan/review into the Supabase `bc-planning` project via the `bc-planning_` MCP). Rendering lives in the Next.js front on Vercel — this plugin no longer produces HTML. Scope is strictly personal artifacts.",
+      "version": "4.0.0",
       "author": {
         "name": "Bruno Chiaramonti"
       },
@@ -103,17 +103,9 @@
       "keywords": [
         "personal",
         "planner",
-        "daily-planner",
         "weekly-planner",
-        "weekly-preview",
-        "sunday-planning",
-        "dashboard",
-        "dark-mode",
-        "editorial",
-        "typography",
-        "design-system",
-        "trainingpeaks",
-        "time-blocking"
+        "supabase",
+        "pfeffer"
       ]
     },
     {

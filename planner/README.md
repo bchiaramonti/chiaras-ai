@@ -1,106 +1,50 @@
 # planner
 
-> Personal plugin — gera planners pessoais executivos usando o sistema de design Editorial Noturno (dark mode, Georgia serif + Inter sans, terracota + azul petroleo).
+> Personal plugin — planejamento semanal executivo do Bruno, separando **pensar** de
+> **persistir**: uma companheira conversacional planeja a semana e uma skill
+> determinística grava no Supabase. O **front Next.js na Vercel** renderiza.
 
-## O que este plugin faz
+## Arquitetura
 
-Quando o Bruno pede um planner diario, daily dashboard, pagina de planejamento do dia ou HTML de cron matinal, o Claude Code invoca automaticamente a skill `generating-daily-planner` e aplica o sistema de design Editorial Noturno afunilado em 20 rodadas de decisao.
-
-**Escopo estrito:** apenas artefatos pessoais. NAO usar em apresentacoes M7, comunicados para diretoria, documentos corporativos ou interfaces de produto.
-
-## O que entrega
-
-- Dark mode quente nativo (sem light mode)
-- Tipografia como hierarquia (Georgia serif + Inter sans, sem caixas decorativas)
-- Paleta de 9 cores com significado semantico (terracota = foco, azul petroleo = corpo, etc.)
-- Grid de 3 colunas com gap 32px
-- Zero ornamento (sem icones decorativos, sombras, gradientes, pills, badges)
+```
+planning-the-week (skill, conversa) ── despacha ──▶ pfeffer-power-analyst (agente)
+        │  mapeia fontes (Calendar + ClickUp), planeja em diálogo, emite o OBJETO canônico
+        ▼
+writing-week-to-supabase (skill, grava) ──▶ Supabase (bc-planning, via MCP bc-planning_)
+                                                  ▲
+                                   front Next.js/Vercel LÊ e renderiza (bc-planning.vercel.app)
+```
 
 ## Componentes
 
-| Item | Conteudo |
+| Item | Papel |
 |---|---|
-| Skill | `generating-daily-planner` (auto-invocada por trigger de contexto pessoal) |
-| References (style guide) | `tokens.css`, `tokens.json`, `principios.md`, `componentes.md`, `regras-texto.md`, `template-html.html` |
-| References (metodologia) | `extracao-dados.md`, `metodologia-planejamento.md`, `insight-cruzamento.md` |
-| MCP Servers | `trainingpeaks` (stdio) — zona Corpo (peso, sono, TSS, HRV, fitness) |
-| Agents | — |
-| Commands | — |
+| `planning-the-week` (skill) | **Pensar.** Mapeia fontes, conduz o planejamento/review em diálogo (8 regras), aciona o Pfeffer e emite o objeto canônico (forma enxuta). Não grava, não renderiza. |
+| `writing-week-to-supabase` (skill) | **Persistir.** Upsert idempotente do plano/review no Supabase (`bc-planning`) via MCP `bc-planning_`. Modos `plano` e `review`. |
+| `pfeffer-power-analyst` (agente) | Fonte única do Insight · cruzamento (2 capítulos do POWER, Pfeffer). |
 
-## MCP: TrainingPeaks
+## Dependências de MCP (não bundladas — vêm do ambiente)
+- `planning-the-week`: **Google Calendar** + **ClickUp** (mapear fontes).
+- `writing-week-to-supabase`: **`bc-planning_`** (Supabase do projeto; service_role).
 
-O plugin declara um server MCP stdio (`trainingpeaks`) via `.mcp.json` usando o wrapper `/usr/bin/env tp-mcp serve` com `PATH` explicito. Expoe ~58 tools (workouts, calendar, fitness metrics CTL/ATL/TSB, power/running PRs, weekly summaries, health metrics como peso/sono/HRV). Usado pela Fase 1 de extracao para popular a zona Corpo do planner com dados reais.
+## Triggers
+- Planejar: "planeja minha semana", "prepara a semana N", "sunday planning".
+- Review: "fazer o review da semana", "retrospectiva da semana".
 
-**Por que o wrapper `/usr/bin/env` em vez de so `tp-mcp`?** Apps GUI no macOS (Cowork, Claude Desktop, anything spawned from Dock/Finder) herdam o PATH minimalista do `launchd` (`/usr/bin:/bin:/usr/sbin:/sbin`), que **nao inclui `~/.local/bin/`** onde o `uv tool install` deposita binarios. Terminais carregam `~/.zprofile` e por isso `tp-mcp` resolve la — mas apps GUI nao. O wrapper `/usr/bin/env` injeta um PATH explicito no spawn do processo, garantindo que o Cowork/Claude Desktop encontrem o binario.
+## Escopo
+Estritamente pessoal. Não usar em apresentações M7, comunicados ou documentos corporativos.
 
-**Fonte:** https://github.com/JamsusMaximus/trainingpeaks-mcp (MIT license, clonado em `3-resources/ai-mcp/trainingpeaks-mcp/`).
+## v1 enxuto
+Persiste só o que o front renderiza hoje (Tese, Insight, Foco da semana, Orquestra dos
+5 dias + tarefas, Riscos, Preflight, Review). A metodologia rica (Critério de vitória,
+Prazos duros, Corpo/TSS, Big 3 ↔ Metas Q2) é **discutida na conversa**, mas só será
+persistida se o schema/front forem estendidos numa v2. **Fonte de verdade = Supabase**
+(sem `.md` local, sem `/sync`, sem Cowork). Ver `0-inbox/plan-review/CLAUDE.md`.
 
-### Pre-requisitos (uma vez por maquina)
-
-```bash
-# 1. Instalar o binario tp-mcp no PATH (com extra 'browser' para extracao de cookie)
-uv tool install --reinstall '/Users/bchiaramonti/Documents/brain/3-resources/ai-mcp/trainingpeaks-mcp[browser]'
-
-# 2. Autenticar. O TrainingPeaks nao tem API publica aprovada para uso pessoal, entao
-#    a autenticacao e feita via cookie do navegador (Production_tpAuth).
-#    Rota A · getpass nativo (funciona em Terminal.app, pode falhar em IDEs integradas):
-tp-mcp auth
-#    Rota B · se o prompt getpass travar (comum em terminal integrado de IDE),
-#    usar bypass via stdin:
-pbpaste | ~/.local/share/uv/tools/tp-mcp/bin/python -c "
-import sys
-cookie = sys.stdin.read().strip()
-from tp_mcp.auth import store_credential, validate_auth_sync
-v = validate_auth_sync(cookie)
-if not v.is_valid: sys.exit(f'invalid: {v.message}')
-r = store_credential(cookie)
-print(f'OK · {r.message}')
-"
-#    (requer o cookie Production_tpAuth no clipboard: DevTools > Application > Cookies)
-
-# 3. Verificar
-tp-mcp auth-status
-```
-
-O cookie e criptografado (AES-256-GCM + PBKDF2 600k iteracoes) e salvo no macOS Keychain quando disponivel, com fallback para arquivo encriptado. Token OAuth de 1h e derivado sob demanda — Claude nunca ve o cookie, so bearer token de curta duracao.
-
-**Renovar cookie** quando expirar (tipicamente 30 dias ou apos logout):
-```bash
-tp-mcp auth-clear
-# depois repetir o passo 2 com cookie fresh
-```
-
-**Atualizar o binario** quando o repo mudar:
-```bash
-uv tool install --reinstall '/Users/bchiaramonti/Documents/brain/3-resources/ai-mcp/trainingpeaks-mcp[browser]'
-```
-
-## Instalacao
-
-Via marketplace `bchiaramonti-plugins`:
-
+## Instalação
 ```
 /plugin install planner@bchiaramonti-plugins
 ```
 
-## Triggers
-
-A skill e invocada quando o pedido contem qualquer um destes sinais:
-
-- "meu planner", "meu daily", "minha pagina de planejamento"
-- "dashboard pessoal", "relatorio do dia", "journal"
-- "agenda diaria", "visao executiva do meu dia/semana"
-- HTML gerado por cron matinal pessoal
-
-## Nunca fazer
-
-- Light mode
-- Cartoes elevados ou bordas decorativas
-- Icones (emoji ou SVG)
-- Sombras, gradientes, blur
-- UPPERCASE exceto em labels de dias da semana
-- Formatos de data misturados — sempre "16 abril"
-
 ## Autor
-
 Bruno Chiaramonti

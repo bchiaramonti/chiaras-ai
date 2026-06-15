@@ -1,8 +1,10 @@
 # Fase 1 · Extracao de dados (horizonte semanal)
 
-A primeira passada da skill e **levantamento** do que sera a proxima semana. Antes de planejar a orquestracao dos 5 dias, o Claude reune entradas de 7 fontes. Para cada fonte ha uma rota primaria (MCP direto) e um fallback (perguntar ao usuario).
+> _Migrado da generating-weekly-planner e alinhado à arquitetura Supabase: o output é o objeto canônico (forma enxuta), gravado pela skill writing-week-to-supabase; o front Next.js/Vercel renderiza._
 
-**Regra de ouro:** nunca invente dado. Se nao conseguir extrair e o usuario nao forneceu, a secao correspondente no HTML fica com `&mdash;` ou e omitida — nunca preenchida com ficcao.
+A primeira passada da skill e **levantamento** do que sera a proxima semana. Antes de planejar a orquestracao dos 5 dias, o Claude reune entradas das fontes abaixo. Para cada fonte ha uma rota primaria (MCP direto) e um fallback (perguntar ao usuario).
+
+**Regra de ouro:** nunca invente dado. Se nao conseguir extrair e o usuario nao forneceu, o campo correspondente do objeto canonico fica vazio (`null`) ou e omitido — nunca preenchido com ficcao.
 
 **Particularidade weekly:** a **Retrospectiva da semana passada** e sempre perguntada — e o que diferencia um weekly preview de um summary descritivo. Sem ela, a Tese da semana vira generica.
 
@@ -13,8 +15,8 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 - [1. Agenda (5 dias)](#1-agenda-5-dias)
 - [2. Tarefas ClickUp (semana)](#2-tarefas-clickup-semana)
 - [3. Workspace M7 (saude das frentes)](#3-workspace-m7-saude-das-frentes)
-- [4. Corpo · semana (TrainingPeaks MCP)](#4-corpo--semana-trainingpeaks-mcp)
-- [5. Metas Q2 (conexao trimestral)](#5-metas-q2-conexao-trimestral)
+- [4. Corpo · semana (TrainingPeaks MCP) — opcional, nao persistido na v1](#4-corpo--semana-trainingpeaks-mcp--opcional-nao-persistido-na-v1)
+- [5. Metas Q2 (conexao trimestral) — opcional, nao persistido na v1](#5-metas-q2-conexao-trimestral--opcional-nao-persistido-na-v1)
 - [6. Retrospectiva S-1 (sempre perguntar)](#6-retrospectiva-s-1-sempre-perguntar)
 - [7. Contexto para o agente Pfeffer](#7-contexto-para-o-agente-pfeffer)
 - [Protocolo de fallback](#protocolo-de-fallback)
@@ -28,10 +30,16 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 | Agenda (5 dias) | Google Calendar + Outlook M7 | `mcp__claude_ai_Google_Calendar__list_events` · *Outlook sem MCP* | Pedir print ou lista |
 | Tarefas da semana | ClickUp (due <= sex, assignee=Bruno) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir lista |
 | **Workspace M7** | ClickUp (statuses=[atrasada, bloqueada] workspace inteiro) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo por frente |
-| **Corpo · semana** | **TrainingPeaks MCP** (v1.5.0+) | `tp-mcp` (weight, sleep, HRV, weekly_summary, fitness_metrics) | Perguntar se MCP falhar |
-| **Metas Q2** | ClickUp goals → `brain/3-resources/` → perguntar | `mcp__claude_ai_ClickUp__clickup_get_workspace_hierarchy` + `clickup_search` | Perguntar confidence por objetivo |
+| **Corpo · semana** *(opcional — discutido, nao persistido na v1 enxuta)* | **TrainingPeaks MCP** (v1.5.0+) | `tp-mcp` (weight, sleep, HRV, weekly_summary, fitness_metrics) | Perguntar se MCP falhar |
+| **Metas Q2** *(opcional — discutido, nao persistido na v1 enxuta)* | ClickUp goals → `brain/3-resources/` → perguntar | `mcp__claude_ai_ClickUp__clickup_get_workspace_hierarchy` + `clickup_search` | Perguntar confidence por objetivo |
 | **Retrospectiva S-1** | *Sempre perguntar ao usuario* | — | — (e a propria fonte) |
-| Contexto Pfeffer | Agente `pfeffer-power-analyst` (horizonte=weekly) recebe Tese + Big 3 + Retrospectiva S-1 + Riscos + Corpo | Invocacao direta do agente | Agente pede dado especifico se input incompleto |
+| Contexto Pfeffer | Agente `pfeffer-power-analyst` (horizonte=weekly) recebe Tese + Foco da semana + Retrospectiva S-1 + Riscos | Invocacao direta do agente | Agente pede dado especifico se input incompleto |
+
+### Escopo v1 enxuto (o que persiste no objeto canonico)
+
+O objeto canonico gravado no Supabase persiste apenas: **Tese (lede)**, **Insight**, **Foco da semana (3)**, **Orquestra (5 dias + tarefas)**, **Riscos**, **Preflight** e **Review**.
+
+Fontes e secoes marcadas como *opcional* abaixo (Corpo/TSS via TrainingPeaks, Metas Q2, Criterio de vitoria, Prazos duros, energia por dia) sao **discutidas na conversa** para informar as decisoes, mas **nao sao persistidas** na v1. Extraia-as quando ajudarem o raciocinio, mas nao as inclua no objeto que vai ao Supabase.
 
 ## Janela temporal alvo
 
@@ -222,15 +230,17 @@ Se ClickUp MCP falhar:
 >
 > Nao preciso das suas tasks pessoais aqui — essa secao alimenta Riscos & fogos, escopo e workspace inteiro.
 
-## 4. Corpo · semana (TrainingPeaks MCP)
+## 4. Corpo · semana (TrainingPeaks MCP) — opcional, nao persistido na v1
+
+> **Opcional na v1 enxuta.** Corpo/TSS e fonte de **discussao** — alimenta o raciocinio (energia da semana, balanco trabalho/recovery, pre-mortem de fadiga) mas **nao e persistido** no objeto canonico. Extraia quando ajudar a calibrar a Orquestra ou os Riscos; nao inclua os KPIs no output do Supabase.
 
 **Fonte primaria: TrainingPeaks MCP** (adicionado na v1.5.0 do plugin). Restaura a automacao que havia sido removida em v1.3.0 quando o Garmin foi descontinuado.
 
-### Ordem fixa dos 4 KPIs (v1.8.0)
+### Ordem dos 4 KPIs (quando discutidos)
 
-**Renderizar sempre nesta ordem**: `peso Δ → sono medio → TSS total → TSB`
+Quando os KPIs forem usados na discussao, mante-los nesta ordem para leitura rapida: `peso Δ → sono medio → TSS total → TSB`
 
-Essa ordem e compartilhada com a daily (v1.7.0) — "peso e porta de entrada, sono e condicao, TSS e volume, TSB e sintese". Trocar a ordem quebra a leitura rapida.
+Essa ordem reflete a logica "peso e porta de entrada, sono e condicao, TSS e volume, TSB e sintese".
 
 ### Tools TP mapeadas para os 4 KPIs semanais
 
@@ -263,59 +273,50 @@ sleep(date_range=seg_a_qui_semana_alvo)  # noites antes de cada weekday
 fitness_metrics(date=today)  # retorna CTL, ATL, TSB
 ```
 
-### Tags de classificacao por KPI (v1.8.0)
+### Tags de classificacao por KPI (quando discutidos)
 
-Cada KPI renderiza uma **tag de 1 palavra** a direita do valor, classificando o status. As faixas sao identicas a daily (v1.7.0) para garantir consistencia entre os dois planners.
+Cada KPI tem uma **tag de 1 palavra** classificando o status. As faixas sao identicas a daily para garantir consistencia de leitura entre os dois planners.
 
 **Peso Δ** — variacao semanal em kg (rule-of-thumb: 1kg ≈ 1% do peso para Bruno ~100kg):
 
-| Faixa | Tag | Classe CSS |
-|---|---|---|
-| |Δ| <=1kg (~1% em 7 dias) | `estável` | default (sem modifier) |
-| Δ < -1kg (queda >1%) | `em queda` | `--body` (azul petroleo) |
-| Δ > +1kg (alta >1%) | `subindo` | `--warn` (`--accent-primary`) |
+| Faixa | Tag |
+|---|---|
+| |Δ| <=1kg (~1% em 7 dias) | `estável` |
+| Δ < -1kg (queda >1%) | `em queda` |
+| Δ > +1kg (alta >1%) | `subindo` |
 
 **Sono medio** — media de horas seg-1 a qui (4 noites que precedem weekdays):
 
-| Faixa | Tag | Classe CSS |
-|---|---|---|
-| >=7h | `ideal` | `--body` (azul petroleo) |
-| 6-7h | `ok` | default (neutro) |
-| <6h | `baixo` | `--alert` (terracota escuro) |
+| Faixa | Tag |
+|---|---|
+| >=7h | `ideal` |
+| 6-7h | `ok` |
+| <6h | `baixo` |
 
 **TSS total** — TSS acumulado seg-sex:
 
-| Faixa | Tag | Classe CSS |
-|---|---|---|
-| 0 nos ultimos 3+ dias consecutivos | `crítico` | `--alert` |
-| >0 e <150 na semana | `leve` | `--warn` (`--accent-primary`) |
-| 150-450 na semana | `saudável` | `--body` (azul petroleo) |
-| >450 na semana | `pesado` | `--alert` (sobrecarga, sinal de overtraining se persistir) |
+| Faixa | Tag |
+|---|---|
+| 0 nos ultimos 3+ dias consecutivos | `crítico` |
+| >0 e <150 na semana | `leve` |
+| 150-450 na semana | `saudável` |
+| >450 na semana | `pesado` (sobrecarga, sinal de overtraining se persistir) |
 
-**TSB** — Training Stress Balance (forma) no momento da geracao do weekly, bandas de Banister:
+**TSB** — Training Stress Balance (forma), bandas de Banister:
 
-| Faixa | Tag | Classe CSS |
-|---|---|---|
-| TSB < -30 | `overreach` | `--alert` |
-| -30 <= TSB < -10 | `produtivo` | `--body` |
-| -10 <= TSB <= +5 | `neutro` | default |
-| +5 < TSB <= +25 | `fresco` | `--warn` (`--accent-primary`) |
-| TSB > +25 | `destreino` | `--alert` |
+| Faixa | Tag |
+|---|---|
+| TSB < -30 | `overreach` |
+| -30 <= TSB < -10 | `produtivo` |
+| -10 <= TSB <= +5 | `neutro` |
+| +5 < TSB <= +25 | `fresco` |
+| TSB > +25 | `destreino` |
 
-### Regra de cor do numero + tag (consistencia)
-
-O numero segue a **mesma classe CSS** que a tag. Assim valor e classificacao compartilham a mesma cor semantica:
-
-- default primary (neutro) → peso estavel, sono ok, TSB neutro
-- `--body` (azul petroleo) → peso em queda, sono ideal, TSS saudavel, TSB produtivo
-- `--warn` (`--accent-primary` / terracota) → peso subindo, TSS leve, TSB fresco
-- `--alert` (terracota escuro) → sono baixo, TSS critico/pesado, TSB overreach/destreino
-
-### Regra de ouro (v1.8.0)
+### Regra de dado ausente
 
 Quando o MCP TrainingPeaks esta indisponivel ou o dado esta ausente:
-- O **valor** renderiza como `&mdash;` com classe `--empty`
-- A **tag** e **totalmente omitida** do HTML (nao renderiza tag vazia ou "?")
+- O **valor** fica vazio (`null`)
+- A **tag** e **totalmente omitida** (nao gerar tag vazia ou "?")
 - Nunca inventar classificacao
 
 ### Fallback
@@ -328,7 +329,7 @@ Se o TP MCP falhar ou auth expirar:
 > - sono medio (horas, media seg a qui)
 > - TSB atual (se souber — positivo em forma, negativo fadiga)
 
-Campos nao fornecidos viram `&mdash;` no HTML.
+Campos nao fornecidos ficam vazios (`null`). Lembrar que Corpo nao e persistido na v1 — serve so a discussao.
 
 ### Renovacao de cookie
 
@@ -339,9 +340,11 @@ tp-mcp auth
 pbpaste | python ~/.local/bin/tp-mcp auth
 ```
 
-## 5. Metas Q2 (conexao trimestral)
+## 5. Metas Q2 (conexao trimestral) — opcional, nao persistido na v1
 
-**Principio:** Weekly Big 3 devem **derivar** de Metas Q2. Sem essa conexao, Big 3 sao so tarefas grandes — nao Big 3.
+> **Opcional na v1 enxuta.** As Metas Q2 sao fonte de **discussao** — informam de onde o Foco da semana deve derivar — mas **nao sao persistidas** como secao do objeto canonico. Use-as para ancorar o raciocinio; o vinculo Foco↔Metas Q2 e discutido, nao gravado no Supabase na v1.
+
+**Principio:** o Foco da semana deve **derivar** de Metas Q2. Sem essa conexao, o Foco vira so tarefas grandes.
 
 ### Rota primaria · ClickUp goals
 
@@ -384,11 +387,11 @@ Se as duas rotas falharem:
 > - Desdobrar metas 2026 · 30% · SQL consorcios parado (em risco)
 > - Maratona junho sub-4h · 50% · bloco de volume OK
 
-### Regra de coloracao (ver componentes)
+### Faixas de confidence (para leitura na discussao)
 
-- Confidence >= 60% → default (verde neutro / ok)
-- Confidence 40-60% → `--body` (atencao, ainda da)
-- Confidence < 40% → `--alert` (em risco, rever)
+- Confidence >= 60% → `ok`
+- Confidence 40-60% → `atencao` (ainda da)
+- Confidence < 40% → `em risco` (rever)
 
 ## 6. Retrospectiva S-1 (sempre perguntar)
 
@@ -410,7 +413,7 @@ No inicio da Fase 1 (antes de extrair MCPs), perguntar:
 
 - **Tese**: o "destravou" alimenta o argumento de continuidade ("apos fechar X na S-1, a S{N} usa esse destravamento para avancar Y")
 - **Riscos**: o "travou" vira entrada para o pre-mortem (se patinou por motivo Z, Z vira risco mapeado)
-- **Criterio de vitoria**: o "aprendi" informa o que precisa ser diferente
+- **Foco da semana**: o "aprendi" informa o que precisa ser diferente nos 3 focos
 
 ### Anti-padrao
 
@@ -431,15 +434,15 @@ semana_range: "2026-04-20 a 2026-04-24"
 retrospectiva_s_menos_1:       # da secao 6 desta extracao
   destravou, travou, aprendi
 tese_rascunho: "<texto>"       # rascunho da Fase 2 Regra 1
-big3:                           # da Fase 2 Regra 4
-  - titulo, confidence, criterio_pronto_quando
+foco_da_semana:                 # da Fase 2 Regra 4 (3 focos)
+  - titulo, criterio_pronto_quando
 orquestra:                      # da Fase 2 Regra 3
   por_dia: { seg, ter, qua, qui, sex }
 riscos_pre_capturados:          # opcional, da Fase 2 Regra 6 parcial
   - titulo, fonte (retro/workspace/orquestra)
 workspace_m7:                   # da secao 3 desta extracao
   atrasadas_bruno, frentes_mais_atrasadas
-corpo_semana:                   # da secao 4 desta extracao
+corpo_semana:                   # opcional (discutido, nao persistido) — da secao 4
   peso_delta_kg, sono_medio_h, tss_total, tsb
 ```
 
@@ -455,8 +458,8 @@ Regras gerais quando um MCP falha ou retorna vazio:
 
 1. **Tentar 1 vez com parametros mais frouxos** (ex: ampliar janela temporal)
 2. **Se ainda falhar, perguntar ao usuario** com pergunta especifica
-3. **Nunca inventar.** Na duvida, secao fica com `&mdash;` ou e totalmente omitida
-4. **Sinalizar a origem no rodape do HTML** (comentario opcional): `<!-- TP offline, Corpo perguntado -->`
+3. **Nunca inventar.** Na duvida, o campo fica vazio (`null`) ou e totalmente omitido do objeto canonico
+4. **Registrar a origem no metadata do objeto canonico** (campo opcional de proveniencia, ex: `fonte: usuario` na metrica correspondente)
 
 `★ Exemplo de pergunta especifica ───────────────`
 Ruim: "me passa os dados da semana"
@@ -466,17 +469,17 @@ Bom: "A tool weekly_summary do TP nao respondeu. Me passa o TSS total da semana 
 
 ## Rastreabilidade de metricas
 
-**Problema que esta regra resolve (v1.9.0):** contadores como `X atrasadas` ou `Y bloqueadas` em Riscos & fogos e no section-header apareciam sem lastro, podendo resultar de soma redundante de heuristicas (`status=pendente + due vencido + status=atrasada`) ou de headers cached da API que nao batem com as linhas exibidas.
+**Problema que esta regra resolve (v1.9.0):** contadores como `X atrasadas` ou `Y bloqueadas` em Riscos & fogos apareciam sem lastro, podendo resultar de soma redundante de heuristicas (`status=pendente + due vencido + status=atrasada`) ou de headers cached da API que nao batem com as linhas exibidas.
 
 ### Regra de ouro
 
-**Todo numero que aparece no HTML final deve ter uma entrada em `extracao.metricas`** com:
-1. `metrica` — rotulo (ex: `atrasadas_workspace_semana`, `big3_count`)
+**Todo numero que entra no objeto canonico deve ter uma entrada em `extracao.metricas`** com:
+1. `metrica` — rotulo (ex: `atrasadas_workspace_semana`, `foco_count`)
 2. `query` — string da query com parametros reais
 3. `count` — valor numerico
 4. `fonte` — `clickup_mcp` | `google_calendar_mcp` | `trainingpeaks_mcp` | `usuario`
 
-Se um numero no HTML nao tem entrada, a Fase 3 **recusa renderizar** e volta para Fase 2 pedindo a origem.
+Se um numero destinado ao objeto canonico nao tem entrada, a skill **recusa gravar** e volta para a Fase 2 pedindo a origem antes de chamar a writing-week-to-supabase.
 
 ### Regra de unica fonte para "atrasada"
 
@@ -487,7 +490,7 @@ Status customizado `atrasada` no workspace M7 e a fonte unica. **Nunca somar** `
 
 ### Regra de recalculo na Fase 2
 
-Antes de renderizar cada contador, recalcular a partir das linhas extraidas — nao reusar contadores retornados no header da API:
+Antes de gravar cada contador no objeto canonico, recalcular a partir das linhas extraidas — nao reusar contadores retornados no header da API:
 
 ```
 # CERTO
@@ -515,22 +518,20 @@ metricas:
     query: "atrasadas_workspace_semana AND assignee==bruno | len"
     count: 2
     fonte: clickup_mcp
-  - metrica: "prazos_duros_count"
-    query: "grupo_c_prazos_duros | len"
-    count: 5
+  - metrica: "foco_count"
+    query: "len(foco_da_semana)"
+    count: 3
     fonte: clickup_mcp
-  - metrica: "big3_confidence_media"
-    query: "avg(objetivos_q2[i].confidence)"
-    count: 48
-    fonte: clickup_goals
 ```
 
-### Validacao antes de renderizar
+> `prazos_duros_count` e metricas derivadas de Metas Q2 (ex: confidence media) so entram aqui se a discussao opcional dessas fontes for promovida ao objeto canonico — o que **nao** acontece na v1 enxuta.
+
+### Validacao antes de gravar
 
 Incluso no checklist de sanidade da Fase 2:
 
 ```
-[ ] Cada numero planejado tem entrada em `metricas`
+[ ] Cada numero destinado ao objeto canonico tem entrada em `metricas`
 [ ] Contadores recalculados a partir das linhas (nao reusados da API)
 [ ] Nenhum numero soma heuristicas redundantes (pendente+due vencido+atrasada)
 [ ] "atrasadas_*" usa status=atrasada como fonte unica
@@ -538,7 +539,7 @@ Incluso no checklist de sanidade da Fase 2:
 
 ## Schema da extracao
 
-Saida consolidada apos Fase 1 (estrutura interna, nao HTML):
+Saida consolidada apos Fase 1 (estrutura interna de trabalho — **nao** e o objeto canonico). A Fase 2 destila este artefato no objeto canonico enxuto que a writing-week-to-supabase grava. Campos marcados *(opcional · nao persistido)* alimentam so a discussao:
 
 ```yaml
 semana:
@@ -576,16 +577,16 @@ agenda:
   conflitos: []
 
 tarefas:
-  grupo_a_big3_candidatos:
+  grupo_a_foco_candidatos:
     - id: "PRJ-12"
       title: "Fechar WBR Invest"
       list: "m7-controle"
-      tags: [big3]
+      tags: [foco]
       due: "2026-04-24"
       priority: urgent
-      linked_goal: "Publicar m7-controle em 3 verticais"
+      linked_goal: "Publicar m7-controle em 3 verticais"   # discutido, nao persistido na v1
   grupo_b_semana: [...]
-  prazos_duros:
+  prazos_duros:               # opcional · discutido, nao persistido na v1
     - dia: seg
       data: "2026-04-20"
       task: "Enviar briefing diretoria"
@@ -621,28 +622,24 @@ workspace_m7:
     bloqueadas_total: 3
     atrasadas_bruno: 2           # se >=3, alimenta Pre-mortem como gargalo
 
-corpo:
+corpo:                         # opcional · discutido, nao persistido na v1
   fonte: trainingpeaks_mcp
-  # Ordem fixa dos 4 KPIs (v1.8.0): peso -> sono -> TSS -> TSB
+  # Ordem dos 4 KPIs quando discutidos: peso -> sono -> TSS -> TSB
   peso_delta_kg: -0.6
   peso_classificacao:
     tag: "estável"
-    modifier: null           # default (neutro)
   sono_medio_h: 6.4
   sono_classificacao:
-    tag: "ok"
-    modifier: null           # default (neutro) — entre 6 e 7h
+    tag: "ok"                 # entre 6 e 7h
   tss_total: 320
   tss_classificacao:
-    tag: "saudável"
-    modifier: "--body"       # 150-450 na semana
+    tag: "saudável"          # 150-450 na semana
   tsb: -12
   tsb_classificacao:
-    tag: "produtivo"
-    modifier: "--body"       # -30 a -10
-  hrv_medio: 48              # contexto interno, nao exibido
+    tag: "produtivo"         # -30 a -10
+  hrv_medio: 48              # contexto interno
 
-metas_q2:
+metas_q2:                      # opcional · discutido, nao persistido na v1
   fonte: clickup_goals
   objetivos:
     - titulo: "Publicar m7-controle em 3 verticais"
@@ -659,9 +656,9 @@ metas_q2:
       status: ok
 
 contexto_pfeffer:                        # v1.11.0 · substitui contexto_insight
-  # Nada a extrair aqui na Fase 1 — o agente recebe retrospectiva + tese + big3 +
-  # orquestra + riscos_pre_capturados + workspace_m7 + corpo_semana diretamente da
-  # Fase 2b e produz Insight + (opcional) Riscos Pfeffer. Bloco mantido apenas
+  # Nada a extrair aqui na Fase 1 — o agente recebe retrospectiva + tese + foco +
+  # orquestra + riscos_pre_capturados + workspace_m7 (+ corpo, opcional) diretamente
+  # da Fase 2b e produz Insight + (opcional) Riscos Pfeffer. Bloco mantido apenas
   # para documentar a ausencia de scan em brain/3-resources/.
   fonte: agents/pfeffer-power-analyst.md
   horizonte: weekly
@@ -679,10 +676,10 @@ metricas:
     query: "atrasadas_workspace_semana AND assignee==bruno | len"
     count: 2
     fonte: clickup_mcp
-  - metrica: "prazos_duros_count"
-    query: "grupo_c_prazos_duros | len"
-    count: 5
+  - metrica: "foco_count"
+    query: "len(foco_da_semana)"
+    count: 3
     fonte: clickup_mcp
 ```
 
-Essa estrutura e consumida pela Fase 2 (planejamento) e pela Fase 3 (renderizacao). Nao e exposta ao usuario — e artefato interno da skill.
+Essa estrutura e consumida pela Fase 2 (planejamento), que destila o objeto canonico enxuto entregue a writing-week-to-supabase. Nao e exposta ao usuario — e artefato interno da skill.

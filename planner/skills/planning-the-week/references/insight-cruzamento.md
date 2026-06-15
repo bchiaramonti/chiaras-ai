@@ -1,8 +1,10 @@
 # Fase 2b · Insight · cruzamento (horizonte semanal) · regras editoriais (v1.11.0)
 
-Este arquivo **nao descreve mais um processo de geracao**. Desde v1.11.0, o Insight · cruzamento do weekly e sempre gerado pelo agente [`pfeffer-power-analyst`](../../../agents/pfeffer-power-analyst.md) com horizonte=weekly, que le a Tese + Big 3 + Retrospectiva + Riscos atraves das lentes do livro POWER (Pfeffer, 2010).
+> _Migrado da generating-weekly-planner e alinhado à arquitetura Supabase: o output é o objeto canônico (forma enxuta), gravado pela skill writing-week-to-supabase; o front Next.js/Vercel renderiza._
 
-Este arquivo agora contem **as regras editoriais** que a saida do agente **deve** respeitar. A skill valida a saida do agente contra este checklist antes de renderizar no HTML.
+Este arquivo **nao descreve mais um processo de geracao**. Desde v1.11.0, o Insight · cruzamento do weekly e sempre gerado pelo agente [`pfeffer-power-analyst`](../../../agents/pfeffer-power-analyst.md) com horizonte=weekly, que le a Tese + Foco da semana + Retrospectiva + Riscos atraves das lentes do livro POWER (Pfeffer, 2010).
+
+Este arquivo agora contem **as regras editoriais** que a saida do agente **deve** respeitar. A skill valida a saida do agente contra este checklist antes de gravar o Insight no objeto canonico.
 
 ## Por que Pfeffer como fonte unica
 
@@ -17,7 +19,7 @@ Commitment editorial alinhado a identidade do planner (mesma racional do daily):
 | Aspecto | Daily | Weekly |
 |---|---|---|
 | Horizonte de analise | Desafios do dia (execucao) | Tensionamentos estrategicos da semana (direcao) |
-| Insumos para o agente | Agenda + MITs + Workspace M7 + Lide | Retrospectiva S-1 + Tese + Big 3 + Orquestra + Riscos + Corpo semanal |
+| Insumos para o agente | Agenda + MITs + Workspace M7 + Lide | Retrospectiva S-1 + Tese + Foco da semana + Orquestra + Riscos (+ Corpo semanal, opcional) |
 | Output | Insight + 1-3 Notas do dia | Insight + (opcional) Riscos Pfeffer + (opcional) Notas taticas para preflight |
 | Capitulos tipicos | Cap 1 × Cap 7, Cap 9 × Cap 6 | Cap 5 × Cap 10 (alocacao de capital), Cap 2 × Cap 11 (energia sustentada), Cap 1 × Cap 8 (reputacao apos review) |
 
@@ -35,12 +37,12 @@ O padrao de cruzamento binario e identico — muda o horizonte e a profundidade 
 
 ### Estrutura gramatical
 
-O Insight semanal respeita o mesmo padrao visual da Band 1 do weekly, com leitura em dois capitulos em tensao:
+O Insight semanal e uma leitura em dois capitulos em tensao, escrito como texto puro (a enfase e decidida pelo front):
 
 ```
 [Conceito do Cap X] [verbo] [objeto conceitual da semana].
 [Conceito do Cap Y] [verbo] [objeto conceitual da semana].
-&mdash; sao leituras em tensao: <em>"[tensao do Cap X em 1 pergunta]"</em> vs <em>"[tensao do Cap Y em 1 pergunta]"</em>
+— sao leituras em tensao: "[tensao do Cap X em 1 pergunta]" vs "[tensao do Cap Y em 1 pergunta]"
 ```
 
 ### Linha de citacao
@@ -48,12 +50,12 @@ O Insight semanal respeita o mesmo padrao visual da Band 1 do weekly, com leitur
 Formato canonico, consistente com daily:
 
 ```
-POWER &middot; Cap X (<nome curto>) &times; Cap Y (<nome curto>)
+POWER · Cap X (<nome curto>) × Cap Y (<nome curto>)
 ```
 
 ### Extensao
 
-- **200-350 caracteres** no corpo (maior que daily porque a Band 1 do weekly tem mais espaco)
+- **200-350 caracteres** no corpo (maior que daily)
 - O peso estrategico da semana justifica mais densidade que o insight do dia
 
 ## Formato dos Riscos Pfeffer
@@ -90,7 +92,7 @@ Nesse caso, retornar apenas o bloco de Insight e omitir `## Riscos Pfeffer`. Nao
 
 1. **Duas fontes sempre** — exatamente 2 capitulos do livro POWER.
 2. **Tensao genuina** — os dois capitulos devem tensionar entre si.
-3. **Conectar a Tese e aos Big 3** — o insight responde a uma tensao especifica da semana.
+3. **Conectar a Tese e ao Foco da semana** — o insight responde a uma tensao especifica da semana.
 4. **Rotacionar pares semana a semana** — evitar o mesmo cruzamento em semanas consecutivas.
 5. **Pt-BR no corpo, vocabulario Pfeffer em ingles quando natural**.
 6. **Tom descritivo, nao moralizante**.
@@ -115,9 +117,9 @@ Nesse caso, retornar apenas o bloco de Insight e omitir `## Riscos Pfeffer`. Nao
 
 > Cap 9 diz que a opcao mais barata com Pedro e coopting antes da retro oficial.
 > Cap 7 diz que em front de Sergio na review anger/confidence projection vale mais que defesa detalhada.
-> &mdash; sao leituras em tensao: <em>"onde eu abro a saida graciosa?"</em> vs <em>"onde eu projeto autoridade?"</em>
+> — sao leituras em tensao: "onde eu abro a saida graciosa?" vs "onde eu projeto autoridade?"
 
-**Cite:** `POWER &middot; Cap 9 (Opposition) &times; Cap 7 (Acting with Power)`
+**Cite:** `POWER · Cap 9 (Opposition) × Cap 7 (Acting with Power)`
 
 **Riscos Pfeffer:**
 
@@ -136,9 +138,9 @@ Nesse caso, retornar apenas o bloco de Insight e omitir `## Riscos Pfeffer`. Nao
 
 > Cap 2 lembra que energia e ambicao sao pre-requisitos de poder, nao decorrencias.
 > Cap 13 observa que 80% do sucesso e apenas aparecer — pequenas tarefas feitas todos os dias.
-> &mdash; sao leituras em tensao: <em>"o que recarregar?"</em> vs <em>"o que acumular em silencio?"</em>
+> — sao leituras em tensao: "o que recarregar?" vs "o que acumular em silencio?"
 
-**Cite:** `POWER &middot; Cap 2 (Personal Qualities) &times; Cap 13 (It's Easier Than You Think)`
+**Cite:** `POWER · Cap 2 (Personal Qualities) × Cap 13 (It's Easier Than You Think)`
 
 *(Sem bloco Riscos Pfeffer — semana sem material politico.)*
 
@@ -148,9 +150,9 @@ Nesse caso, retornar apenas o bloco de Insight e omitir `## Riscos Pfeffer`. Nao
 
 > Cap 9 reforca: continue fazendo o que te trouxe ate aqui. Nao giveway preemptive.
 > Cap 11 adverte: fatigue e overcommitment apos derrota sao os gatilhos classicos de segunda queda.
-> &mdash; sao leituras em tensao: <em>"o que insistir?"</em> vs <em>"o que descartar antes do ciclo recomecar?"</em>
+> — sao leituras em tensao: "o que insistir?" vs "o que descartar antes do ciclo recomecar?"
 
-**Cite:** `POWER &middot; Cap 9 (Overcoming Setbacks) &times; Cap 11 (How People Lose Power)`
+**Cite:** `POWER · Cap 9 (Overcoming Setbacks) × Cap 11 (How People Lose Power)`
 
 **Riscos Pfeffer:**
 

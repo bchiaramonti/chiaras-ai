@@ -2,6 +2,66 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [4.0.0] - 2026-06-15
+
+### Changed · Separação PENSAR × PERSISTIR; escrita no Supabase
+
+A `generating-weekly-planner` (que renderizava HTML "Editorial Noturno") foi
+**aposentada**. O cérebro (metodologia, fontes, insight, tom) migrou para duas peças,
+e a renderização passou a viver no front Next.js/Vercel (lê o Supabase).
+
+### Added
+
+- Skill `planning-the-week` — companheira **conversacional**: mapeia fontes (Google
+  Calendar + ClickUp), planeja a semana em diálogo (8 regras), aciona o agente
+  `pfeffer-power-analyst` e emite um **objeto canônico** (forma enxuta). Modo `review`
+  no fim da semana. References migradas: `extracao-dados`, `metodologia-planejamento`,
+  `insight-cruzamento`, `regras-texto`.
+- Skill `writing-week-to-supabase` — **upsert idempotente** do plano/review no Supabase
+  (projeto `bc-planning`) via MCP `bc-planning_` (service_role). Modos `plano` e `review`;
+  delete-then-insert por `(user_id, year, week_num)`.
+
+### Removed
+
+- Skill `generating-weekly-planner` (SKILL.md + references). References de render
+  (`tokens.css/json`, `template-html.html`, `componentes.md`, `principios.md`)
+  descartadas — o front é dono do visual.
+
+### Notes
+
+- **v1 enxuto**: persiste só o que o front renderiza. Metodologia rica (Critério de
+  vitória, Prazos duros, Corpo/TSS, Big 3 ↔ Metas Q2) é discutida, mas não persistida.
+- Fonte de verdade = **Supabase** (sem `.md` local / `/sync` / Cowork).
+
+### Breaking
+
+- Quem usava `generating-weekly-planner` (HTML) passa a usar `planning-the-week` +
+  `writing-week-to-supabase`, com o front (`bc-planning.vercel.app`) para visualizar.
+
+## [3.0.0] - 2026-06-15
+
+### Removed · Daily planner, slash commands e MCP TrainingPeaks
+
+Plugin reduzido ao essencial — **weekly planner + agente Pfeffer**. Preparação para
+a nova arquitetura: a escrita passa a ser no **Supabase** (projeto `bc-planning`) e a
+renderização vive no front Next.js/Vercel. Ver `0-inbox/plan-review/CLAUDE.md`.
+
+- Removida a skill `generating-daily-planner` (SKILL.md + 10 references).
+- Removidos os comandos `/planner sync` e `/planner show` (específicos do fluxo
+  daily `.md` + Cowork artifact).
+- Removido o `.mcp.json` (server MCP `trainingpeaks`). A skill weekly ainda referencia
+  TrainingPeaks na zona Corpo — será reescrita na migração para Supabase.
+
+### Mantido
+
+- Agente `pfeffer-power-analyst` (fonte única do Insight · cruzamento).
+- Skill `generating-weekly-planner` (+ references).
+
+### Breaking
+
+- Quem dependia do daily planner, dos comandos `/planner *` ou do MCP TrainingPeaks
+  bundlado precisa permanecer na v2.x.
+
 ## [2.1.1] - 2026-04-22
 
 ### Fixed · Comandos `/planner sync` e `/planner show` alinhados com skill v2.1.0

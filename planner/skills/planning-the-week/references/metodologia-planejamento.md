@@ -1,6 +1,10 @@
 # Fase 2 · Metodologia de planejamento semanal
 
-A segunda passada transforma os dados extraidos (Fase 1) em decisoes de planejamento. **Oito regras, uma por secao planejavel.** Cada regra tem um **filtro**, um **teste de sanidade** e **anti-padroes** a evitar.
+> _Migrado da generating-weekly-planner e alinhado à arquitetura Supabase: o output é o objeto canônico (forma enxuta), gravado pela skill writing-week-to-supabase; o front Next.js/Vercel renderiza._
+
+A segunda passada transforma os dados extraidos (Fase 1) em decisoes de planejamento. **Oito regras de decisao.** Cada regra tem um **filtro**, um **teste de sanidade** e **anti-padroes** a evitar.
+
+**Escopo v1 enxuto:** o objeto canonico gravado no Supabase persiste apenas **Tese (lede)**, **Insight**, **Foco da semana (3)**, **Orquestra (5 dias + tarefas)**, **Riscos**, **Preflight** e **Review**. As regras de **Criterio de vitoria** (Regra 2), **Prazos duros** (Regra 5) e **Corpo · semana** (Regra 8), assim como a energia por dia da Orquestra e o vinculo Foco↔Metas Q2, sao **discutidas na conversa** para informar as decisoes mas **nao sao persistidas** na v1. Onde aparecem como output, trate-as como "discutir, nao persistir (v1)".
 
 **Principio geral:** o weekly nao e um daily estendido — e um artefato de **orquestracao**. Se os 5 dias nao contam uma historia coerente (cada um com papel proprio na narrativa), o weekly vira so uma lista de compromissos agrupada.
 
@@ -14,13 +18,13 @@ A segunda passada transforma os dados extraidos (Fase 1) em decisoes de planejam
 ## Indice
 
 - [Regra 1 · Tese da semana](#regra-1--tese-da-semana)
-- [Regra 2 · Criterio de vitoria](#regra-2--criterio-de-vitoria)
+- [Regra 2 · Criterio de vitoria — discutir, nao persistir (v1)](#regra-2--criterio-de-vitoria--discutir-nao-persistir-v1)
 - [Regra 3 · Orquestra dos 5 dias](#regra-3--orquestra-dos-5-dias)
-- [Regra 4 · Tres grandes da semana (Weekly Big 3)](#regra-4--tres-grandes-da-semana-weekly-big-3)
-- [Regra 5 · Prazos duros](#regra-5--prazos-duros)
+- [Regra 4 · Foco da semana](#regra-4--foco-da-semana)
+- [Regra 5 · Prazos duros — discutir, nao persistir (v1)](#regra-5--prazos-duros--discutir-nao-persistir-v1)
 - [Regra 6 · Riscos & fogos (pre-mortem)](#regra-6--riscos--fogos-pre-mortem)
 - [Regra 7 · Preflight](#regra-7--preflight)
-- [Regra 8 · Corpo · semana](#regra-8--corpo--semana)
+- [Regra 8 · Corpo · semana — discutir, nao persistir (v1)](#regra-8--corpo--semana--discutir-nao-persistir-v1)
 - [Checklist de sanidade final](#checklist-de-sanidade-final)
 
 ## Regra 1 · Tese da semana
@@ -33,10 +37,10 @@ A segunda passada transforma os dados extraidos (Fase 1) em decisoes de planejam
 
 1. Olhar a Retrospectiva S-1: o que ficou aberto? o que aprendeu?
 2. Olhar as Metas Q2: qual objetivo precisa movimentar mais?
-3. Olhar os Big 3 candidatos + agenda: qual o arco narrativo que conecta?
+3. Olhar o Foco candidato + agenda: qual o arco narrativo que conecta?
 4. Escrever 1 frase-aposta que conecta os tres (*"a semana aposta em X porque Y e destrava Z"*)
 5. Completar em 2-3 frases adicionais que desenvolvem a aposta
-6. Destacar com `<em>` 2-4 **entidades ancora** (nao mais — se destaca tudo, nao destaca nada)
+6. Marcar 2-4 **entidades ancora** como destaque (nao mais — se destaca tudo, nao destaca nada). O modo de enfase e decidido pelo front; aqui apenas se identifica quais sao as entidades.
 
 ### Teste de sanidade
 
@@ -56,10 +60,12 @@ Se a Tese e so "vou fazer X, Y e Z esta semana" = lista, nao tese. Reescreva.
 | Ruim | Por que e ruim | Melhor |
 |---|---|---|
 | "Semana de muitas reunioes e preparacao da diretoria." | Descritivo, sem aposta | "A S17 aposta no **fechamento do m7-controle** com a diretoria para **destravar o desdobramento de metas Q2**, apos a S16 ter validado o pipeline E2-E6." |
-| "Vou tentar entregar os Big 3 da semana." | Vago, sem ancora | (reescrever com entidades concretas) |
+| "Vou tentar entregar o Foco da semana." | Vago, sem ancora | (reescrever com entidades concretas) |
 | "A semana pede X e Y e Z e W." | 4 apostas = 0 apostas | "A semana aposta em X — porque Y destrava Z." |
 
-## Regra 2 · Criterio de vitoria
+## Regra 2 · Criterio de vitoria — discutir, nao persistir (v1)
+
+> **v1 enxuta:** o Criterio de vitoria e **discutido na conversa** para calibrar Tese e Foco, mas **nao e persistido** no objeto canonico. Aplique a regra para pensar a semana; nao emita os 4 checks como secao gravada.
 
 **O que e:** o **definition of done** da semana — 4 outcomes binarios (feito / nao feito) que, se cumpridos, comprovam a Tese.
 
@@ -70,7 +76,7 @@ Se a Tese e so "vou fazer X, Y e Z esta semana" = lista, nao tese. Reescreva.
 Construir 4 checks que respondem: **"Se na sexta eu tiver estes 4, a Tese foi cumprida."**
 
 **Regra de composicao (obrigatoria):**
-- **3 checks de trabalho/foco** (derivados dos Big 3)
+- **3 checks de trabalho/foco** (derivados do Foco da semana)
 - **1 check de corpo/recovery** (derivado do TP ou auto-cuidado)
 
 Os 4 devem ser **binarios e verificaveis**:
@@ -99,20 +105,20 @@ Pedir mentalmente: "se na sexta eu riscar os 4, eu estou orgulhoso da semana?" S
 
 ### Filtro por dia
 
-Para **cada** um dos 5 dias, definir **5 atributos**:
+Para **cada** um dos 5 dias, definir estes atributos:
 
-1. **Tema** (1 linha italic terracota): o papel do dia na narrativa
+1. **Tema** (1 linha): o papel do dia na narrativa
    - Exemplos: "weekly review & kickoff", "alinhamento tecnico", "maker day · codar", "ritual & presenca", "dia D · diretoria"
 2. **Manha · deep work** (frase): o que sera produzido no bloco matinal (pico cognitivo 9-12h)
 3. **Tarde · compromissos** (lista): meetings ancorados (horario + evento). Ordenar por hora.
-4. **Entrega** (italic terracota): o que o dia **entrega** concretamente no final
-5. **Energia prevista** (alta / media / baixa / alta·deep / media·prep): forma esperada
+4. **Entrega**: o que o dia **entrega** concretamente no final
+5. **Energia prevista** *(discutir, nao persistir na v1)* (alta / media / baixa / alta·deep / media·prep): forma esperada — usada para calibrar a distribuicao, nao gravada no objeto canonico
 
 ### Regras de orquestracao
 
-**Pelo menos 1 dia protegido.** Em toda semana, reservar **1 dia inteiro com ≤1 meeting curto** como maker day / deep work 4-6h contiguo. Sem isso, Big 3 complexos nao cabem. Candidato tipico: **qua 15** (meio da semana, meetings pesados geralmente caem em seg/qui/sex).
+**Pelo menos 1 dia protegido.** Em toda semana, reservar **1 dia inteiro com ≤1 meeting curto** como maker day / deep work 4-6h contiguo. Sem isso, focos complexos nao cabem. Candidato tipico: **qua 15** (meio da semana, meetings pesados geralmente caem em seg/qui/sex).
 
-**MIT #1 tem >=4h protegidas.** O maior dos Big 3 deve ter bloco contiguo de 4h+ em pelo menos 1 dia da Orquestra (tipicamente no dia protegido).
+**MIT #1 tem >=4h protegidas.** O maior dos focos deve ter bloco contiguo de 4h+ em pelo menos 1 dia da Orquestra (tipicamente no dia protegido).
 
 **Ritmo de energia.** Distribuir energia esperada:
 - Dias apos 4DX meeting ou depois de treino longo → energia "media"
@@ -132,39 +138,39 @@ Para **cada** um dos 5 dias, definir **5 atributos**:
 | Dias sem entrega clara | Toda segunda, terca, etc. entrega UMA coisa concreta |
 | Reunioes empilhadas sem buffer | Gaps de 30min entre meetings para transicoes |
 
-## Regra 4 · Tres grandes da semana (Weekly Big 3)
+## Regra 4 · Foco da semana
 
-**O que e:** os 3 outcomes que **comprovam o avanco das Metas Q2 nesta semana**. Nao sao tarefas — sao **marcos parciais de objetivos trimestrais**.
+**O que e:** os 3 outcomes que **comprovam o avanco das Metas Q2 nesta semana** (os "tres grandes"). Nao sao tarefas — sao **marcos parciais de objetivos trimestrais**. E uma das secoes persistidas no objeto canonico (Foco da semana, exatamente 3).
 
-**Inspiracao:** Hyatt Full Focus Planner — "Weekly Big 3 flows from Quarterly Big 3". Se o Big 3 nao deriva de Q2, nao e Big 3, e so uma tarefa grande.
+**Inspiracao:** Hyatt Full Focus Planner — "Weekly Big 3 flows from Quarterly Big 3". Se o foco nao deriva de Q2, nao e foco, e so uma tarefa grande. *(O vinculo explicito Foco↔Meta Q2 e discutido, nao persistido na v1.)*
 
 ### Filtro em 4 passos
 
 **Passo A · Derivacao de Q2**
 
-Para cada objetivo Q2 ativo, perguntar: *"qual o proximo marco parcial que cabe em 1 semana?"* — este e o candidato a Big 3.
+Para cada objetivo Q2 ativo, perguntar: *"qual o proximo marco parcial que cabe em 1 semana?"* — este e o candidato a foco.
 
 Exemplos:
-- Q2 "Publicar m7-controle em 3 verticais" (65%) → Big 3: "Fechar WBR Invest com aprovacao diretoria" (marco parcial da 1a vertical)
-- Q2 "Maratona junho sub-4h" (50%) → Big 3: "Bloco de 3 treinos longos + recovery"
-- Q2 "Desdobrar metas 2026" (30%, em risco) → Big 3: "Destravar SQL consorcios com Rafa OU escalar"
+- Q2 "Publicar m7-controle em 3 verticais" (65%) → foco: "Fechar WBR Invest com aprovacao diretoria" (marco parcial da 1a vertical)
+- Q2 "Maratona junho sub-4h" (50%) → foco: "Bloco de 3 treinos longos + recovery"
+- Q2 "Desdobrar metas 2026" (30%, em risco) → foco: "Destravar SQL consorcios com Rafa OU escalar"
 
 **Passo B · Corte a 3**
 
 Tipicamente haverao 4-5 candidatos. Cortar para 3 aplicando:
 1. Urgencia Q2 (objetivo em risco tem prioridade sobre objetivo no caminho)
-2. Dependencia (big 3 que destrava outros tem prioridade)
+2. Dependencia (foco que destrava outros tem prioridade)
 3. Realismo de capacidade (se os 3 nao cabem nas 5 horas de deep work da semana, reduzir escopo)
 
 **Passo C · Criterio "pronto quando"**
 
-Para cada Big 3, escrever **1 linha curta** com o criterio de conclusao:
+Para cada foco, escrever **1 linha curta** com o criterio de conclusao:
 
-- Big 3 "Fechar WBR Invest" → pronto quando: "diretoria aprova sex · cards publicados"
-- Big 3 "Bloco 3 treinos + sono medio ≥ 7h" → pronto quando: "TSS 320+ · sono dom validado"
-- Big 3 "Publicar weekly-planner skill" → pronto quando: "gera planner auto na seg matinal"
+- Foco "Fechar WBR Invest" → pronto quando: "diretoria aprova sex · cards publicados"
+- Foco "Bloco 3 treinos + sono medio ≥ 7h" → pronto quando: "TSS 320+ · sono dom validado"
+- Foco "Publicar weekly-planner skill" → pronto quando: "gera planner auto na seg matinal"
 
-Sem "pronto quando", Big 3 vira tema, nao task.
+Sem "pronto quando", o foco vira tema, nao task.
 
 **Passo D · Balance de papeis (soft)**
 
@@ -179,13 +185,15 @@ Se 3 sao todos de trabalho, pode ser sinal de que a semana esta desbalanceada. R
 
 | Ruim | Por que e ruim |
 |---|---|
-| Big 3 sem conexao com Q2 | Vira so tarefa grande, nao marco trimestral |
-| Big 3 sem "pronto quando" | Vira tema, nao entregavel |
-| Big 3 = projeto inteiro ("Terminar m7-controle") | Reduzir ao proximo marco parcial (1 semana) |
-| 5 Big 3 | Cortar ruthlessly para 3 |
-| Big 3 todos esteticamente iguais (3 do mesmo projeto) | Diversificar para cobrir 2+ objetivos Q2 |
+| Foco sem conexao com Q2 | Vira so tarefa grande, nao marco trimestral |
+| Foco sem "pronto quando" | Vira tema, nao entregavel |
+| Foco = projeto inteiro ("Terminar m7-controle") | Reduzir ao proximo marco parcial (1 semana) |
+| 5 focos | Cortar ruthlessly para 3 |
+| Focos todos iguais (3 do mesmo projeto) | Diversificar para cobrir 2+ objetivos Q2 |
 
-## Regra 5 · Prazos duros
+## Regra 5 · Prazos duros — discutir, nao persistir (v1)
+
+> **v1 enxuta:** os Prazos duros sao **discutidos** para ancorar a Orquestra e os Riscos, mas **nao sao persistidos** como secao do objeto canonico. Quando relevantes, integre-os a Orquestra (tarefas do dia) ou aos Riscos; nao emita um bloco "Prazos duros" gravado.
 
 **O que e:** tracking dos **deadlines externos** da semana — ancorados ao dia especifico. Nao sao tarefas abertas, sao compromissos com terceiros ou marcos externos.
 
@@ -194,9 +202,9 @@ Se 3 sao todos de trabalho, pode ser sinal de que a semana esta desbalanceada. R
 1. Do Grupo C da extracao (prazos duros), filtrar apenas os com SLA **dentro da semana alvo**
 2. Ancorar cada um ao **dia especifico** (seg/ter/qua/qui/sex)
 3. Classificar urgencia:
-   - **Atrasado** (SLA ja passou) → alert + "+Nd atraso"
-   - **Hoje** (SLA no dia da geracao do weekly) → default
-   - **Futuro na semana** → neutral
+   - **Atrasado** (SLA ja passou) → marcar como atrasado + "+Nd atraso"
+   - **Hoje** (SLA no dia da geracao do weekly)
+   - **Futuro na semana**
 
 ### Ordenacao
 
@@ -217,7 +225,7 @@ Dentro do bloco, ordenar:
 |---|---|
 | Prazos sem dia ancora | Sempre ancorar ao dia especifico |
 | Misturar prazos duros com tarefas abertas | Separar — prazos duros = compromisso externo |
-| Nao sinalizar atrasados | Atrasados sempre em `--alert` + "+Nd atraso" |
+| Nao sinalizar atrasados | Atrasados sempre marcados como atrasado + "+Nd atraso" |
 
 ## Regra 6 · Riscos & fogos (pre-mortem)
 
@@ -311,11 +319,13 @@ Exemplos:
 | "Onde dizer nao?" = "varias coisas" | Listar 2-3 especificas |
 | "Maior risco?" = "varios riscos" | Escolher UM, o maior |
 
-## Regra 8 · Corpo · semana
+## Regra 8 · Corpo · semana — discutir, nao persistir (v1)
 
-**O que e:** 4 KPIs semanais agregados — nao snapshot como no daily. Mostra a semana como bloco de treino/recovery, cada KPI com **tag de classificacao** (v1.8.0) para leitura binaria do status.
+> **v1 enxuta:** o Corpo · semana e **discutido** para informar energia, balanco e pre-mortem de fadiga, mas **nao e persistido** no objeto canonico. Aplique a regra na conversa; nao emita os KPIs como secao gravada.
 
-### Os 4 KPIs (ordem fixa v1.8.0)
+**O que e:** 4 KPIs semanais agregados — nao snapshot como no daily. Mostra a semana como bloco de treino/recovery, cada KPI com **tag de classificacao** para leitura binaria do status.
+
+### Os 4 KPIs (ordem quando discutidos)
 
 1. **Peso Δ** (delta kg da semana) → tag: `estável` / `em queda` / `subindo`
 2. **Sono medio** (horas, media seg a qui) → tag: `ideal` / `ok` / `baixo`
@@ -324,15 +334,7 @@ Exemplos:
 
 Ordem compartilhada com a daily (paridade de leitura). A regra semantica e: **peso entra primeiro (porta de entrada), sono e condicao (habilita tudo), TSS e volume (resultado do treino), TSB e sintese (onde estou agora)**.
 
-### Regras de cor (tag + numero compartilham classe)
-
-**Regra nova v1.8.0:** o **numero e a tag** de cada KPI usam a **mesma classe CSS** — coerencia visual entre valor e classificacao. As faixas completas estao em [extracao-dados.md secao 4](extracao-dados.md#4-corpo--semana-trainingpeaks-mcp).
-
-Quick reference:
-- default (neutro) → peso `estável`, sono `ok`, TSB `neutro`
-- `--body` (azul petroleo) → peso `em queda`, sono `ideal`, TSS `saudável`, TSB `produtivo`
-- `--warn` (`--accent-primary` / terracota) → peso `subindo`, TSS `leve`, TSB `fresco`
-- `--alert` (terracota escuro) → sono `baixo`, TSS `crítico`/`pesado`, TSB `overreach`/`destreino`
+As faixas completas de cada tag estao em [extracao-dados.md secao 4](extracao-dados.md#4-corpo--semana-trainingpeaks-mcp--opcional-nao-persistido-na-v1).
 
 ### Alvo da semana (opcional)
 
@@ -343,55 +345,55 @@ Se o usuario tiver alvo de semana (ex: "semana base", "semana all-in", "recovery
 
 Se o TSS projetado (dos treinos da Orquestra) nao bater com o alvo, sinalizar no Risco.
 
-### Regra de ouro mantida (v1.8.0)
+### Regra de dado ausente
 
 Se o MCP TP falha ou o dado esta ausente:
-- Numero renderiza como `&mdash;` com classe `--empty`
-- **Tag e totalmente omitida** (nunca renderizar tag vazia ou "?")
+- O valor fica vazio (`null`)
+- **Tag e totalmente omitida** (nunca gerar tag vazia ou "?")
 - Sem inventar classificacao
 
 ## Checklist de sanidade final
 
-Antes de passar para a Fase 3 (renderizacao), validar:
+Antes de destilar o objeto canonico e chamar a writing-week-to-supabase, validar (este checklist cobre **conteudo e metodo** — nao ha mais itens de layout/render, que sao responsabilidade do front):
 
 ```
 [ ] Retrospectiva S-1 foi perguntada e alimenta a Tese?
 [ ] Tese tem UMA aposta argumentativa (nao lista)?
-[ ] Tese tem 2-4 entidades em <em>, nao mais?
-[ ] Criterio de vitoria tem 4 checks binarios e verificaveis?
-[ ] Criterio tem pelo menos 1 check de corpo/recovery?
+[ ] Tese destaca 2-4 entidades ancora, nao mais?
 [ ] Orquestra cobre os 5 dias, cada um com tema + deep + meetings + entrega?
 [ ] Pelo menos 1 dia da Orquestra e "protegido" (maker day)?
-[ ] MIT #1 dos Big 3 tem bloco >=4h em pelo menos 1 dia?
-[ ] Tres grandes derivam de Metas Q2 (nao sao so tarefas grandes)?
-[ ] Cada Big 3 tem criterio "pronto quando"?
-[ ] Prazos duros ancorados a dia especifico (seg/ter/qua/qui/sex)?
+[ ] MIT #1 do Foco tem bloco >=4h em pelo menos 1 dia?
+[ ] Foco da semana (3) deriva de Metas Q2 (nao sao so tarefas grandes)?
+[ ] Cada item do Foco tem criterio "pronto quando"?
 [ ] Cada risco tem mitigacao concreta e acionavel (nao generica)?
 [ ] Riscos usam extracao Workspace M7 como insumo (status=atrasada/bloqueada, workspace inteiro)?
-[ ] Nenhuma task em status blacklist (cancelada/descartada/won't do) foi incluida nos Big 3, Prazos duros ou Riscos?
+[ ] Nenhuma task em status blacklist (cancelada/descartada/won't do) foi incluida no Foco ou nos Riscos?
 [ ] Tasks em status ambiguo (fora whitelist) candidatas ao topo do weekly foram confirmadas via `AskUserQuestion`?
-[ ] Cada contador exibido tem entrada em `extracao.metricas` com query rastreavel?
+[ ] Cada contador no objeto canonico tem entrada em `extracao.metricas` com query rastreavel?
 [ ] Contadores recalculados a partir das linhas extraidas (nao reusados do header da API)?
 [ ] "atrasadas_*" usa status unico como fonte (nao soma pendente+due-vencido)?
-[ ] Preflight tem as 4 perguntas respondidas em italic curto?
+[ ] Preflight tem as 4 perguntas respondidas em texto curto?
 [ ] Respostas do Preflight sao concretas (dia, hora, projeto)?
-[ ] Corpo · semana tem 4 KPIs na ordem fixa peso Δ → sono medio → TSS total → TSB, cada um com tag de classificacao (cor aplicada tanto no numero quanto na tag)?
 [ ] Insight cruza DUAS perguntas de frameworks distintos (tensionamento semanal)?
 ```
 
-Se algum item falhar, **voltar e ajustar antes de renderizar**. Plano errado bonito > plano errado feio, mas plano certo feio >> plano errado bonito.
+> Itens *discutir, nao persistir (v1)* — Criterio de vitoria (4 checks), Prazos duros ancorados, Corpo · semana (4 KPIs), energia por dia — **nao** entram no objeto canonico e por isso saem deste checklist. Discuta-os na conversa quando ajudarem a calibrar as secoes persistidas.
+
+Se algum item falhar, **voltar e ajustar antes de gravar**. Plano errado completo > plano errado incompleto, mas plano certo enxuto >> plano errado completo.
 
 ## Ordem de execucao recomendada
 
-Dentro da Fase 2, seguir esta ordem (cada regra alimenta a proxima):
+Dentro da Fase 2, seguir esta ordem (cada regra alimenta a proxima). Marcadas com *(disc.)* as que sao discutidas mas nao persistidas na v1:
 
 1. Tese (usa retrospectiva + metas Q2)
-2. Criterio de vitoria (deriva da Tese)
-3. Tres grandes (deriva de Q2, valida contra Criterio)
-4. Orquestra (distribui Big 3 nos 5 dias)
-5. Prazos duros (cruza com Orquestra para validar capacidade)
+2. Criterio de vitoria *(disc.)* — deriva da Tese
+3. Foco da semana (deriva de Q2, valida contra Criterio)
+4. Orquestra (distribui o Foco nos 5 dias)
+5. Prazos duros *(disc.)* — cruza com Orquestra para validar capacidade
 6. Riscos (emerge da Orquestra + retrospectiva + dependencias)
 7. Preflight (consolida tudo em 4 respostas)
-8. Corpo (agregados do TP + alvo da semana)
+8. Corpo *(disc.)* — agregados do TP + alvo da semana
 
-**Insight (Fase 2b)** roda em paralelo a partir da Tese + Big 3 + Riscos.
+**Insight (Fase 2b)** roda em paralelo a partir da Tese + Foco + Riscos.
+
+Ao final, a Fase 2 destila as secoes persistidas (Tese, Insight, Foco, Orquestra, Riscos, Preflight, Review) no objeto canonico enxuto entregue a writing-week-to-supabase.
