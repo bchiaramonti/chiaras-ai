@@ -2,6 +2,24 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [4.2.0] - 2026-06-16
+
+### Added · Camada diária — skill `daily-review` + modos de escrita do dia
+
+Suporte ao planejamento/revisão por dia, alinhado ao novo front "Foco Lateral" (drawer do
+dia com checklist + journaling).
+
+- Skill **`daily-review`** (nova): fecha um dia — lê o dia no Supabase (plano + `done` +
+  o `journal_raw` que o dono escreveu no front), relê as fontes (Calendar/ClickUp/
+  Fireflies/Slack/e-mail), reconcilia feito × aberto, **reescreve o `journal`** enriquecido
+  e **replaneja o dia seguinte**. Não toca em `journal_raw` (é do dono).
+- `writing-week-to-supabase`: modos novos **`day`** (replaneja um dia) e **`daily-review`**
+  (grava `daily_reviews.journal/done_summary/open_items` + `tasks.done`); o modo `plano`
+  agora grava `days.intention` e cria as linhas vazias de `daily_reviews`.
+- `planning-the-week`: o objeto canônico passa a incluir `intention` (foco do dia).
+
+(Schema/RLS da camada diária vivem no app bc-planning — migration `0002_daily.sql`.)
+
 ## [4.1.1] - 2026-06-15
 
 ### Fixed · `writing-week-to-supabase` fixa o projeto-alvo (sem tentativa-e-erro)

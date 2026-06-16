@@ -46,7 +46,7 @@ texto depois. A companheira **conversa e ajusta** — não despeja um plano pron
    e conduzir como **diálogo** (não one-shot), ajustando com o Bruno. Mapear o método
    para a **forma enxuta** (ver "Mapeamento" abaixo): **Tese** → lede (conectada à
    retrospectiva lida no passo 1); **Foco da semana (3)** (= Três grandes/Big 3);
-   **Orquestra dos 5 dias** (tema + entrega + tarefas); **Riscos & fogos**;
+   **Orquestra dos 5 dias** (tema + **foco do dia** `intention` + entrega + tarefas); **Riscos & fogos**;
    **Preflight (4)**. Manter o tom de [references/regras-texto.md](references/regras-texto.md).
 4. **Insight** — despachar o subagente [`pfeffer-power-analyst`](../../agents/pfeffer-power-analyst.md)
    (horizonte=weekly) e aplicar as regras de [references/insight-cruzamento.md](references/insight-cruzamento.md).
@@ -81,7 +81,7 @@ focus:                  # Foco da semana = Três grandes (exatamente 3)
   - { n: "02", text: "..." }
   - { n: "03", text: "..." }
 days:                   # Orquestra (exatamente 5: seg–sex)
-  - name: "Segunda"; short: "Seg"; date: "23"; theme: "..."; entrega: "..."
+  - name: "Segunda"; short: "Seg"; date: "23"; theme: "..."; intention: "foco do dia (1 frase)"; entrega: "..."
     tasks:
       - { src: "CA", title: "...", prio: "P1", time: "09:00–10:00", people: ["..."] }
       - { src: "CU", title: "...", prio: "P2" }     # prio "" e time/people opcionais

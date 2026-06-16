@@ -1,6 +1,6 @@
 ---
 name: writing-week-to-supabase
-description: Persiste no Supabase (projeto bc-planning, ref fffowcpzrgeoreiffrrb) o objeto canônico de uma semana — modo "plano" (weeks + focus_items + days + tasks + risks + preflight_items) ou modo "review" (weekly_reviews). Upsert idempotente por (user_id, year, week_num) via delete-then-insert. Escreve via o MCP bc-planning_ (service_role, ignora RLS), setando user_id do dono, last_sync_at e order_index. Determinística: NÃO planeja nem conversa (isso é da planning-the-week) e NÃO renderiza (o front faz). Use quando já existir um objeto canônico de plano/review pronto para gravar.
+description: Persiste no Supabase (projeto bc-planning, ref fffowcpzrgeoreiffrrb) o objeto canônico de uma semana — modo "plano" (weeks + focus_items + days + tasks + risks + preflight_items) modo "review" (weekly_reviews), modo "day" (replaneja um dia) ou modo "daily-review" (grava daily_reviews + marca tasks.done). Upsert idempotente por (user_id, year, week_num) via delete-then-insert. Escreve via o MCP bc-planning_ (service_role, ignora RLS), setando user_id do dono, last_sync_at e order_index. Determinística: NÃO planeja nem conversa (isso é da planning-the-week) e NÃO renderiza (o front faz). Use quando já existir um objeto canônico de plano/review pronto para gravar.
 license: Proprietary
 ---
 
@@ -68,9 +68,10 @@ begin
     (v_week, v_uid, '03', '{FOCO_3}', 2);
 
   -- por dia (repetir para os 5; order_index 0..4):
-  insert into public.days (week_id, user_id, name, short, date, theme, entrega, order_index)
-    values (v_week, v_uid, '{NAME}', '{SHORT}', '{DATE}', '{THEME}', '{ENTREGA}', {DAY_IDX})
+  insert into public.days (week_id, user_id, name, short, date, theme, intention, entrega, order_index)
+    values (v_week, v_uid, '{NAME}', '{SHORT}', '{DATE}', '{THEME}', '{INTENTION}', '{ENTREGA}', {DAY_IDX})
     returning id into v_day;
+  insert into public.daily_reviews (day_id, week_id, user_id) values (v_day, v_week, v_uid); -- linha vazia p/ o front gravar journal
   insert into public.tasks (day_id, week_id, user_id, src, title, prio, "time", people, order_index) values
     (v_day, v_week, v_uid, '{SRC}', '{TITLE}', {PRIO_OR_NULL}, {TIME_OR_NULL}, {PEOPLE_ARR}, {TASK_IDX});
   -- ... demais tasks do dia ...
@@ -104,6 +105,54 @@ begin
       {WINS_ARR}, {FRICTIONS_ARR}, {SEEDS_ARR});
 end $$;
 ```
+
+## Modo DAY — replaneja UM dia (usado pela `daily-review` p/ o dia seguinte) — `execute_sql`
+Substitui o plano de um dia **futuro** (apaga as tasks dele e regrava). NÃO usar no dia
+já em curso com `done` marcados — para esse, use o modo `daily-review`.
+```sql
+do $$
+declare
+  v_email text := 'bchiaramonti@gmail.com';
+  v_uid uuid; v_week uuid; v_day uuid;
+begin
+  select id into v_uid from auth.users where email = v_email;
+  select id into v_week from public.weeks where user_id = v_uid and year = {YEAR} and week_num = {WEEK_NUM};
+  select id into v_day  from public.days  where week_id = v_week and name = '{DAY_NAME}';
+  if v_day is null then raise exception 'dia % da semana %/% não existe — planeje a semana antes', '{DAY_NAME}', {WEEK_NUM}, {YEAR}; end if;
+
+  update public.days set intention = '{INTENTION}', entrega = '{ENTREGA}' where id = v_day;
+  delete from public.tasks where day_id = v_day;
+  insert into public.tasks (day_id, week_id, user_id, src, title, prio, "time", people, order_index) values
+    (v_day, v_week, v_uid, '{SRC}', '{TITLE}', {PRIO_OR_NULL}, {TIME_OR_NULL}, {PEOPLE_ARR}, {TASK_IDX});
+  insert into public.daily_reviews (day_id, week_id, user_id) values (v_day, v_week, v_uid)
+    on conflict (day_id) do nothing;
+end $$;
+```
+
+## Modo DAILY-REVIEW — grava o review de um dia — `execute_sql`
+Escreve só o que é da skill (`journal`/`done_summary`/`open_items`) — **não toca em
+`journal_raw`** (é do dono) — e marca como concluídas as tasks confirmadas (por id).
+```sql
+do $$
+declare
+  v_email text := 'bchiaramonti@gmail.com';
+  v_uid uuid; v_week uuid; v_day uuid;
+begin
+  select id into v_uid from auth.users where email = v_email;
+  select id into v_week from public.weeks where user_id = v_uid and year = {YEAR} and week_num = {WEEK_NUM};
+  select id into v_day  from public.days  where week_id = v_week and name = '{DAY_NAME}';
+  if v_day is null then raise exception 'dia inexistente'; end if;
+
+  insert into public.daily_reviews (day_id, week_id, user_id, journal, done_summary, open_items)
+    values (v_day, v_week, v_uid, '{JOURNAL}', '{DONE_SUMMARY}', {OPEN_ITEMS_ARR})
+  on conflict (day_id) do update
+    set journal = excluded.journal, done_summary = excluded.done_summary, open_items = excluded.open_items;
+
+  -- só se houver ids confirmados (senão, omitir esta linha):
+  update public.tasks set done = true where day_id = v_day and id in ({DONE_TASK_IDS});
+end $$;
+```
+(`{OPEN_ITEMS_ARR}` = `array['...']` ou `'{}'`; `{DONE_TASK_IDS}` = `'uuid1','uuid2'` ou omitir o UPDATE.)
 
 ## Depois de gravar
 1. Conferir (`execute_sql`): contagens da semana (1 week, N focus/days/tasks/risks/preflight; review = 1).

@@ -92,8 +92,8 @@
     },
     {
       "name": "planner",
-      "description": "Personal plugin for Bruno Chiaramonti's executive WEEKLY planning — split into PENSAR vs PERSISTIR. Two skills + one agent: `planning-the-week` (conversational companion — maps sources from Google Calendar + ClickUp, plans the week with executive methodology in dialogue, and runs the `pfeffer-power-analyst` agent for the Insight · cruzamento, emitting a canonical week object) and `writing-week-to-supabase` (deterministic, idempotent upsert of the week's plan/review into the Supabase `bc-planning` project via the `bc-planning_` MCP). Rendering lives in the Next.js front on Vercel — this plugin no longer produces HTML. Scope is strictly personal artifacts.",
-      "version": "4.1.1",
+      "description": "Personal plugin for Bruno Chiaramonti's executive WEEKLY planning — split into PENSAR vs PERSISTIR. Three skills + one agent: `planning-the-week` (conversational companion — maps sources from Google Calendar + ClickUp, plans the week with executive methodology in dialogue, and runs the `pfeffer-power-analyst` agent for the Insight · cruzamento, emitting a canonical week object) and `writing-week-to-supabase` (deterministic, idempotent upsert of the week's plan/review into the Supabase `bc-planning` project via the `bc-planning_` MCP), plus `daily-review` (closes a day — re-reads sources, reconciles done×open, rewrites the journal and replans the next day). Rendering lives in the Next.js front on Vercel — this plugin no longer produces HTML. Scope is strictly personal artifacts.",
+      "version": "4.2.0",
       "author": {
         "name": "Bruno Chiaramonti"
       },

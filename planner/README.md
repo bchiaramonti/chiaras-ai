@@ -20,16 +20,19 @@ writing-week-to-supabase (skill, grava) ──▶ Supabase (bc-planning, via MCP
 | Item | Papel |
 |---|---|
 | `planning-the-week` (skill) | **Pensar.** Mapeia fontes, conduz o planejamento/review em diálogo (8 regras), aciona o Pfeffer e emite o objeto canônico (forma enxuta). Não grava, não renderiza. |
-| `writing-week-to-supabase` (skill) | **Persistir.** Upsert idempotente do plano/review no Supabase (`bc-planning`) via MCP `bc-planning_`. Modos `plano` e `review`. |
+| `writing-week-to-supabase` (skill) | **Persistir.** Upsert idempotente no Supabase (`bc-planning`) via MCP `bc-planning_`. Modos `plano`, `review`, `day` e `daily-review`. |
+| `daily-review` (skill) | **Fechar o dia.** Lê o dia (plano + `done` + `journal_raw` do dono), relê as fontes, reconcilia feito×aberto, reescreve o `journal` e replaneja o dia seguinte. |
 | `pfeffer-power-analyst` (agente) | Fonte única do Insight · cruzamento (2 capítulos do POWER, Pfeffer). |
 
 ## Dependências de MCP (não bundladas — vêm do ambiente)
 - `planning-the-week`: **`bc-planning_`** (review/plano da S-1) + **Google Calendar** + **ClickUp** + **Fireflies** + **Slack** + **Outlook (M365)/Gmail** (mapear fontes).
 - `writing-week-to-supabase`: **`bc-planning_`** (Supabase do projeto; service_role).
+- `daily-review`: **`bc-planning_`** (ler o dia) + as mesmas fontes da `planning-the-week`.
 
 ## Triggers
 - Planejar: "planeja minha semana", "prepara a semana N", "sunday planning".
 - Review: "fazer o review da semana", "retrospectiva da semana".
+- Daily: "fechar o dia", "review do meu dia", "daily review da quinta".
 
 ## Escopo
 Estritamente pessoal. Não usar em apresentações M7, comunicados ou documentos corporativos.
