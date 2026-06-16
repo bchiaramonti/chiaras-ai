@@ -23,21 +23,29 @@ texto depois. A companheira **conversa e ajusta** — não despeja um plano pron
 ## Dois modos
 
 ### Modo PLANO (planejar a semana)
-1. **Mapear fontes** — ler [references/extracao-dados.md](references/extracao-dados.md) e
-   reunir: Agenda (Google Calendar MCP, seg–sex), Tarefas (ClickUp MCP, assignee=Bruno,
-   whitelist de status) e Workspace M7 (ClickUp, status=atrasada/bloqueada no workspace
-   inteiro). Apresentar um **snapshot** ao Bruno. Corpo/TrainingPeaks e Metas Q2 podem
-   ser **discutidos**, mas **não entram no objeto** (v1 enxuto). Nunca inventar dado.
-2. **Conversar/planejar** — ler [references/metodologia-planejamento.md](references/metodologia-planejamento.md)
+1. **Ler a semana anterior no Supabase (retrospectiva) — PRIMEIRO, NÃO PERGUNTAR.**
+   Via o MCP **`bc-planning_`** (`execute_sql`), ler do dono a `weekly_reviews` da semana
+   **N-1** (`lede/learning/wins/frictions/seeds`) e o plano da S-1 (`weeks` + filhas).
+   **Isso É a retrospectiva** — não pergunte ao Bruno o que o banco já tem. Carregar os
+   `seeds[]` da review da S-1 como sementes a puxar para a nova semana. **Só perguntar**
+   o que faltar: se a S-1 **não tiver review** no banco (sugerir rodar o modo REVIEW dela
+   antes), ou complementos. Atenção ao **rollover de ano** (planejando a semana 1, a
+   anterior é a última semana do ano anterior).
+2. **Mapear fontes externas** — ler [references/extracao-dados.md](references/extracao-dados.md):
+   Agenda (Google Calendar MCP, seg–sex), Tarefas (ClickUp MCP, assignee=Bruno, whitelist
+   de status) e Workspace M7 (ClickUp, status=atrasada/bloqueada no workspace inteiro).
+   Apresentar um **snapshot** ao Bruno. Corpo/TrainingPeaks e Metas Q2 podem ser
+   **discutidos**, mas **não entram no objeto** (v1 enxuto). Nunca inventar dado.
+3. **Conversar/planejar** — ler [references/metodologia-planejamento.md](references/metodologia-planejamento.md)
    e conduzir como **diálogo** (não one-shot), ajustando com o Bruno. Mapear o método
-   para a **forma enxuta** (ver "Mapeamento" abaixo): **Tese** → lede; **Foco da semana
-   (3)** (= Três grandes/Big 3); **Orquestra dos 5 dias** (tema + entrega + tarefas);
-   **Riscos & fogos**; **Preflight (4)**. Manter o tom de
-   [references/regras-texto.md](references/regras-texto.md).
-3. **Insight** — despachar o subagente [`pfeffer-power-analyst`](../../agents/pfeffer-power-analyst.md)
+   para a **forma enxuta** (ver "Mapeamento" abaixo): **Tese** → lede (conectada à
+   retrospectiva lida no passo 1); **Foco da semana (3)** (= Três grandes/Big 3);
+   **Orquestra dos 5 dias** (tema + entrega + tarefas); **Riscos & fogos**;
+   **Preflight (4)**. Manter o tom de [references/regras-texto.md](references/regras-texto.md).
+4. **Insight** — despachar o subagente [`pfeffer-power-analyst`](../../agents/pfeffer-power-analyst.md)
    (horizonte=weekly) e aplicar as regras de [references/insight-cruzamento.md](references/insight-cruzamento.md).
    Resultado → `insight.text` + `insight.ref` (ex.: `POWER · Cap 9 × Cap 7`).
-4. **Emitir + confirmar** — montar o **objeto canônico (plano)**, mostrar ao Bruno para
+5. **Emitir + confirmar** — montar o **objeto canônico (plano)**, mostrar ao Bruno para
    confirmação e, ao confirmar, **invocar a skill `writing-week-to-supabase` (modo plano)**
    passando o objeto. Reportar o link do front (`https://bc-planning.vercel.app`).
 

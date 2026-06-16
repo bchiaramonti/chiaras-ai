@@ -2,6 +2,21 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [4.0.1] - 2026-06-15
+
+### Fixed · Retrospectiva da S-1 lida do Supabase (antes era sempre perguntada)
+
+A `planning-the-week` perguntava a retrospectiva da semana anterior ao usuário em vez de
+ler o que já está no banco. Agora o **passo 1** do modo plano lê a `weekly_reviews` da
+S-1 (+ o plano da S-1) via o MCP `bc-planning_` **antes de perguntar** — só pergunta o
+gap (se a S-1 não tiver review, sugere rodar o modo REVIEW dela). Os `seeds[]` da review
+da S-1 são puxados como candidatos da nova semana.
+
+- `SKILL.md`: novo passo 1 "ler a semana anterior no Supabase — não perguntar"; renumerado.
+- `references/extracao-dados.md`: seção 6 reescrita ("do banco primeiro; perguntar só o
+  gap") + TOC/particularidade/tabela de fontes.
+- `README.md`: `planning-the-week` passa a depender do MCP `bc-planning_` (leitura da S-1).
+
 ## [4.0.0] - 2026-06-15
 
 ### Changed · Separação PENSAR × PERSISTIR; escrita no Supabase

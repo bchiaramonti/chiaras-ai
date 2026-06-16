@@ -6,7 +6,7 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 
 **Regra de ouro:** nunca invente dado. Se nao conseguir extrair e o usuario nao forneceu, o campo correspondente do objeto canonico fica vazio (`null`) ou e omitido — nunca preenchido com ficcao.
 
-**Particularidade weekly:** a **Retrospectiva da semana passada** e sempre perguntada — e o que diferencia um weekly preview de um summary descritivo. Sem ela, a Tese da semana vira generica.
+**Particularidade weekly:** a **Retrospectiva da semana passada** vem do Supabase (`weekly_reviews` da S-1, lida via `bc-planning_`) — só perguntar o que o banco não tiver. É o que diferencia um weekly preview de um summary descritivo; sem ela, a Tese da semana vira generica.
 
 ## Indice
 
@@ -17,7 +17,7 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 - [3. Workspace M7 (saude das frentes)](#3-workspace-m7-saude-das-frentes)
 - [4. Corpo · semana (TrainingPeaks MCP) — opcional, nao persistido na v1](#4-corpo--semana-trainingpeaks-mcp--opcional-nao-persistido-na-v1)
 - [5. Metas Q2 (conexao trimestral) — opcional, nao persistido na v1](#5-metas-q2-conexao-trimestral--opcional-nao-persistido-na-v1)
-- [6. Retrospectiva S-1 (sempre perguntar)](#6-retrospectiva-s-1-sempre-perguntar)
+- [6. Retrospectiva S-1 (do banco primeiro; perguntar só o gap)](#6-retrospectiva-s-1-do-banco-primeiro-perguntar-só-o-gap)
 - [7. Contexto para o agente Pfeffer](#7-contexto-para-o-agente-pfeffer)
 - [Protocolo de fallback](#protocolo-de-fallback)
 - [Rastreabilidade de metricas](#rastreabilidade-de-metricas)
@@ -32,7 +32,7 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 | **Workspace M7** | ClickUp (statuses=[atrasada, bloqueada] workspace inteiro) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo por frente |
 | **Corpo · semana** *(opcional — discutido, nao persistido na v1 enxuta)* | **TrainingPeaks MCP** (v1.5.0+) | `tp-mcp` (weight, sleep, HRV, weekly_summary, fitness_metrics) | Perguntar se MCP falhar |
 | **Metas Q2** *(opcional — discutido, nao persistido na v1 enxuta)* | ClickUp goals → `brain/3-resources/` → perguntar | `mcp__claude_ai_ClickUp__clickup_get_workspace_hierarchy` + `clickup_search` | Perguntar confidence por objetivo |
-| **Retrospectiva S-1** | *Sempre perguntar ao usuario* | — | — (e a propria fonte) |
+| **Retrospectiva S-1** | destravou/travou/aprendi + seeds da S-1 | `bc-planning_` → `weekly_reviews` (ler primeiro) | perguntar, ou rodar o modo REVIEW da S-1 |
 | Contexto Pfeffer | Agente `pfeffer-power-analyst` (horizonte=weekly) recebe Tese + Foco da semana + Retrospectiva S-1 + Riscos | Invocacao direta do agente | Agente pede dado especifico se input incompleto |
 
 ### Escopo v1 enxuto (o que persiste no objeto canonico)
@@ -393,33 +393,41 @@ Se as duas rotas falharem:
 - Confidence 40-60% → `atencao` (ainda da)
 - Confidence < 40% → `em risco` (rever)
 
-## 6. Retrospectiva S-1 (sempre perguntar)
+## 6. Retrospectiva S-1 (do banco primeiro; perguntar só o gap)
 
-**A peca-chave do weekly preview.** Sem saber o que aconteceu na semana que termina, a Tese da proxima vira generica.
+**A peca-chave do weekly preview.** Sem saber o que aconteceu na semana que termina, a Tese da proxima vira generica. **Mas isso já está no banco** — leia antes de perguntar.
 
-### Pergunta padronizada
+### Fonte primária: Supabase (NÃO perguntar de cara)
 
-No inicio da Fase 1 (antes de extrair MCPs), perguntar:
+No início da Fase 1, **antes de qualquer pergunta**, ler a semana **N-1** do dono via o
+MCP **`bc-planning_`** (`execute_sql`):
 
-> Antes de preparar a S{N}, retrospectiva rapida da S{N-1} (~2 min):
->
-> 1. **Destravou**: o que rolou bem / que vitoria voce teve? (1-3 linhas)
-> 2. **Travou**: o que nao saiu ou patinou? (1-3 linhas)
-> 3. **Aprendi**: alguma licao que muda como voce encara a proxima? (1 linha, opcional)
->
-> Pode responder em prosa livre — vou estruturar depois.
+- `weekly_reviews` da S-1 → `lede`, `wins` (≈ destravou), `frictions` (≈ travou),
+  `learning` (≈ aprendi) e `seeds` (sementes a puxar para a nova semana).
+- o **plano** da S-1 (`weeks` + `days`/`tasks` + `risks`) → o que estava planejado.
+
+Se houver `weekly_reviews` da S-1, **essa é a retrospectiva — não re-perguntar.**
+(Rollover de ano: para a semana 1, a anterior é a última semana do ano anterior.)
+
+### Perguntar SÓ o gap
+
+- Se a S-1 **não tem review** no banco → sugerir rodar o **modo REVIEW** dela antes, ou
+  pedir 1-2 frases para seguir:
+  > Não achei a review da S{N-1} no banco. Quer que eu rode o review dela agora, ou me
+  > passa rápido o que **destravou**, o que **travou** e (opcional) o que **aprendi**?
+- Complementos pontuais que o banco não capture.
 
 ### Uso na Fase 2
 
-- **Tese**: o "destravou" alimenta o argumento de continuidade ("apos fechar X na S-1, a S{N} usa esse destravamento para avancar Y")
-- **Riscos**: o "travou" vira entrada para o pre-mortem (se patinou por motivo Z, Z vira risco mapeado)
-- **Foco da semana**: o "aprendi" informa o que precisa ser diferente nos 3 focos
+- **Tese**: `wins`/"destravou" alimenta o argumento de continuidade.
+- **Riscos**: `frictions`/"travou" vira entrada para o pré-mortem.
+- **Foco da semana**: `learning`/"aprendi" informa o que muda nos 3 focos; os `seeds` da
+  S-1 são candidatos diretos aos focos/tarefas da nova semana.
 
-### Anti-padrao
+### Anti-padrão
 
-Nao pular essa pergunta mesmo se o usuario pedir rapidez. Sem retrospectiva, avisar:
-
-> Sem retrospectiva da S-1, o weekly vai ficar generico — a Tese perde ancoragem. Voce pode me passar rapido 1-2 frases de "o que destravou" e "o que travou"? Se nao tiver nada, posso seguir mas a qualidade cai.
+- **Perguntar a retrospectiva sem antes ler o banco** — a review da S-1 já está no
+  Supabase; lê-la primeiro via `bc-planning_`. Perguntar de cara duplica o que o sistema já sabe.
 
 ## 7. Contexto para o agente Pfeffer
 
