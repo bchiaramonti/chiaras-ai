@@ -1,6 +1,6 @@
 ---
 name: writing-week-to-supabase
-description: Persiste no Supabase (projeto bc-planning) o objeto canônico de uma semana — modo "plano" (weeks + focus_items + days + tasks + risks + preflight_items) ou modo "review" (weekly_reviews). Upsert idempotente por (user_id, year, week_num) via delete-then-insert. Escreve via o MCP bc-planning_ (service_role, ignora RLS), setando user_id do dono, last_sync_at e order_index. Determinística: NÃO planeja nem conversa (isso é da planning-the-week) e NÃO renderiza (o front faz). Use quando já existir um objeto canônico de plano/review pronto para gravar.
+description: Persiste no Supabase (projeto bc-planning, ref fffowcpzrgeoreiffrrb) o objeto canônico de uma semana — modo "plano" (weeks + focus_items + days + tasks + risks + preflight_items) ou modo "review" (weekly_reviews). Upsert idempotente por (user_id, year, week_num) via delete-then-insert. Escreve via o MCP bc-planning_ (service_role, ignora RLS), setando user_id do dono, last_sync_at e order_index. Determinística: NÃO planeja nem conversa (isso é da planning-the-week) e NÃO renderiza (o front faz). Use quando já existir um objeto canônico de plano/review pronto para gravar.
 license: Proprietary
 ---
 
@@ -9,11 +9,21 @@ license: Proprietary
 Skill **determinística** de escrita. Recebe o **objeto canônico** (emitido pela
 `planning-the-week`) e grava no Postgres do Supabase. Não pensa, não conversa, não renderiza.
 
-## Alvo e canal
-- Projeto **bc-planning** · ref `fffowcpzrgeoreiffrrb` · URL `https://bc-planning.vercel.app`.
-- Canal: MCP **`bc-planning_`** → `execute_sql`. (Fallback: `plugin:supabase:supabase`
-  `execute_sql` com `project_id=fffowcpzrgeoreiffrrb`.) Ambos usam service_role → **ignoram
-  RLS**, por isso o `user_id` do dono é setado explicitamente em cada linha.
+## Alvo e canal — fixar o projeto SEM tentativa-e-erro
+- **Projeto-alvo (FIXO):** `planning` / `bc-planning` · **ref `fffowcpzrgeoreiffrrb`**
+  (org Superavit) · URL `https://bc-planning.vercel.app`. **Toda** escrita vai para esse ref.
+- **Escolha do MCP (determinística — não testar um por um):** usar o MCP dedicado
+  **`bc-planning_`**. Existem outros Supabase conectados que **NUNCA** devem receber
+  escrita — em especial **`bc-superavit_`** (ref `lefldstgsegtmuajiiuv`, OUTRO projeto) e
+  o `plugin:supabase:supabase` (account-level).
+  - Se a ferramenta aceitar `project_id` → **sempre** passar `fffowcpzrgeoreiffrrb` (não adivinhar, não usar o "default").
+  - Se o MCP for pré-escopado (sem `project_id`) → confirmar **uma única vez** que ele
+    aponta para `fffowcpzrgeoreiffrrb` (`get_project_url` ou `list_projects`) e seguir.
+- **Guarda de segurança:** antes do upsert, garantir que o destino é `fffowcpzrgeoreiffrrb`.
+  Se não conseguir confirmar o ref, **abortar e avisar** — melhor não gravar do que gravar
+  no projeto errado (ex.: `bc-superavit`).
+- Canal de escrita: `execute_sql` (service_role → **ignora RLS**; por isso o `user_id` do
+  dono é setado explicitamente em cada linha).
 - Contrato do objeto: ver `planning-the-week/SKILL.md` (forma enxuta) e o schema em
   `0-inbox/plan-review/supabase/migrations/0001_init.sql` (+ `seed.sql` como modelo do upsert).
 

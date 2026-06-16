@@ -2,6 +2,17 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [4.1.1] - 2026-06-15
+
+### Fixed · `writing-week-to-supabase` fixa o projeto-alvo (sem tentativa-e-erro)
+
+Na primeira escrita, a skill gastou passos descobrindo qual MCP Supabase era o
+bc-planning. Agora o **ref-alvo está fixo** (`fffowcpzrgeoreiffrrb`) e a escolha do
+projeto é determinística: usar o MCP `bc-planning_`; se a tool aceitar `project_id`,
+**sempre** passar `fffowcpzrgeoreiffrrb`; se pré-escopado, confirmar uma única vez
+(`get_project_url`/`list_projects`). **Guarda:** nunca escrever em `bc-superavit_`
+(ref `lefldstgsegtmuajiiuv`) nem no account-level — abortar se não confirmar o ref.
+
 ## [4.1.0] - 2026-06-15
 
 ### Added · Mais fontes no mapeamento (Fireflies, Slack, E-mail)
