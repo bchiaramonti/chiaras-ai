@@ -31,11 +31,17 @@ texto depois. A companheira **conversa e ajusta** — não despeja um plano pron
    o que faltar: se a S-1 **não tiver review** no banco (sugerir rodar o modo REVIEW dela
    antes), ou complementos. Atenção ao **rollover de ano** (planejando a semana 1, a
    anterior é a última semana do ano anterior).
-2. **Mapear fontes externas** — ler [references/extracao-dados.md](references/extracao-dados.md):
-   Agenda (Google Calendar MCP, seg–sex), Tarefas (ClickUp MCP, assignee=Bruno, whitelist
-   de status) e Workspace M7 (ClickUp, status=atrasada/bloqueada no workspace inteiro).
-   Apresentar um **snapshot** ao Bruno. Corpo/TrainingPeaks e Metas Q2 podem ser
-   **discutidos**, mas **não entram no objeto** (v1 enxuto). Nunca inventar dado.
+2. **Mapear fontes externas** — ler [references/extracao-dados.md](references/extracao-dados.md).
+   Varrer **TODAS** as fontes (não só Calendar/ClickUp):
+   - **Agenda** (Google Calendar MCP, seg–sex) e **Tarefas/Workspace M7** (ClickUp MCP).
+   - **Fireflies** — transcrições/resumos das **últimas reuniões** → action items, decisões, follow-ups.
+   - **Slack** — **conversas recentes** → compromissos, pedidos, threads a acompanhar.
+   - **E-mail** — **Outlook M7 + Gmail** → pendências de resposta, pedidos, compromissos.
+
+   Cada pendência vira candidata a tarefa (`src` = CU/CA/FF/SL/EM/GM), risco ou foco —
+   **sem duplicar** o que já está no ClickUp. Apresentar um **snapshot** ao Bruno.
+   Corpo/TrainingPeaks e Metas Q2 podem ser **discutidos**, mas **não entram no objeto**
+   (v1 enxuto). Nunca inventar dado.
 3. **Conversar/planejar** — ler [references/metodologia-planejamento.md](references/metodologia-planejamento.md)
    e conduzir como **diálogo** (não one-shot), ajustando com o Bruno. Mapear o método
    para a **forma enxuta** (ver "Mapeamento" abaixo): **Tese** → lede (conectada à

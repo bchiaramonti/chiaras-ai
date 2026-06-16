@@ -24,7 +24,7 @@ writing-week-to-supabase (skill, grava) ──▶ Supabase (bc-planning, via MCP
 | `pfeffer-power-analyst` (agente) | Fonte única do Insight · cruzamento (2 capítulos do POWER, Pfeffer). |
 
 ## Dependências de MCP (não bundladas — vêm do ambiente)
-- `planning-the-week`: **`bc-planning_`** (ler a review/plano da S-1 = retrospectiva) + **Google Calendar** + **ClickUp** (mapear fontes).
+- `planning-the-week`: **`bc-planning_`** (review/plano da S-1) + **Google Calendar** + **ClickUp** + **Fireflies** + **Slack** + **Outlook (M365)/Gmail** (mapear fontes).
 - `writing-week-to-supabase`: **`bc-planning_`** (Supabase do projeto; service_role).
 
 ## Triggers

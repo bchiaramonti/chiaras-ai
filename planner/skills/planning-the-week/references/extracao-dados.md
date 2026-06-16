@@ -19,6 +19,9 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 - [5. Metas Q2 (conexao trimestral) — opcional, nao persistido na v1](#5-metas-q2-conexao-trimestral--opcional-nao-persistido-na-v1)
 - [6. Retrospectiva S-1 (do banco primeiro; perguntar só o gap)](#6-retrospectiva-s-1-do-banco-primeiro-perguntar-só-o-gap)
 - [7. Contexto para o agente Pfeffer](#7-contexto-para-o-agente-pfeffer)
+- [8. Fireflies — transcrições de reuniões](#8-fireflies--transcrições-de-reuniões)
+- [9. Slack — conversas recentes](#9-slack--conversas-recentes)
+- [10. E-mail (Outlook M7 + Gmail)](#10-e-mail-outlook-m7--gmail)
 - [Protocolo de fallback](#protocolo-de-fallback)
 - [Rastreabilidade de metricas](#rastreabilidade-de-metricas)
 - [Schema da extracao](#schema-da-extracao)
@@ -30,6 +33,9 @@ A primeira passada da skill e **levantamento** do que sera a proxima semana. Ant
 | Agenda (5 dias) | Google Calendar + Outlook M7 | `mcp__claude_ai_Google_Calendar__list_events` · *Outlook sem MCP* | Pedir print ou lista |
 | Tarefas da semana | ClickUp (due <= sex, assignee=Bruno) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir lista |
 | **Workspace M7** | ClickUp (statuses=[atrasada, bloqueada] workspace inteiro) | `mcp__claude_ai_ClickUp__clickup_filter_tasks` | Pedir resumo por frente |
+| **Fireflies** | action items / decisões / follow-ups das últimas reuniões | `mcp__claude_ai_Fireflies__fireflies_get_transcripts` + `fireflies_get_summary` | Perguntar se alguma reunião recente gerou pendência |
+| **Slack** | compromissos / pedidos / threads a acompanhar (conversas recentes) | `mcp__claude_ai_Slack__slack_search_public_and_private` · `slack_read_channel` | Perguntar se há compromisso no Slack fora do ClickUp |
+| **E-mail** (Outlook M7 + Gmail) | pendências de resposta / pedidos / compromissos | `mcp__claude_ai_Microsoft_365__outlook_email_search` · `mcp__claude_ai_Gmail__search_threads` | Pedir lista/print dos e-mails pendentes |
 | **Corpo · semana** *(opcional — discutido, nao persistido na v1 enxuta)* | **TrainingPeaks MCP** (v1.5.0+) | `tp-mcp` (weight, sleep, HRV, weekly_summary, fitness_metrics) | Perguntar se MCP falhar |
 | **Metas Q2** *(opcional — discutido, nao persistido na v1 enxuta)* | ClickUp goals → `brain/3-resources/` → perguntar | `mcp__claude_ai_ClickUp__clickup_get_workspace_hierarchy` + `clickup_search` | Perguntar confidence por objetivo |
 | **Retrospectiva S-1** | destravou/travou/aprendi + seeds da S-1 | `bc-planning_` → `weekly_reviews` (ler primeiro) | perguntar, ou rodar o modo REVIEW da S-1 |
@@ -460,6 +466,30 @@ Se qualquer input esta incompleto quando o agente e invocado, o agente pede o da
 
 Nao ha fallback. Ver [insight-cruzamento.md](insight-cruzamento.md) para regras de formato do output e racional de commitment editorial.
 
+## 8. Fireflies — transcrições de reuniões
+
+> Action items, decisões e follow-ups das **reuniões recentes** que a agenda/ClickUp não capturam.
+
+- **MCP:** `mcp__claude_ai_Fireflies__fireflies_get_transcripts` (últimas reuniões; janela ~desde a semana anterior / 7–10 dias) → `fireflies_get_summary` (overview + **action items** + keywords) por reunião relevante; `fireflies_get_transcript` se precisar do detalhe; `fireflies_search` por tópico.
+- **Extrair:** action items do Bruno (ou que ele toca), decisões que viram tarefa, follow-ups prometidos → candidatos a **tarefa** (`src: "FF"`), risco ou foco.
+- **Não duplicar** com tarefas já no ClickUp. **Fallback:** perguntar "alguma reunião recente gerou pendência?".
+
+## 9. Slack — conversas recentes
+
+> Compromissos, pedidos e threads a acompanhar que ficaram no chat.
+
+- **MCP:** `mcp__claude_ai_Slack__slack_search_public_and_private` (mensagens recentes que mencionam o Bruno / pedidos / decisões), `slack_read_channel` (canais-chave), `slack_read_thread` (threads abertas); `slack_search_channels` para localizar o canal.
+- **Extrair:** algo que o Bruno se comprometeu a fazer/responder, pedidos direcionados a ele, threads que exigem follow-up → **tarefa** (`src: "SL"`) ou risco.
+- Janela ~7 dias. **Não duplicar** com ClickUp/Fireflies. **Fallback:** "tem compromisso no Slack que ainda não está no ClickUp?".
+
+## 10. E-mail (Outlook M7 + Gmail)
+
+> Pendências de resposta, pedidos e compromissos parados na caixa de entrada.
+
+- **MCP:** Outlook (M7) via `mcp__claude_ai_Microsoft_365__outlook_email_search`; pessoal via `mcp__claude_ai_Gmail__search_threads` (+ `get_thread`). Buscar não-lidos / sinalizados / dos últimos ~7 dias que pedem ação.
+- **Extrair:** e-mails que exigem resposta ou decisão, pedidos com prazo → **tarefa** (`src: "EM"` Outlook, `src: "GM"` Gmail) ou risco. Distinguir M7 (profissional) de pessoal.
+- **Não duplicar** com o resto. **Fallback:** pedir lista/print dos e-mails pendentes.
+
 ## Protocolo de fallback
 
 Regras gerais quando um MCP falha ou retorna vazio:
@@ -603,6 +633,19 @@ tarefas:
       data: "2026-04-24"
       task: "Apresentacao diretoria"
       sla: "10h"
+
+comunicacoes:              # Fireflies / Slack / e-mail → viram tarefas (src FF/SL/EM/GM), sem duplicar ClickUp
+  fireflies:
+    - reuniao: "Comite CRM"
+      data: "2026-04-15"
+      action_items: ["Bruno: enviar modelo de dados ate qui"]
+  slack:
+    - canal: "#squad-produto"
+      item: "Bruno prometeu revisar a thread de pricing"
+  email:
+    - origem: outlook       # outlook (M7) | gmail (pessoal)
+      assunto: "Aprovacao orcamento Q3"
+      acao: "responder ate terca"
 
 workspace_m7:
   escopo: "statuses=[atrasada, bloqueada] no workspace inteiro, due_lt=sex_semana"

@@ -2,6 +2,23 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [4.1.0] - 2026-06-15
+
+### Added · Mais fontes no mapeamento (Fireflies, Slack, E-mail)
+
+A `planning-the-week` passava só por Google Calendar + ClickUp; agora varre também:
+
+- **Fireflies** — transcrições/resumos das últimas reuniões (action items, decisões,
+  follow-ups) via `fireflies_get_transcripts` + `fireflies_get_summary`.
+- **Slack** — conversas recentes (compromissos, pedidos, threads) via
+  `slack_search_public_and_private` / `slack_read_channel`.
+- **E-mail** — Outlook M7 (`outlook_email_search`) + Gmail (`search_threads`):
+  pendências de resposta, pedidos, compromissos.
+
+Cada item vira candidato a tarefa (`src` FF/SL/EM/GM), risco ou foco, **sem duplicar** o
+ClickUp. Atualizados: `SKILL.md` (passo 2), `references/extracao-dados.md`
+(matriz de fontes / TOC / seções 8–10 + bloco `comunicacoes` no schema) e `README.md`.
+
 ## [4.0.1] - 2026-06-15
 
 ### Fixed · Retrospectiva da S-1 lida do Supabase (antes era sempre perguntada)
