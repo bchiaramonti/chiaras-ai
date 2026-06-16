@@ -19,7 +19,7 @@ writing-week-to-supabase (skill, grava) ──▶ Supabase (bc-planning, via MCP
 
 | Item | Papel |
 |---|---|
-| `planning-the-week` (skill) | **Pensar.** Mapeia fontes, conduz o planejamento/review em diálogo (8 regras), aciona o Pfeffer e emite o objeto canônico (forma enxuta). Não grava, não renderiza. |
+| `planning-the-week` (skill) | **Pensar.** Mapeia fontes, conduz o planejamento/review em diálogo (8 regras), aciona o Pfeffer e emite o objeto canônico (forma enxuta). No **modo review**, lê primeiro **todos os `daily_reviews` da semana** e deriva deles wins/frictions/learning/delivered/seeds. Não grava, não renderiza. |
 | `writing-week-to-supabase` (skill) | **Persistir.** Upsert idempotente no Supabase (`bc-planning`) via MCP `bc-planning_`. Modos `plano`, `review`, `day` e `daily-review`. |
 | `daily-review` (skill) | **Fechar o dia.** Lê o dia (plano + `done` + `journal_raw` do dono), relê as fontes, reconcilia feito×aberto, reescreve o `journal` e replaneja o dia seguinte. |
 | `pfeffer-power-analyst` (agente) | Fonte única do Insight · cruzamento (2 capítulos do POWER, Pfeffer). |

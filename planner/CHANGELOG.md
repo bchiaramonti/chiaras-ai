@@ -2,6 +2,24 @@
 
 All notable changes to the Planner plugin will be documented in this file.
 
+## [4.3.0] - 2026-06-16
+
+### Changed · Weekly review agrega os daily reviews da semana
+
+Fecha o loop diário → semanal. O modo **review** da `planning-the-week` deixa de fazer uma
+retrospectiva "do zero" (perguntando ao Bruno) e passa a **ler primeiro todos os
+`daily_reviews` da semana** no Supabase (via `bc-planning_`): `journal`, `done_summary`,
+`open_items` por dia, mais a contagem real de `tasks.done` (`feitas`/`total`).
+
+- `wins`/`frictions`/`learning` são **derivados** dos dailies (não re-perguntados); ao Bruno
+  só se pergunta o **gap** (dias sem journal).
+- `delivered[]` e `stats[]` saem de `tasks.done` × planejado (ex.: `Entregue` = Σ
+  `feitas`/`total` da semana) — números reais, não estimados.
+- `seeds[]` = `open_items` recorrentes que ficaram para a próxima semana.
+
+Sem mudança de schema (consome o que a Fase 2 já grava). O Insight (`pfeffer-power-analyst`,
+horizonte=weekly) continua alimentando `learning`.
+
 ## [4.2.0] - 2026-06-16
 
 ### Added · Camada diária — skill `daily-review` + modos de escrita do dia

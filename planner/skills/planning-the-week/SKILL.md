@@ -56,13 +56,29 @@ texto depois. A companheira **conversa e ajusta** — não despeja um plano pron
    passando o objeto. Reportar o link do front (`https://bc-planning.vercel.app`).
 
 ### Modo REVIEW (fim da semana)
-1. **Retrospectiva** — perguntar ao Bruno: o que **destravou** (vitórias), o que
-   **travou** (atritos), o que **aprendi** (lição + ref, ex.: capítulo POWER).
-2. **Planejado × entregue** — cruzar o plano da semana (no Supabase / ClickUp) e montar
-   `delivered[]` (`{title, status: Feito|Parcial|Movido}`) e `stats[]`
-   (`{k, v, color}` — ex.: Entregue 11/13, Reuniões, Foco protegido).
-3. **Sementes** — `seeds[]` (itens que migram para a próxima semana).
-4. **Emitir + confirmar** — montar o **objeto canônico (review)** e invocar
+1. **Ler os `daily_reviews` da semana — PRIMEIRO, NÃO PERGUNTAR.** Via o MCP
+   `bc-planning_` (`execute_sql`), puxar do dono os 5 dias com o review de cada um:
+   ```sql
+   select d.name, d.entrega, dr.journal, dr.done_summary, dr.open_items,
+          (select count(*) from public.tasks t where t.day_id = d.id) total,
+          (select count(*) from public.tasks t where t.day_id = d.id and t.done) feitas
+   from public.days d
+     left join public.daily_reviews dr on dr.day_id = d.id
+     join public.weeks w on w.id = d.week_id
+   where w.user_id = (select id from auth.users where email = 'bchiaramonti@gmail.com')
+     and w.year = {YEAR} and w.week_num = {WEEK_NUM}
+   order by d.order_index;
+   ```
+   Esses dailies (`journal`/`done_summary`/`open_items` + `feitas`/`total`) são a
+   **matéria-prima factual** do weekly review — o que realmente aconteceu dia a dia.
+2. **Destravou / travou / aprendi — DERIVAR dos dailies** (não re-perguntar o que já está
+   no banco): `wins` dos `done_summary`/journals; `frictions` dos `open_items`/atritos;
+   `learning` do padrão da semana. Só perguntar ao Bruno o **gap** (dias sem journal).
+3. **Planejado × entregue** — `delivered[]` (`{title, status: Feito|Parcial|Movido}`) a
+   partir de `tasks.done` × planejado; `stats[]` reais (ex.: `Entregue` = Σ `feitas`/`total`).
+4. **Sementes** — `seeds[]` = `open_items` recorrentes / que ficaram para a próxima semana.
+5. **Insight** — despachar o `pfeffer-power-analyst` (horizonte=weekly) → `learning` (+ ref).
+6. **Emitir + confirmar** — montar o **objeto canônico (review)** e invocar
    `writing-week-to-supabase` (modo review).
 
 ## Objeto canônico (contrato com a skill de escrita)
